@@ -1,0 +1,4 @@
+PublicDB.connect
+
+require_relative 'index_feed/public_index_feed_thread'
+PublicIndexFeedThread.start
