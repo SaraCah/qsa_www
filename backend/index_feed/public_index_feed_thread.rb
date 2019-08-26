@@ -432,15 +432,13 @@ class PublicIndexFeedThread
   end
 
   def published?(jsonmodel)
-    if jsonmodel['jsonmodel_type'] == 'archival_object'
+    if jsonmodel.has_key?('has_unpublished_ancestor')
       return false if jsonmodel['has_unpublished_ancestor']
     end
 
     if jsonmodel['jsonmodel_type'] == 'subject'
       return jsonmodel['is_linked_to_published_record']
     end
-
-    return false if jsonmodel['deaccessioned']
 
     jsonmodel['publish']
   end
