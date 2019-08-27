@@ -39,6 +39,10 @@ class PublicIndexerFeedProfile < IndexerFeedProfile
   end
 
   def record_deleted?(jsonmodel, sequel_record, mapped_record)
+    if sequel_record.class.model_scope(true) == :repository
+      return true if !repository_published?(sequel_record.repo_id)
+    end
+
     mapped_record.empty?
   end
 
@@ -69,4 +73,21 @@ class PublicIndexerFeedProfile < IndexerFeedProfile
     end
   end
 
+
+  private
+
+  def repository_published?(repo_id)
+    @repository_published_cache ||= {}
+
+    unless @repository_published_cache.has_key?(repo_id)
+      Repository
+        .filter(:id => repo_id)
+        .select(:id, :publish)
+        .each do |row|
+        @repository_published_cache[row[:id]] = row[:publish] == 1
+      end
+    end
+
+    @repository_published_cache.fetch(repo_id)
+  end
 end

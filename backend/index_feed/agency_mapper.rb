@@ -6,6 +6,10 @@ class AgencyMapper < AbstractMapper
     solr_doc
   end
 
+  def published?(jsonmodel)
+    super && jsonmodel['is_linked_to_published_record']
+  end
+
   def parse_whitelisted_json(obj, json)
     whitelisted = super
 
