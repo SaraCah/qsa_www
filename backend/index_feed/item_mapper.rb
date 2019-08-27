@@ -17,7 +17,7 @@ class ItemMapper < AbstractMapper
     whitelisted['parent'] = json.parent
     whitelisted['resource'] = json.resource
 
-    whitelisted['title'] = json.display_string
+    whitelisted['display_string'] = json.display_string
     whitelisted['description'] = json.description
     whitelisted['sensitivity_label'] = json.sensitivity_label
     whitelisted['agency_assigned_id'] = json.agency_assigned_id
