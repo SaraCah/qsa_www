@@ -20,15 +20,19 @@ class AgencyMapper < AbstractMapper
     whitelisted['names'] = parse_names(json.names)
     whitelisted['notes'] = parse_notes(json.notes)
     whitelisted['external_references'] = parse_external_references(json.external_references)
-    whitelisted['agent_relationships'] = parse_series_system_rlshps(json.series_system_agent_relationships)
-    whitelisted['function_relationships'] = parse_series_system_rlshps(json.series_system_function_relationships)
-    whitelisted['mandate_relationships'] = parse_series_system_rlshps(json.series_system_mandate_relationships)
+    whitelisted['agent_relationships'] = parse_series_system_rlshps(json.series_system_agent_relationships, ['series_system_agent_agent_succession_relationship', 'series_system_agent_agent_containment_relationship', 'series_system_agent_agent_ownership_relationship', 'series_system_agent_agent_association_relationship'])
+    whitelisted['function_relationships'] = parse_series_system_rlshps(json.series_system_function_relationships, ['series_system_agent_function_administers_relationship'])
+    whitelisted['mandate_relationships'] = parse_series_system_rlshps(json.series_system_mandate_relationships, ['series_system_agent_mandate_administers_relationship'])
 
     whitelisted
   end
 
   def parse_external_references(references)
-    references.map{|ref| ref['publish']}
+    references.select{|ref| ref['publish']}
+  end
+
+  def parse_notes(notes)
+    super.select{|note| note['jsonmodel_type'] == 'note_bioghist' }
   end
 
   def parse_names(names)

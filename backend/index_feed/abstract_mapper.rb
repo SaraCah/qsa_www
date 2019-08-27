@@ -97,8 +97,10 @@ class AbstractMapper
     end
   end
 
-  def parse_series_system_rlshps(rlshps)
+  def parse_series_system_rlshps(rlshps, filter_by_type = nil)
     rlshps.map do |rlshp|
+      next if filter_by_type && !ASUtils.wrap(filter_by_type).include?(rlshp['jsonmodel_type'])
+
       {
         'jsonmodel_type' => rlshp['jsonmodel_type'],
         'relationship_target_record_type' => rlshp['relationship_target_record_type'],
@@ -107,7 +109,7 @@ class AbstractMapper
         'start_date' => rlshp['start_date'],
         'end_date' => rlshp['end_date'],
       }
-    end
+    end.compact
   end
 
   def base_solr_doc(obj, jsonmodel)

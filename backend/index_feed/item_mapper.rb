@@ -31,7 +31,9 @@ class ItemMapper < AbstractMapper
 
     whitelisted['external_documents'] = parse_external_documents(json.external_documents)
 
-    whitelisted['agent_relationships'] = parse_series_system_rlshps(parse_agent_rlshps(json.series_system_agent_relationships))
+    whitelisted['agent_relationships'] = parse_series_system_rlshps(json.series_system_agent_relationships)
+    whitelisted['responsible_agency'] = json.responsible_agency
+    whitelisted['creating_agency'] = json.creating_agency
 
     whitelisted['rap_applied'] = parse_rap(json.rap_applied)
 
