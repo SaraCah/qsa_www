@@ -16,20 +16,20 @@ class SeriesMapper < AbstractMapper
 
     whitelisted['title'] = json.title
     whitelisted['sensitivity_label'] = json.sensitivity_label
-    whitelisted['dates'] = json.dates
+    whitelisted['dates'] = parse_dates(json.dates)
+    whitelisted['subjects'] = parse_subjects(json.subjects)
     whitelisted['notes'] = parse_notes(json.notes)
     whitelisted['series_relationships'] = json.series_system_series_relationships
     whitelisted['agent_relationships'] = parse_series_system_rlshps(parse_agent_rlshps(json.series_system_agent_relationships))
     whitelisted['mandate_relationships'] = parse_series_system_rlshps(json.series_system_mandate_relationships)
     whitelisted['function_relationships'] = parse_series_system_rlshps(json.series_system_function_relationships)
-    whitelisted['function_relationships'] = parse_series_system_rlshps(json.series_system_function_relationships)
-    whitelisted['rap_attached'] = json.rap_attached
+    whitelisted['rap_attached'] = parse_rap(json.rap_attached)
 
     whitelisted
   end
 
-  def parse_notes(notes_json)
-    notes_json.select{|note| note['publish'] && supported_note?(note)}
+  def parse_notes(notes)
+    super.select{|note| supported_note?(note)}
   end
 
   def supported_note?(note_json)
@@ -47,26 +47,4 @@ class SeriesMapper < AbstractMapper
     return false
   end
 
-  def parse_agent_rlshps(rlshps)
-    rlshps.select do |rlshp|
-      if rlshp['jsonmodel_type'] == 'series_system_agent_record_ownership_relationship'
-        rlshp['end_date'].nil?
-      else
-        rlshp['jsonmodel_type'] == 'series_system_agent_record_creation_relationship'
-      end
-    end
-  end
-
-  def parse_series_system_rlshps(rlshps)
-    rlshps.map do |rlshp|
-      {
-        'jsonmodel_type' => rlshp['jsonmodel_type'],
-        'relationship_target_record_type' => rlshp['relationship_target_record_type'],
-        'ref' => rlshp['ref'],
-        'relator' => rlshp['relator'],
-        'start_date' => rlshp['start_date'],
-        'end_date' => rlshp['end_date'],
-      }
-    end
-  end
 end

@@ -63,6 +63,53 @@ class AbstractMapper
     []
   end
 
+  def parse_rap(rap)
+    rap
+  end
+
+  def parse_notes(notes)
+    notes.select{|note| note['publish']}
+  end
+
+  def parse_external_documents(docs)
+    docs.select{|doc| doc['publish']}
+  end
+
+  def parse_dates(dates)
+    dates
+  end
+
+  def parse_external_ids(external_ids)
+    external_ids
+  end
+
+  def parse_subjects(subjects)
+    subjects
+  end
+
+  def parse_agent_rlshps(rlshps)
+    rlshps.select do |rlshp|
+      if rlshp['jsonmodel_type'] == 'series_system_agent_record_ownership_relationship'
+        rlshp['end_date'].nil?
+      else
+        rlshp['jsonmodel_type'] == 'series_system_agent_record_creation_relationship'
+      end
+    end
+  end
+
+  def parse_series_system_rlshps(rlshps)
+    rlshps.map do |rlshp|
+      {
+        'jsonmodel_type' => rlshp['jsonmodel_type'],
+        'relationship_target_record_type' => rlshp['relationship_target_record_type'],
+        'ref' => rlshp['ref'],
+        'relator' => rlshp['relator'],
+        'start_date' => rlshp['start_date'],
+        'end_date' => rlshp['end_date'],
+      }
+    end
+  end
+
   def base_solr_doc(obj, jsonmodel)
     {
       'id' => parse_solr_id(jsonmodel),
