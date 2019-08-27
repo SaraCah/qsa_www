@@ -84,7 +84,11 @@ class AbstractMapper
   end
 
   def parse_subjects(subjects)
-    subjects
+    subjects.map do |subject|
+      {
+        'ref' => subject['ref'],
+      }
+    end
   end
 
   def parse_agent_rlshps(rlshps)
