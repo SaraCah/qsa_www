@@ -72,8 +72,7 @@ class AbstractMapper
       'title' => parse_title(jsonmodel),
       'qsa_id' => parse_qsa_id(jsonmodel),
       'qsa_id_prefixed' => parse_qsa_id_prefixed(jsonmodel),
-      'qsaid_sort' => parse_qsa_id_sort(jsonmodel),
-      'json' => (whitelisted = parse_whitelisted_json(obj, jsonmodel)),
+      'json' => ASUtils.to_json(whitelisted = parse_whitelisted_json(obj, jsonmodel)),
       'keywords' => parse_keywords(whitelisted),
     }
   end
