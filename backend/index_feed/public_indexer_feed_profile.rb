@@ -18,6 +18,8 @@ class PublicIndexerFeedProfile < IndexerFeedProfile
       AgentCorporateEntity,
       DigitalRepresentation,
       PhysicalRepresentation,
+      Mandate,
+      Function,
       Subject,
     ]
   end
