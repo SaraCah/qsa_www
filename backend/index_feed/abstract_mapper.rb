@@ -8,7 +8,7 @@ class AbstractMapper
   def each
     @sequel_records.zip(@jsonmodels).each do |obj, json|
       if published?(json)
-        yield(map_record(obj, json, base_solr_doc(json)))
+        yield(map_record(obj, json, base_solr_doc(obj, json)))
       else
         yield({})
       end
@@ -55,7 +55,15 @@ class AbstractMapper
     [parse_primary_type(jsonmodel)]
   end
 
-  def base_solr_doc(jsonmodel)
+  def parse_whitelisted_json(obj, json)
+    {}
+  end
+
+  def parse_keywords(whitelisted)
+    []
+  end
+
+  def base_solr_doc(obj, jsonmodel)
     {
       'id' => parse_solr_id(jsonmodel),
       'uri' => jsonmodel['uri'],
@@ -65,6 +73,8 @@ class AbstractMapper
       'qsa_id' => parse_qsa_id(jsonmodel),
       'qsa_id_prefixed' => parse_qsa_id_prefixed(jsonmodel),
       'qsaid_sort' => parse_qsa_id_sort(jsonmodel),
+      'json' => (whitelisted = parse_whitelisted_json(obj, jsonmodel)),
+      'keywords' => parse_keywords(whitelisted),
     }
   end
 
