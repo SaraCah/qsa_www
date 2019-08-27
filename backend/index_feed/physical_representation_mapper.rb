@@ -6,4 +6,12 @@ class PhysicalRepresentationMapper < RepresentationMapper
     super
   end
 
+  def parse_whitelisted_json(obj, json)
+    whitelisted = super
+
+    whitelisted['format'] = json.format
+
+    whitelisted
+  end
+
 end
