@@ -1,239 +1,51 @@
-require 'pp'
-require 'zlib'
-require_relative 'indexer_state'
-
-# Previously we were using a regular ArchivesSpace indexer to read
-# records from the ArchivesSpace backend and POST them to Public's Solr
-# instance.  This won't work in production because we'll have N
-# ArchivesSpace instances and M Public instances and we don't want every
-# ArchivesSpace instance to have to know about every Public instance's
-# Solr.
-#
-# This indexer is much like the ArchivesSpace periodic indexer (in that
-# it wakes up periodically, figures out what's new, pulls out the
-# records and Publics them), but it writes to a table in the Public database
-# instead of directly to Solr.  That way, Public instances can consume a
-# stream of record updates from this new table to bring themselves
-# up-to-date.
-#
-# Mapping records to Solr documents is done here, rather than on the Public
-# side, because it seems likely that it'll be easier to schedule a
-# restart of ArchivesSpace due to changed indexing rules than to take
-# down the Public.  Also, since the Solr documents are quite a bit smaller
-# than the JSONModel objects they're derived from, it saves on storage.
-
-class PublicIndexFeedThread
-
-  INDEX_BATCH_SIZE = 25
-
-  MTIME_WINDOW_SECONDS = 30
-
-  RECORD_TYPES = [
-    Resource,
-    ArchivalObject,
-    AgentCorporateEntity,
-    DigitalRepresentation,
-    PhysicalRepresentation,
-    Subject,
-  ]
+class PublicIndexerFeedProfile < IndexerFeedProfile
 
   REPRESENTATION_TYPES = ['physical_representation', 'digital_representation']
 
-
-  def initialize
-    @state = IndexState.new("indexer_plugin_qsa_public_state")
+  def models_to_index
+    [
+      Resource,
+      ArchivalObject,
+      AgentCorporateEntity,
+      DigitalRepresentation,
+      PhysicalRepresentation,
+      Subject,
+    ]
   end
 
-  def call
-    loop do
-      begin
-        run_index_round_with_backoff
-      rescue
-        Log.error("Error from index_feed_thread: #{$!}")
-        Log.exception($!)
-      end
-
-      if AppConfig.has_key?(:qsa_public_index_feed_interval_seconds)
-        sleep AppConfig[:qsa_public_index_feed_interval_seconds]
-      else
-        sleep 5
-      end
+  def indexing_interval_seconds
+    if AppConfig.has_key?(:qsa_public_index_feed_interval_seconds)
+      sleep AppConfig[:qsa_public_index_feed_interval_seconds]
+    else
+      sleep 5
     end
   end
 
-  def run_index_round_with_backoff
-    begin
-      # Improve our chances of indexers across multiple machines not running in
-      # lockstep.  Not that it really matters, but just saves wasted effort.
-      sleep (rand * 5)
-      run_index_round
-    rescue Sequel::DatabaseError => e
-      if (e.wrapped_exception && ( e.wrapped_exception.cause or e.wrapped_exception).getSQLState() =~ /^23/)
-        # Constraint violations (23*) are expected if we insert a record into
-        # the feed at the same time as another node does.  We'll let these roll
-        # back the transaction and try again later.
-        if ArchivesSpaceService.development?
-          Log.info("Exception caught and silently skipped: #{e}")
-          Log.exception(e)
-        end
-      else
-        # Something more serious went wrong?
-        raise e
-      end
+  def db_open(*opts, &block)
+    PublicDB.open do |db|
+      block.call(db)
     end
   end
 
-  def run_index_round
-    # Set the isolation level to READ_COMMITTED so we observe the effects of
-    # other concurrent indexer threads (on other machines)
-    Repository.each do |repo|
-      RECORD_TYPES.each do |record_type|
-        now = Time.now
-        record_type_name = record_type.name.downcase
-        records_added = 0
-
-        PublicDB.open(true, :isolation_level => :committed) do |publicdb|
-          last_index_epoch = [(@state.get_last_mtime(repo.id, record_type_name) - MTIME_WINDOW_SECONDS), 0].max
-          last_index_time = Time.at(last_index_epoch)
-
-          if last_index_epoch == 0
-            # This is a reindex.  We'll do what you'd expect and clear all
-            # existing records.  New record will get assigned higher
-            # auto-incrementing IDs and the QSA Public will see those as new records
-            # and index them again.
-            publicdb[:index_feed].filter(:repo_id => repo.id, :record_type => record_type.my_jsonmodel.record_type).delete
-          end
-
-          did_something = false
-
-          RequestContext.open(:repo_id => repo.id) do
-            record_type
-              .this_repo 
-              .filter { system_mtime > last_index_time }
-              .select(:id, :system_mtime).each_slice(INDEX_BATCH_SIZE) do |id_set|
-              start_time = Time.now
-
-              # Other nodes might have got in first on some of these records.
-              # And, actually, because we use MTIME_WINDOW_SECONDS to overlap
-              # our mtime checks, we might have indexed some of them on a
-              # previous run too.  In any case, skip over them.
-              uri_set = id_set.map {|row| record_type.uri_for(record_type.my_jsonmodel.record_type, row.id)}
-
-              already_indexed = publicdb[:index_feed].filter(:record_uri => uri_set)
-                                  .select(:record_id, :system_mtime)
-                                  .map {|row| [row[:record_id], row[:system_mtime]]}
-                                  .to_h
-
-              id_set.reject! {|row| already_indexed[row[:id]] && already_indexed[row[:id]] >= row[:system_mtime].to_i}
-
-              if id_set.empty?
-                # All records got filtered out, so there's nothing to do.
-                next
-              end
-
-              records = record_type.filter(:id => id_set.map(&:id)).all
-
-              if records.empty?
-                # Shouldn't happen unless things are being deleted out from
-                # under us.  But we trust nobody.
-                next
-              end
-
-              # Delete old versions of the records we're about to index
-              records.each do |record|
-                publicdb[:index_feed_deletes].filter(:record_uri => record.uri).delete
-                publicdb[:index_feed]
-                  .filter(:record_uri => record.uri)
-                  .filter { system_mtime < record.system_mtime.to_i }
-                  .delete
-              end
-
-              jsonmodels = record_type.sequel_to_jsonmodel(records)
-              jsonmodels.zip(records, map_records(records, jsonmodels)).each do |jsonmodel, sequel_record, mapped|
-                if !published?(jsonmodel)
-                  begin
-                    publicdb[:index_feed_deletes].insert(:record_uri => jsonmodel.uri)
-                  rescue Sequel::DatabaseError => e
-                    if (e.wrapped_exception && ( e.wrapped_exception.cause or e.wrapped_exception).getSQLState() =~ /^23/)
-                      # Constraint violation.  Not a problem.
-                    else
-                      raise e
-                    end
-                  end
-                else
-                  publicdb[:index_feed].insert(:record_type => jsonmodel.jsonmodel_type,
-                                            :record_uri => jsonmodel.uri,
-                                            :repo_id => repo.id,
-                                            :record_id => sequel_record.id,
-                                            :system_mtime => sequel_record.system_mtime.to_i,
-                                            :blob => Sequel::SQL::Blob.new(gzip(mapped.to_json)))
-                end
-
-                did_something = true
-              end
-
-              end_time = Time.now
-
-              Log.info("Indexed %d records in %dms (records/second: %.2f)" % [
-                         records.count,
-                         ((end_time.to_f - start_time.to_f) * 1000).to_i,
-                         (records.count / (end_time.to_f - start_time.to_f))
-                       ])
-
-              records_added += records.count
-            end
-          end
-        end
-
-
-        if records_added > 0
-          Log.info("Added #{records_added} #{record_type} records to QSA Public index feed")
-        end
-
-        @state.set_last_mtime(repo.id, record_type_name, now)
-      end
-    end
-
-    handle_deletes
+  def record_deleted?(jsonmodel, sequel_record, mapped_record)
+    !published?(jsonmodel)
   end
 
-
-  def self.start
-    Thread.new do
-      PublicIndexFeedThread.new.call
-    end
-  end
-
-
-  private
-
-  def handle_deletes
-    start = Time.now
-
-    last_mtime = @state.get_last_mtime('_deletes', 'deletes')
-    last_delete_epoch = [(@state.get_last_mtime('_deletes', 'deletes') - MTIME_WINDOW_SECONDS), 0].max
-    last_delete_time = Time.at(last_delete_epoch)
-
-    did_something = false
-
-    # Using autocommit here since we can happily skip over failed inserts where
-    # someone else got in first.
-    PublicDB.open(false, :isolation_level => :committed) do |publicdb|
-      Tombstone.filter { timestamp >= last_delete_time }.each do |row|
-        begin
-          publicdb[:index_feed_deletes].insert(:record_uri => row[:uri])
-        rescue Sequel::DatabaseError => e
-          if (e.wrapped_exception && ( e.wrapped_exception.cause or e.wrapped_exception).getSQLState() =~ /^23/)
-            # Constraint violation.  Not a problem.
-          else
-            raise e
-          end
-        end
-      end
+  def published?(jsonmodel)
+    if jsonmodel.has_key?('has_unpublished_ancestor')
+      return false if jsonmodel['has_unpublished_ancestor']
     end
 
-    @state.set_last_mtime('_deletes', 'deletes', start)
+    if jsonmodel['jsonmodel_type'] == 'subject'
+      return jsonmodel['is_linked_to_published_record']
+    end
+
+    jsonmodel['publish']
   end
+
+  ## NOTE: All of the following is lifted straight from the MAP indexer.  Do we
+  ## need it all?  We might eventually want to pull the commonality into a
+  ## shared profile in qsa_kitchensink.
 
   # Load extra information about the representations in `jsonmodels`
   def load_representation_metadata(sequel_records, jsonmodels)
@@ -431,18 +243,6 @@ class PublicIndexFeedThread
     result
   end
 
-  def published?(jsonmodel)
-    if jsonmodel.has_key?('has_unpublished_ancestor')
-      return false if jsonmodel['has_unpublished_ancestor']
-    end
-
-    if jsonmodel['jsonmodel_type'] == 'subject'
-      return jsonmodel['is_linked_to_published_record']
-    end
-
-    jsonmodel['publish']
-  end
-
   # Map our jsonmodel into something ready for Solr.  All records in the list
   # are guaranteed to be the same type and the list is guaranteed not to be
   # empty.
@@ -557,8 +357,6 @@ class PublicIndexFeedThread
         solr_doc['title_sort'] = solr_doc['title'].downcase
       end
 
-      Log.debug("Generated QSA Public Solr doc:\n#{solr_doc.pretty_inspect}\n")
-
       result << solr_doc
     end
 
@@ -593,10 +391,6 @@ class PublicIndexFeedThread
       pad = s[0] =~ /^[0-9]/ ? '0' : '!'
       sprintf('%10s', s).gsub(' ', pad)
     }.join('')
-  end
-
-  def gzip(bytestring)
-    Zlib::Deflate.deflate(bytestring)
   end
 
 end
