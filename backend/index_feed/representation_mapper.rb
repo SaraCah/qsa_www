@@ -23,6 +23,7 @@ class RepresentationMapper < AbstractMapper
     whitelisted['controlling_record'] = json.controlling_record
 
     whitelisted['display_string'] = json.display_string
+    whitelisted['title'] = json.title
     whitelisted['description'] = json.description
     whitelisted['agency_assigned_id'] = json.agency_assigned_id
     whitelisted['external_ids'] = parse_external_ids(json.external_ids)

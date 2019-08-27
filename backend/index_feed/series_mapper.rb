@@ -15,6 +15,7 @@ class SeriesMapper < AbstractMapper
     whitelisted['qsa_id_prefixed'] = json.qsa_id_prefixed
 
     whitelisted['display_string'] = json.title
+    whitelisted['title'] = json.title
     whitelisted['sensitivity_label'] = json.sensitivity_label
     whitelisted['dates'] = parse_dates(json.dates)
     whitelisted['subjects'] = parse_subjects(json.subjects)
