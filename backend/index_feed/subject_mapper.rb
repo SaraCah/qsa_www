@@ -16,8 +16,6 @@ class SubjectMapper < AbstractMapper
   def parse_whitelisted_json(obj, json)
     whitelisted = super
 
-    whitelisted['id'] = obj.id
-    whitelisted['uri'] = json.uri
     whitelisted['display_string'] = json.title
     whitelisted['source'] = json.source
     whitelisted['scope_note'] = json.scope_note

@@ -3,19 +3,27 @@ require_relative 'abstract_mapper'
 class ItemMapper < AbstractMapper
 
   def map_record(obj, json, solr_doc)
+    if json.parent
+      id = JSONModel::JSONModel(:archival_object).id_for(json.parent.fetch('ref'))
+      solr_doc['parent_id'] = "archival_object:#{id}"
+    else
+      id = JSONModel::JSONModel(:resource).id_for(json.resource.fetch('ref'))
+      solr_doc['parent_id'] = "resource:#{id}"
+    end
+    solr_doc['position'] = json.position
     solr_doc
   end
 
   def parse_whitelisted_json(obj, json)
     whitelisted = super
 
-    whitelisted['id'] = obj.id
-    whitelisted['uri'] = json.uri
     whitelisted['qsa_id'] = json.qsa_id
     whitelisted['qsa_id_prefixed'] = json.qsa_id_prefixed
 
+    whitelisted['ancestors'] = json.ancestors
     whitelisted['parent'] = json.parent
     whitelisted['resource'] = json.resource
+    whitelisted['position'] = json.position
 
     whitelisted['display_string'] = json.display_string
     whitelisted['title'] = json.title

@@ -15,8 +15,6 @@ class RepresentationMapper < AbstractMapper
   def parse_whitelisted_json(obj, json)
     whitelisted = super
 
-    whitelisted['id'] = obj.id
-    whitelisted['uri'] = json.uri
     whitelisted['qsa_id'] = json.qsa_id
     whitelisted['qsa_id_prefixed'] = json.qsa_id_prefixed
 

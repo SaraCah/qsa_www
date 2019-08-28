@@ -56,7 +56,11 @@ class AbstractMapper
   end
 
   def parse_whitelisted_json(obj, json)
-    {}
+    whitelisted = {}
+    whitelisted['id'] = parse_solr_id(json)
+    whitelisted['uri'] = json.uri
+    whitelisted['jsonmodel_type'] = json['jsonmodel_type']
+    whitelisted
   end
 
   def parse_keywords(whitelisted)
