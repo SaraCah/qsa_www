@@ -7,7 +7,10 @@ class AgencyMapper < AbstractMapper
   end
 
   def published?(jsonmodel)
-    super && jsonmodel['is_linked_to_published_record']
+    # super && jsonmodel['is_linked_to_published_record']
+    # FIXME I think we want all agencies to be available
+    # based on their publish flag??
+    super
   end
 
   def parse_whitelisted_json(obj, json)

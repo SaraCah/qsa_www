@@ -2,6 +2,27 @@ require_relative 'abstract_mapper'
 
 class ItemMapper < AbstractMapper
 
+  def initialize(sequel_records, jsonmodels)
+    super
+
+    @linked_agents_publish_map = build_linked_agents_publish_map
+  end
+
+  def published?(jsonmodel)
+    return false if jsonmodel['has_unpublished_ancestor']
+
+    super && agency_published?(jsonmodel['responsible_agency'])
+  end
+
+  def agency_published?(agency_ref)
+    if agency_ref && agency_ref['ref']
+      agency_id = JSONModel::JSONModel(:agent_corporate_entity).id_for(agency_ref['ref'])
+      return @linked_agents_publish_map.fetch(agency_id)
+    end
+
+    return false
+  end
+
   def map_record(obj, json, solr_doc)
     if json.parent
       id = JSONModel::JSONModel(:archival_object).id_for(json.parent.fetch('ref'))
@@ -12,12 +33,12 @@ class ItemMapper < AbstractMapper
     end
     solr_doc['position'] = json.position
 
-    if json.creating_agency
+    if agency_published?(json.creating_agency)
       agency_id = JSONModel::JSONModel(:agent_corporate_entity).id_for(json.creating_agency.fetch('ref'))
       solr_doc['creating_agency_id'] = "agent_corporate_entity:#{agency_id}"
     end
 
-    if json.responsible_agency
+    if agency_published?(json.responsible_agency)
       agency_id = JSONModel::JSONModel(:agent_corporate_entity).id_for(json.responsible_agency.fetch('ref'))
       solr_doc['responsible_agency_id'] = "agent_corporate_entity:#{agency_id}"
     end
@@ -70,9 +91,23 @@ class ItemMapper < AbstractMapper
     end
   end
 
-  def published?(jsonmodel)
-    return false if jsonmodel['has_unpublished_ancestor']
+  def build_linked_agents_publish_map
+    result = {}
+    agency_ids = []
+    @jsonmodels.each do |json|
+      agency_ids << JSONModel::JSONModel(:agent_corporate_entity).id_for(json['responsible_agency']['ref']) if json['responsible_agency']
+      agency_ids << JSONModel::JSONModel(:agent_corporate_entity).id_for(json['creating_agency']['ref']) if json['creating_agency']
+    end
 
-    super
+    DB.open do |db|
+      db[:agent_corporate_entity]
+        .filter(:id => agency_ids)
+        .select(:id, :publish)
+        .each do |row|
+        result[row[:id]] = row[:publish] == 1
+      end
+    end
+
+    result
   end
 end
