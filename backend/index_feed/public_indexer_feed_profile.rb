@@ -5,7 +5,6 @@ require_relative 'digital_representation_mapper'
 require_relative 'physical_representation_mapper'
 require_relative 'mandate_mapper'
 require_relative 'function_mapper'
-require_relative 'subject_mapper'
 
 class PublicIndexerFeedProfile < IndexerFeedProfile
 
@@ -20,7 +19,6 @@ class PublicIndexerFeedProfile < IndexerFeedProfile
       PhysicalRepresentation,
       Mandate,
       Function,
-      Subject,
     ]
   end
 
@@ -66,8 +64,6 @@ class PublicIndexerFeedProfile < IndexerFeedProfile
       MandateMapper.new(sequel_records, jsonmodels)
     elsif record_model == Function
       FunctionMapper.new(sequel_records, jsonmodels)
-    elsif record_model == Subject
-      SubjectMapper.new(sequel_records, jsonmodels)
     else
       raise "Record type not supported: #{record_model}"
     end
