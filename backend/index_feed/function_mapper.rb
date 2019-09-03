@@ -3,7 +3,7 @@ require_relative 'abstract_mapper'
 class FunctionMapper < AbstractMapper
 
   def map_record(obj, json, solr_doc)
-    solr_doc
+    super
   end
 
   def parse_whitelisted_json(obj, json)

@@ -24,6 +24,8 @@ class ItemMapper < AbstractMapper
   end
 
   def map_record(obj, json, solr_doc)
+    super
+
     if json.parent
       id = JSONModel::JSONModel(:archival_object).id_for(json.parent.fetch('ref'))
       solr_doc['parent_id'] = "archival_object:#{id}"

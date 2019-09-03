@@ -24,6 +24,8 @@ class RepresentationMapper < AbstractMapper
   end
 
   def map_record(obj, json, solr_doc)
+    super
+
     if agency_published?(json.responsible_agency)
       agency_id = JSONModel::JSONModel(:agent_corporate_entity).id_for(json.responsible_agency.fetch('ref'))
       solr_doc['responsible_agency_id'] = "agent_corporate_entity:#{agency_id}"

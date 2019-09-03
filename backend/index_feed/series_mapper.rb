@@ -22,6 +22,8 @@ class SeriesMapper < AbstractMapper
   end
 
   def map_record(obj, json, solr_doc)
+    super
+
     if agency_published?(json.creating_agency)
       agency_id = JSONModel::JSONModel(:agent_corporate_entity).id_for(json.creating_agency.fetch('ref'))
       solr_doc['creating_agency_id'] = "agent_corporate_entity:#{agency_id}"

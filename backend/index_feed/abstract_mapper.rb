@@ -1,14 +1,19 @@
 class AbstractMapper
 
+
   def initialize(sequel_records, jsonmodels)
     @sequel_records = sequel_records
     @jsonmodels = jsonmodels
+
+    @record_dates = calculate_dates(sequel_records)
   end
 
   def each
     @sequel_records.zip(@jsonmodels).each do |obj, json|
       if published?(json)
-        yield(map_record(obj, json, base_solr_doc(obj, json)))
+        result = map_record(obj, json, base_solr_doc(obj, json))
+        p result
+        yield(result)
       else
         yield({})
       end
@@ -16,7 +21,12 @@ class AbstractMapper
   end
 
   def map_record(obj, json, solr_doc)
-    raise "implement me"
+    if @record_dates.fetch(obj.id, false)
+      solr_doc['start_date'] = @record_dates.fetch(obj.id).start_date.strftime('%Y-%m-%dT%H:%M:%SZ')
+      solr_doc['end_date'] = @record_dates.fetch(obj.id).end_date.strftime('%Y-%m-%dT%H:%M:%SZ')
+    end
+
+    solr_doc
   end
 
   protected
@@ -134,6 +144,89 @@ class AbstractMapper
       'json' => ASUtils.to_json(whitelisted = parse_whitelisted_json(obj, jsonmodel)),
       'keywords' => parse_keywords(whitelisted),
     }
+  end
+
+  def calculate_dates(sequel_records)
+    return {} if sequel_records.empty?
+
+    result = sequel_records.map {|obj|
+      [obj.id, DateRange.new(DateRange::EPOCH_START_STRING, DateRange::EPOCH_END_STRING)]
+    }.to_h
+
+    if sequel_records.fetch(0).is_a?(AgentCorporateEntity)
+      # Agencies have dates directly attached.
+      ASDate.filter(:agent_corporate_entity_id => sequel_records.map(&:id))
+        .select(:agent_corporate_entity_id, :begin, :end)
+        .each do |date|
+        result[date[:agent_corporate_entity_id]] = result[date[:agent_corporate_entity_id]].parse_and_merge(date[:begin], date[:end])
+      end
+
+    elsif sequel_records.fetch(0).is_a?(Resource)
+      # Resources do too
+      ASDate.filter(:resource_id => sequel_records.map(&:id))
+        .select(:resource_id, :begin, :end)
+        .each do |date|
+        result[date[:resource_id]] = result[date[:resource_id]].parse_and_merge(date[:begin], date[:end])
+      end
+
+    elsif sequel_records.fetch(0).is_a?(PhysicalRepresentation) || sequel_records.fetch(0).is_a?(DigitalRepresentation)
+      # Representations don't have dates of their own, but they're connected to
+      # a record that does.  Or, at least, connected to a record who knows
+      # someone that does.
+      ao_dates = calculate_dates(ArchivalObject.filter(:id => sequel_records.map(&:archival_object_id)).all)
+
+      sequel_records.each do |representation|
+        result[representation.id] = ao_dates.fetch(representation.archival_object_id)
+      end
+
+    elsif sequel_records.fetch(0).is_a?(ArchivalObject)
+      # Archival Objects either have dates of their own, or inherit them from
+      # further up the tree.
+
+      # Map from ID to record
+      records_to_process = sequel_records.map {|r| [r.id, r]}.to_h
+
+      # Handle the records with date records attached
+      ASDate.filter(:archival_object_id => records_to_process.keys)
+        .select(:archival_object_id, :begin, :end)
+        .each do |date|
+        result[date[:archival_object_id]] = result[date[:archival_object_id]].parse_and_merge(date[:begin], date[:end])
+        records_to_process.delete(date[:archival_object_id])
+      end
+
+      # Handle records who inherit dates from their parent AO
+      parent_dates = calculate_dates(ArchivalObject.filter(:id => records_to_process.values.map {|r| r.parent_id}.compact).all)
+
+      # Handle top-level records who inherit dates from the series
+      series_dates = calculate_dates(Resource.filter(:id => records_to_process.values.map {|r| !r.parent_id && r.root_record_id}.compact).all)
+
+      records_to_process.values.each do |ao|
+        if ao.parent_id
+          result[ao.id] = parent_dates.fetch(ao.parent_id)
+        else
+          result[ao.id] = series_dates.fetch(ao.root_record_id)
+        end
+      end
+
+    elsif sequel_records.fetch(0).is_a?(Mandate)
+      ASDate.filter(:mandate_id => sequel_records.map(&:id))
+        .select(:mandate_id, :begin, :end)
+        .each do |date|
+        result[date[:mandate_id]] = result[date[:mandate_id]].parse_and_merge(date[:begin], date[:end])
+      end
+
+    elsif sequel_records.fetch(0).is_a?(Function)
+      ASDate.filter(:function_id => sequel_records.map(&:id))
+        .select(:function_id, :begin, :end)
+        .each do |date|
+        result[date[:function_id]] = result[date[:function_id]].parse_and_merge(date[:begin], date[:end])
+      end
+
+    else
+      Log.warn("No rule for extracting dates was provided for type: #{sequel_records.fetch(0).class}")
+    end
+
+    result
   end
 
 end
