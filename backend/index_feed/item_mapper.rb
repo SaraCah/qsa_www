@@ -45,6 +45,9 @@ class ItemMapper < AbstractMapper
       solr_doc['responsible_agency_id'] = "agent_corporate_entity:#{agency_id}"
     end
 
+    solr_doc['has_digital_representations'] = json.digital_representations_count > 0
+    solr_doc['has_physical_representations'] = json.physical_representations_count > 0
+
     solr_doc
   end
 
