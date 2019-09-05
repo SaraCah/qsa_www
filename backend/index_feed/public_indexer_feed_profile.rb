@@ -70,6 +70,10 @@ class PublicIndexerFeedProfile < IndexerFeedProfile
   end
 
 
+  def index_round_starting
+    @repository_published_cache = nil
+  end
+
   private
 
   def repository_published?(repo_id)
