@@ -1,4 +1,35 @@
+require 'set'
+
 class AbstractMapper
+
+  # These get dropped from our whitelisted JSON because they're not interesting
+  # to the public app and just add noise.
+  UNINTERESTING_PROPERTIES = Set.new([
+                                       'lock_version',
+                                       'user_mtime',
+                                       'system_mtime',
+                                       'created_by',
+                                       'last_modified_by',
+                                       'create_time',
+                                     ])
+
+  # These get dropped from keyword searches for the same reason.
+  UNINTERESTING_KEYWORD_PROPERTIES = Set.new([
+                                               'jsonmodel_type',
+                                               'ref',
+                                               'relationship_target_record_type',
+                                               'relator',
+                                               'id',
+                                               'uri',
+                                               'dates',
+                                               'dates_of_existence',
+                                               'start_date',
+                                               'end_date',
+                                               'level',
+                                               'external_ids',
+                                               'rap_applied',
+                                               'rap_attached',
+                                             ])
 
 
   def initialize(sequel_records, jsonmodels)
@@ -75,11 +106,25 @@ class AbstractMapper
     whitelisted['id'] = parse_solr_id(json)
     whitelisted['uri'] = json.uri
     whitelisted['jsonmodel_type'] = json['jsonmodel_type']
+
     whitelisted
   end
 
   def parse_keywords(whitelisted)
-    []
+    result = []
+
+    if whitelisted.is_a?(Hash)
+      whitelisted.each do |key, val|
+        next if UNINTERESTING_KEYWORD_PROPERTIES.include?(key)
+        result += parse_keywords(val)
+      end
+    elsif whitelisted.is_a?(Array)
+      result += whitelisted.map {|val| parse_keywords(val)}.flatten(1)
+    elsif whitelisted.is_a?(String)
+      result += [whitelisted]
+    end
+
+    result
   end
 
   def parse_rap(rap)
@@ -136,6 +181,9 @@ class AbstractMapper
   end
 
   def base_solr_doc(obj, jsonmodel)
+    whitelisted = parse_whitelisted_json(obj, jsonmodel)
+    drop_uninteresting_properties!(whitelisted)
+
     {
       'id' => parse_solr_id(jsonmodel),
       'uri' => jsonmodel['uri'],
@@ -146,9 +194,27 @@ class AbstractMapper
       'qsa_id' => parse_qsa_id(jsonmodel),
       'qsa_id_prefixed' => parse_qsa_id_prefixed(jsonmodel),
       'qsaid_sort' => parse_qsa_id_sort(jsonmodel),
-      'json' => ASUtils.to_json(whitelisted = parse_whitelisted_json(obj, jsonmodel)),
+      'json' => ASUtils.to_json(whitelisted),
       'keywords' => parse_keywords(whitelisted),
     }
+  end
+
+  def drop_uninteresting_properties!(tree)
+    if tree.is_a?(Hash)
+      tree.keys.each do |k|
+        if UNINTERESTING_PROPERTIES.include?(k)
+          tree.delete(k)
+        else
+          drop_uninteresting_properties!(tree[k])
+        end
+      end
+    elsif tree.is_a?(Array)
+      tree.each do |elt|
+        drop_uninteresting_properties!(elt)
+      end
+    else
+      # Cool
+    end
   end
 
   def calculate_dates(sequel_records)
