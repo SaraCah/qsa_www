@@ -82,18 +82,50 @@ class ItemMapper < AbstractMapper
 
     whitelisted['rap_applied'] = parse_rap(json.rap_applied)
 
-    whitelisted['digital_representations'] = parse_representations(json.digital_representations)
-    whitelisted['physical_representations'] = parse_representations(json.physical_representations)
+    whitelisted['digital_representations'] = parse_digital_representations(json.digital_representations)
+    whitelisted['digital_representations_count'] = json.digital_representations_count
+    whitelisted['physical_representations'] = parse_physical_representations(json.physical_representations)
+    whitelisted['physical_representations_count'] = json.physical_representations_count
 
     whitelisted
   end
 
-  def parse_representations(representations)
-    representations.map do |representation|
-      {
-        'ref' => representation['uri'],
-      }
+  def parse_digital_representations(representations)
+    representations.map do |json|
+      whitelisted = parse_representation(json)
+      whitelisted['file_size'] = json['file_size']
+      whitelisted['file_type'] = json['file_type']
+      whitelisted
     end
+  end
+
+  def parse_physical_representations(representations)
+    representations.map do |json|
+      whitelisted = parse_representation(json)
+      whitelisted['format'] = json['format']
+      whitelisted
+    end
+  end
+
+  def parse_representation(json)
+    whitelisted = {}
+
+    whitelisted['qsa_id'] = json['qsa_id']
+    whitelisted['qsa_id_prefixed'] = json['qsa_id_prefixed']
+
+    whitelisted['controlling_record'] = json['controlling_record']
+
+    whitelisted['display_string'] = json['display_string']
+    whitelisted['title'] = json['title']
+    whitelisted['description'] = json['description']
+    whitelisted['agency_assigned_id'] = json['agency_assigned_id']
+    whitelisted['external_ids'] = parse_external_ids(json['external_ids'])
+
+    whitelisted['intended_use'] = json['intended_use']
+
+    whitelisted['rap_applied'] = parse_rap(json['rap_applied'])
+
+    whitelisted
   end
 
   def build_linked_agents_publish_map

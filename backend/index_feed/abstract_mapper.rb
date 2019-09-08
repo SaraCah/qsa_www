@@ -43,7 +43,6 @@ class AbstractMapper
     @sequel_records.zip(@jsonmodels).each do |obj, json|
       if published?(json)
         result = map_record(obj, json, base_solr_doc(obj, json))
-        p result
         yield(result)
       else
         yield({})

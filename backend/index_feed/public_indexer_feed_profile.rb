@@ -15,8 +15,6 @@ class PublicIndexerFeedProfile < IndexerFeedProfile
       Resource,
       ArchivalObject,
       AgentCorporateEntity,
-      DigitalRepresentation,
-      PhysicalRepresentation,
       Mandate,
       Function,
     ]
@@ -56,10 +54,6 @@ class PublicIndexerFeedProfile < IndexerFeedProfile
       ItemMapper.new(sequel_records, jsonmodels)
     elsif record_model == AgentCorporateEntity
       AgencyMapper.new(sequel_records, jsonmodels)
-    elsif record_model == DigitalRepresentation
-      DigitalRepresentationMapper.new(sequel_records, jsonmodels)
-    elsif record_model == PhysicalRepresentation
-      PhysicalRepresentationMapper.new(sequel_records, jsonmodels)
     elsif record_model == Mandate
       MandateMapper.new(sequel_records, jsonmodels)
     elsif record_model == Function
