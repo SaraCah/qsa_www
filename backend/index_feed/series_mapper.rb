@@ -34,8 +34,10 @@ class SeriesMapper < AbstractMapper
       solr_doc['responsible_agency_id'] = "agent_corporate_entity:#{agency_id}"
     end
 
-    solr_doc['has_digital_representations'] = json.digital_representations_count > 0
-    solr_doc['has_physical_representations'] = json.physical_representations_count > 0
+    solr_doc['digital_representation_count'] = json.digital_representations_count
+    solr_doc['physical_representation_count'] = json.physical_representations_count
+    solr_doc['has_digital_representations'] = json.digital_representations.length > 0
+    solr_doc['has_physical_representations'] = json.physical_representations.length > 0
 
     solr_doc
   end
@@ -53,12 +55,15 @@ class SeriesMapper < AbstractMapper
     whitelisted['subjects'] = parse_subjects(json.subjects)
     whitelisted['notes'] = parse_notes(json.notes)
     whitelisted['series_relationships'] = parse_series_system_rlshps(json.series_system_series_relationships, ['series_system_series_series_association_relationship', 'series_system_series_series_ownership_relationship', 'series_system_series_series_succession_relationship'])
-    whitelisted['agent_relationships'] = parse_series_system_rlshps(parse_agent_rlshps(json.series_system_agent_relationships))
+    whitelisted['agent_relationships'] = parse_series_system_rlshps(parse_agent_rlshps(json.series_system_agent_relationships), false)
     whitelisted['mandate_relationships'] = parse_series_system_rlshps(json.series_system_mandate_relationships, 'series_system_mandate_series_documentation_relationship')
     whitelisted['function_relationships'] = parse_series_system_rlshps(json.series_system_function_relationships, 'series_system_function_series_documentation_relationship')
     whitelisted['rap_attached'] = parse_rap(json.rap_attached)
     whitelisted['responsible_agency'] = json.responsible_agency
     whitelisted['creating_agency'] = json.creating_agency
+
+    whitelisted['digital_representations_count'] = json.digital_representations_count
+    whitelisted['physical_representations_count'] = json.physical_representations_count
 
     whitelisted
   end

@@ -45,8 +45,10 @@ class ItemMapper < AbstractMapper
       solr_doc['responsible_agency_id'] = "agent_corporate_entity:#{agency_id}"
     end
 
-    solr_doc['has_digital_representations'] = json.digital_representations_count > 0
-    solr_doc['has_physical_representations'] = json.physical_representations_count > 0
+    solr_doc['digital_representation_count'] = json.digital_representations_count
+    solr_doc['physical_representation_count'] = json.physical_representations_count
+    solr_doc['has_digital_representations'] = json.digital_representations.length > 0
+    solr_doc['has_physical_representations'] = json.physical_representations.length > 0
 
     solr_doc
   end
@@ -75,8 +77,7 @@ class ItemMapper < AbstractMapper
     whitelisted['notes'] = parse_notes(json.notes)
 
     whitelisted['external_documents'] = parse_external_documents(json.external_documents)
-
-    whitelisted['agent_relationships'] = parse_series_system_rlshps(json.series_system_agent_relationships)
+    whitelisted['agent_relationships'] = parse_series_system_rlshps(parse_agent_rlshps(json.series_system_agent_relationships), false)
     whitelisted['responsible_agency'] = json.responsible_agency
     whitelisted['creating_agency'] = json.creating_agency
 
@@ -112,8 +113,6 @@ class ItemMapper < AbstractMapper
 
     whitelisted['qsa_id'] = json['qsa_id']
     whitelisted['qsa_id_prefixed'] = json['qsa_id_prefixed']
-
-    whitelisted['controlling_record'] = json['controlling_record']
 
     whitelisted['display_string'] = json['display_string']
     whitelisted['title'] = json['title']

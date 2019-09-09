@@ -164,9 +164,10 @@ class AbstractMapper
     end
   end
 
-  def parse_series_system_rlshps(rlshps, filter_by_type = nil)
+  def parse_series_system_rlshps(rlshps, filter_by_type = nil, filter_ended = true)
     rlshps.map do |rlshp|
       next if filter_by_type && !ASUtils.wrap(filter_by_type).include?(rlshp['jsonmodel_type'])
+      next if filter_ended && rlshp['end_date']
 
       {
         'jsonmodel_type' => rlshp['jsonmodel_type'],
