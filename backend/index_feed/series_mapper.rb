@@ -6,6 +6,8 @@ class SeriesMapper < AbstractMapper
     super
 
     @linked_agents_publish_map = build_linked_agents_publish_map
+    @linked_mandates_publish_map = build_linked_mandates_publish_map
+    @linked_functions_publish_map = build_linked_functions_publish_map
   end
 
   def published?(jsonmodel)
@@ -36,8 +38,20 @@ class SeriesMapper < AbstractMapper
 
     solr_doc['digital_representation_count'] = json.digital_representations_count
     solr_doc['physical_representation_count'] = json.physical_representations_count
-    solr_doc['has_digital_representations'] = json.digital_representations.length > 0
-    solr_doc['has_physical_representations'] = json.physical_representations.length > 0
+
+    solr_doc['mandate_id'] = parse_series_system_rlshps(json.series_system_mandate_relationships, 'series_system_mandate_series_documentation_relationship').map {|rlshp|
+      mandate_id = JSONModel::JSONModel(:mandate).id_for(rlshp.fetch('ref'))
+      next unless @linked_mandates_publish_map.fetch(mandate_id)
+
+      "mandate:#{mandate_id}"
+    }.compact
+
+    solr_doc['function_id'] = parse_series_system_rlshps(json.series_system_function_relationships, 'series_system_function_series_documentation_relationship').map {|rlshp|
+      function_id = JSONModel::JSONModel(:function).id_for(rlshp.fetch('ref'))
+      next unless @linked_functions_publish_map.fetch(function_id)
+
+      "function:#{function_id}"
+    }.compact
 
     solr_doc
   end
@@ -98,6 +112,50 @@ class SeriesMapper < AbstractMapper
     DB.open do |db|
       db[:agent_corporate_entity]
         .filter(:id => agency_ids)
+        .select(:id, :publish)
+        .each do |row|
+        result[row[:id]] = row[:publish] == 1
+      end
+    end
+
+    result
+  end
+
+  def build_linked_mandates_publish_map
+    result = {}
+    mandate_ids = []
+
+    @jsonmodels.each do |json|
+      json.series_system_mandate_relationships.each do |rlshp|
+        mandate_ids << JSONModel::JSONModel(:mandate).id_for(rlshp.fetch('ref'))
+      end
+    end
+
+    DB.open do |db|
+      db[:mandate]
+        .filter(:id => mandate_ids)
+        .select(:id, :publish)
+        .each do |row|
+        result[row[:id]] = row[:publish] == 1
+      end
+    end
+
+    result
+  end
+
+  def build_linked_functions_publish_map
+    result = {}
+    function_ids = []
+
+    @jsonmodels.each do |json|
+      json.series_system_function_relationships.each do |rlshp|
+        function_ids << JSONModel::JSONModel(:function).id_for(rlshp.fetch('ref'))
+      end
+    end
+
+    DB.open do |db|
+      db[:function]
+        .filter(:id => function_ids)
         .select(:id, :publish)
         .each do |row|
         result[row[:id]] = row[:publish] == 1
