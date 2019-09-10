@@ -57,8 +57,9 @@ class AbstractMapper
     end
 
     if json['rap_applied']
-      solr_doc['metadata_closed'] = !json['rap_applied']['open_access_metadata']
-      solr_doc['restricted_access'] = json['rap_applied']['access_status'] == 'Restricted Access'
+      solr_doc['open_record'] = json['rap_applied']['access_status'] == 'Open Access'
+    else
+      solr_doc['open_record'] = false
     end
 
     solr_doc
