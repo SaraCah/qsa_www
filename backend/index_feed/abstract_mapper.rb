@@ -180,6 +180,10 @@ class AbstractMapper
     end.compact
   end
 
+  def parse_previous_system_ids(jsonmodel)
+    []
+  end
+
   def base_solr_doc(obj, jsonmodel)
     whitelisted = parse_whitelisted_json(obj, jsonmodel)
     drop_uninteresting_properties!(whitelisted)
@@ -196,6 +200,7 @@ class AbstractMapper
       'qsaid_sort' => parse_qsa_id_sort(jsonmodel),
       'json' => ASUtils.to_json(whitelisted),
       'keywords' => parse_keywords(whitelisted),
+      'previous_system_ids' => parse_previous_system_ids(jsonmodel),
     }
   end
 

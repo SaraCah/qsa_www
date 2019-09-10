@@ -127,6 +127,10 @@ class ItemMapper < AbstractMapper
     whitelisted
   end
 
+  def parse_previous_system_ids(json)
+    super + [json.repository_processing_note].compact
+  end
+
   def build_linked_agents_publish_map
     result = {}
     agency_ids = []
