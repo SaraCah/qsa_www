@@ -82,6 +82,7 @@ class ItemMapper < AbstractMapper
     whitelisted['creating_agency'] = json.creating_agency
 
     whitelisted['rap_applied'] = parse_rap(json.rap_applied)
+    whitelisted['rap_expiration'] = json.rap_expiration
 
     whitelisted['digital_representations'] = parse_digital_representations(json.digital_representations)
     whitelisted['digital_representations_count'] = json.digital_representations_count
