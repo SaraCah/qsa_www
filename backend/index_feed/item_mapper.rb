@@ -80,6 +80,7 @@ class ItemMapper < AbstractMapper
     whitelisted['creating_agency'] = json.creating_agency
 
     whitelisted['rap_applied'] = parse_rap(json.rap_applied)
+    whitelisted['rap_access_status'] = json.rap_access_status
     whitelisted['rap_expiration'] = json.rap_expiration
 
     whitelisted['digital_representations'] = parse_digital_representations(json)
@@ -90,7 +91,7 @@ class ItemMapper < AbstractMapper
 
   def parse_digital_representations(json)
     json.digital_representations.map do |representation|
-      next unless representation_published?(representation, json)
+      next unless representation_published?(representation, json) && json['rap_access_status'] == 'Open Access'
 
       whitelisted = parse_representation(representation)
       whitelisted['file_size'] = representation['file_size']
@@ -129,7 +130,7 @@ class ItemMapper < AbstractMapper
   end
 
   def representation_published?(representation, item)
-    representation['publish'] == true
+    representation['publish'] && !representation['has_unpublished_ancestor']
   end
 
   def parse_previous_system_ids(json)

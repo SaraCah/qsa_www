@@ -1,8 +1,6 @@
 require_relative 'agency_mapper'
 require_relative 'series_mapper'
 require_relative 'item_mapper'
-require_relative 'digital_representation_mapper'
-require_relative 'physical_representation_mapper'
 require_relative 'mandate_mapper'
 require_relative 'function_mapper'
 
