@@ -36,9 +36,6 @@ class SeriesMapper < AbstractMapper
       solr_doc['responsible_agency_id'] = "agent_corporate_entity:#{agency_id}"
     end
 
-    solr_doc['digital_representation_count'] = json.digital_representations_count
-    solr_doc['physical_representation_count'] = json.physical_representations_count
-
     solr_doc['mandate_id'] = parse_series_system_rlshps(json.series_system_mandate_relationships, 'series_system_mandate_series_documentation_relationship').map {|rlshp|
       mandate_id = JSONModel::JSONModel(:mandate).id_for(rlshp.fetch('ref'))
       next unless @linked_mandates_publish_map.fetch(mandate_id)
@@ -75,9 +72,6 @@ class SeriesMapper < AbstractMapper
     whitelisted['rap_attached'] = parse_rap(json.rap_attached)
     whitelisted['responsible_agency'] = json.responsible_agency
     whitelisted['creating_agency'] = json.creating_agency
-
-    whitelisted['digital_representations_count'] = json.digital_representations_count
-    whitelisted['physical_representations_count'] = json.physical_representations_count
 
     whitelisted
   end

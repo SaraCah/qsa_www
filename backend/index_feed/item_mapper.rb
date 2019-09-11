@@ -45,10 +45,8 @@ class ItemMapper < AbstractMapper
       solr_doc['responsible_agency_id'] = "agent_corporate_entity:#{agency_id}"
     end
 
-    solr_doc['digital_representation_count'] = json.digital_representations_count
-    solr_doc['physical_representation_count'] = json.physical_representations_count
-    solr_doc['has_digital_representations'] = json.digital_representations.length > 0
-    solr_doc['has_physical_representations'] = json.physical_representations.length > 0
+    solr_doc['has_digital_representations'] = parse_digital_representations(json).length > 0
+    solr_doc['has_physical_representations'] = parse_physical_representations(json).length > 0
 
     solr_doc
   end
@@ -84,29 +82,31 @@ class ItemMapper < AbstractMapper
     whitelisted['rap_applied'] = parse_rap(json.rap_applied)
     whitelisted['rap_expiration'] = json.rap_expiration
 
-    whitelisted['digital_representations'] = parse_digital_representations(json.digital_representations)
-    whitelisted['digital_representations_count'] = json.digital_representations_count
-    whitelisted['physical_representations'] = parse_physical_representations(json.physical_representations)
-    whitelisted['physical_representations_count'] = json.physical_representations_count
+    whitelisted['digital_representations'] = parse_digital_representations(json)
+    whitelisted['physical_representations'] = parse_physical_representations(json)
 
     whitelisted
   end
 
-  def parse_digital_representations(representations)
-    representations.map do |json|
-      whitelisted = parse_representation(json)
-      whitelisted['file_size'] = json['file_size']
-      whitelisted['file_type'] = json['file_type']
+  def parse_digital_representations(json)
+    json.digital_representations.map do |representation|
+      next unless representation_published?(representation, json)
+
+      whitelisted = parse_representation(representation)
+      whitelisted['file_size'] = representation['file_size']
+      whitelisted['file_type'] = representation['file_type']
       whitelisted
-    end
+    end.compact
   end
 
-  def parse_physical_representations(representations)
-    representations.map do |json|
-      whitelisted = parse_representation(json)
-      whitelisted['format'] = json['format']
+  def parse_physical_representations(json)
+    json.physical_representations.map do |representation|
+      next unless representation_published?(representation, json)
+
+      whitelisted = parse_representation(representation)
+      whitelisted['format'] = representation['format']
       whitelisted
-    end
+    end.compact
   end
 
   def parse_representation(json)
@@ -126,6 +126,10 @@ class ItemMapper < AbstractMapper
     whitelisted['rap_applied'] = parse_rap(json['rap_applied'])
 
     whitelisted
+  end
+
+  def representation_published?(representation, item)
+    representation['publish'] == true
   end
 
   def parse_previous_system_ids(json)
