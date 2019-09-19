@@ -52,8 +52,9 @@ class AbstractMapper
 
   def map_record(obj, json, solr_doc)
     if @record_dates.fetch(obj.id, false)
-      solr_doc['start_date'] = @record_dates.fetch(obj.id).start_date.strftime('%Y-%m-%dT%H:%M:%SZ')
-      solr_doc['end_date'] = @record_dates.fetch(obj.id).end_date.strftime('%Y-%m-%dT%H:%M:%SZ')
+      solr_doc['start_date'] = @record_dates.fetch(obj.id).date_range.start_date.strftime('%Y-%m-%dT%H:%M:%SZ')
+      solr_doc['end_date'] = @record_dates.fetch(obj.id).date_range.end_date.strftime('%Y-%m-%dT%H:%M:%SZ')
+      solr_doc['dates_display_string'] = [@record_dates.fetch(obj.id).start_date, @record_dates.fetch(obj.id).end_date].compact.join(' - ')
     end
 
     if json['rap_access_status']
@@ -62,10 +63,16 @@ class AbstractMapper
       solr_doc['open_record'] = false
     end
 
+    solr_doc['description'] = parse_description(json)
+
     solr_doc
   end
 
   protected
+
+  def parse_description(jsonmodel)
+    nil
+  end
 
   def published?(jsonmodel)
     jsonmodel['publish']
@@ -223,11 +230,25 @@ class AbstractMapper
     end
   end
 
+  RecordDate = Struct.new(:date_range, :start_date, :end_date) do
+    def parse_and_merge(start_date, end_date)
+      pre_merge_start_date = date_range.start_date
+      pre_merge_end_date = date_range.end_date
+
+      date_range.parse_and_merge(start_date, end_date)
+
+      self.start_date = start_date if pre_merge_start_date != date_range.start_date
+      self.end_date = end_date if pre_merge_end_date != date_range.end_date
+
+      self
+    end
+  end
+
   def calculate_dates(sequel_records)
     return {} if sequel_records.empty?
 
     result = sequel_records.map {|obj|
-      [obj.id, DateRange.new(DateRange::EPOCH_START_STRING, DateRange::EPOCH_END_STRING)]
+      [obj.id, RecordDate.new(DateRange.new(DateRange::EPOCH_START_STRING, DateRange::EPOCH_END_STRING))]
     }.to_h
 
     if sequel_records.fetch(0).is_a?(AgentCorporateEntity)

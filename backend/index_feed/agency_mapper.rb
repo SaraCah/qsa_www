@@ -32,6 +32,10 @@ class AgencyMapper < AbstractMapper
     whitelisted
   end
 
+  def parse_description(jsonmodel)
+    "[PLACEHOLDER FOR AGENCY DESCRIPTION]"
+  end
+
   def parse_external_resources(resources)
     resources.select{|ref| ref['publish']}
   end

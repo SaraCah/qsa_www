@@ -76,6 +76,10 @@ class SeriesMapper < AbstractMapper
     whitelisted
   end
 
+  def parse_description(jsonmodel)
+    jsonmodel['description']
+  end
+
   def parse_notes(notes)
     super.select{|note| supported_note?(note)}
   end

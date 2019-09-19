@@ -45,8 +45,10 @@ class ItemMapper < AbstractMapper
       solr_doc['responsible_agency_id'] = "agent_corporate_entity:#{agency_id}"
     end
 
-    solr_doc['has_digital_representations'] = parse_digital_representations(json).length > 0
-    solr_doc['has_physical_representations'] = parse_physical_representations(json).length > 0
+    solr_doc['digital_representation_count'] = parse_digital_representations(json).length
+    solr_doc['has_digital_representations'] = solr_doc['digital_representation_count'] > 0
+    solr_doc['physical_representation_count'] = parse_physical_representations(json).length
+    solr_doc['has_physical_representations'] = solr_doc['physical_representation_count'] > 0
 
     solr_doc
   end
@@ -87,6 +89,10 @@ class ItemMapper < AbstractMapper
     whitelisted['physical_representations'] = parse_physical_representations(json)
 
     whitelisted
+  end
+
+  def parse_description(jsonmodel)
+    jsonmodel['description']
   end
 
   def parse_digital_representations(json)

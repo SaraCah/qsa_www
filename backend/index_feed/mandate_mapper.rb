@@ -25,6 +25,10 @@ class MandateMapper < AbstractMapper
     whitelisted
   end
 
+  def parse_description(jsonmodel)
+    jsonmodel['note']
+  end
+
   def parse_date(date)
     return if date.nil?
 
