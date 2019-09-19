@@ -56,8 +56,8 @@ class AbstractMapper
       solr_doc['end_date'] = @record_dates.fetch(obj.id).end_date.strftime('%Y-%m-%dT%H:%M:%SZ')
     end
 
-    if json['rap_applied']
-      solr_doc['open_record'] = json['rap_applied']['access_status'] == 'Open Access'
+    if json['rap_access_status']
+      solr_doc['open_record'] = json['rap_access_status'] == 'Open Access'
     else
       solr_doc['open_record'] = false
     end
