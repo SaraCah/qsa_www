@@ -24,7 +24,7 @@ class AgencyMapper < AbstractMapper
     whitelisted['display_name'] = parse_names([json.display_name]).first
     whitelisted['names'] = parse_names(json.names)
     whitelisted['notes'] = parse_notes(json.notes)
-    whitelisted['external_resources'] = parse_external_resources(json.external_resources)
+    whitelisted['external_documents'] = parse_external_documents(json.external_documents)
     whitelisted['agent_relationships'] = parse_series_system_rlshps(json.series_system_agent_relationships, ['series_system_agent_agent_succession_relationship', 'series_system_agent_agent_containment_relationship', 'series_system_agent_agent_ownership_relationship', 'series_system_agent_agent_association_relationship'])
     whitelisted['function_relationships'] = parse_series_system_rlshps(json.series_system_function_relationships, ['series_system_agent_function_administers_relationship'])
     whitelisted['mandate_relationships'] = parse_series_system_rlshps(json.series_system_mandate_relationships, ['series_system_agent_mandate_administers_relationship'])
