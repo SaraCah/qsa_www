@@ -33,6 +33,10 @@ class ItemMapper < AbstractMapper
       id = JSONModel::JSONModel(:resource).id_for(json.resource.fetch('ref'))
       solr_doc['parent_id'] = "resource:#{id}"
     end
+
+    resource_id = JSONModel::JSONModel(:resource).id_for(json.resource.fetch('ref'))
+    solr_doc['resource_id'] = "resource:#{resource_id}"
+
     solr_doc['position'] = json.position
 
     if agency_published?(json.creating_agency)
