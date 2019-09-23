@@ -80,25 +80,6 @@ class SeriesMapper < AbstractMapper
     jsonmodel['description']
   end
 
-  def parse_notes(notes)
-    super.select{|note| supported_note?(note)}
-  end
-
-  def supported_note?(note_json)
-    jsonmodel_type = note_json.fetch('jsonmodel_type')
-    type = note_json['type']
-
-    if jsonmodel_type == 'note_multipart' && type
-      return ['arrangement', 'prefercite'].include?(type)
-    end
-
-    if jsonmodel_type == 'note_singlepart' && type
-      return ['abstract'].include?(type)
-    end
-
-    return false
-  end
-
   def parse_previous_system_ids(json)
     super + [json.repository_processing_note].compact
   end

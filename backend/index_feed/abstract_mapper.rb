@@ -139,6 +139,8 @@ class AbstractMapper
   end
 
   def parse_notes(notes)
+    # FIXME filter unpublished sub notes and content
+    # Don't push note_label = 'Archivists Note'
     notes.select{|note| note['publish']}
   end
 
