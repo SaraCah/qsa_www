@@ -24,6 +24,7 @@ class AgencyMapper < AbstractMapper
     whitelisted['display_name'] = parse_names([json.display_name]).first
     whitelisted['names'] = parse_names(json.names)
     whitelisted['notes'] = parse_notes(json.notes)
+    whitelisted['dates'] = parse_dates(json.dates_of_existence)
     whitelisted['external_documents'] = parse_external_documents(json.external_documents)
     whitelisted['agent_relationships'] = parse_series_system_rlshps(json.series_system_agent_relationships, ['series_system_agent_agent_succession_relationship', 'series_system_agent_agent_containment_relationship', 'series_system_agent_agent_ownership_relationship', 'series_system_agent_agent_association_relationship'])
     whitelisted['function_relationships'] = parse_series_system_rlshps(json.series_system_function_relationships, ['series_system_agent_function_administers_relationship'])
@@ -48,7 +49,7 @@ class AgencyMapper < AbstractMapper
     names.map do |name|
       {
         'primary_name' => name['primary_name'],
-        'accronym' => name['subordinate_name_1'],
+        'acronym' => name['subordinate_name_1'],
         'alternative_name' => name['subordinate_name_2'],
       }
     end
