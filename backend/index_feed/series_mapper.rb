@@ -62,6 +62,10 @@ class SeriesMapper < AbstractMapper
     whitelisted['display_string'] = json.title
     whitelisted['title'] = json.title
     whitelisted['sensitivity_label'] = json.sensitivity_label
+    whitelisted['disposal_class'] = json.disposal_class
+    whitelisted['copyright_status'] = json.copyright_status
+    whitelisted['information_sources'] = json.information_sources
+    whitelisted['repository_processing_note'] = json.repository_processing_note
     whitelisted['dates'] = parse_dates(json.dates)
     whitelisted['subjects'] = parse_subjects(json.subjects)
     whitelisted['notes'] = parse_notes(json.notes)
