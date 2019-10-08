@@ -46,7 +46,6 @@ class AbstractMapper
 
         Array(result['additional_solr_docs']).each do |solr_doc|
           solr_doc['parent_solr_doc_uri'] = result.fetch('uri')
-          p ["***", solr_doc]
           yield(solr_doc)
         end
         result.delete('additional_solr_docs')

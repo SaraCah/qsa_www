@@ -114,7 +114,7 @@ class ItemMapper < AbstractMapper
     json.digital_representations.map do |representation|
       next unless representation_published?(representation, json) && json['rap_access_status'] == 'Open Access'
 
-      representation_id = JSONModel::JSONModel(:digital_representation).id_for(json['uri'])
+      representation_id = JSONModel::JSONModel(:digital_representation).id_for(representation.fetch('uri'))
 
       whitelisted = parse_representation(representation, json)
       whitelisted['id'] = "digital_representation:#{representation_id}"
@@ -128,7 +128,7 @@ class ItemMapper < AbstractMapper
     json.physical_representations.map do |representation|
       next unless representation_published?(representation, json)
 
-      representation_id = JSONModel::JSONModel(:physical_representation).id_for(json['uri'])
+      representation_id = JSONModel::JSONModel(:physical_representation).id_for(representation.fetch('uri'))
 
       whitelisted = parse_representation(representation, json)
       whitelisted['id'] = "physical_representation:#{representation_id}"
