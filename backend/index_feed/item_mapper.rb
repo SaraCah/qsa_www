@@ -140,6 +140,7 @@ class ItemMapper < AbstractMapper
   def parse_representation(json, parent_json)
     whitelisted = {}
 
+    whitelisted['uri'] = json['uri']
     whitelisted['qsa_id'] = json['qsa_id']
     whitelisted['qsa_id_prefixed'] = json['qsa_id_prefixed']
 
