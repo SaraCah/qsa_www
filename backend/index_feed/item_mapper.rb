@@ -114,7 +114,10 @@ class ItemMapper < AbstractMapper
     json.digital_representations.map do |representation|
       next unless representation_published?(representation, json) && json['rap_access_status'] == 'Open Access'
 
+      representation_id = JSONModel::JSONModel(:digital_representation).id_for(json.fetch('uri'))
+
       whitelisted = parse_representation(representation, json)
+      whitelisted['id'] = "digital_representation:#{representation_id}"
       whitelisted['file_size'] = representation['file_size']
       whitelisted['file_type'] = representation['file_type']
       whitelisted
@@ -125,7 +128,10 @@ class ItemMapper < AbstractMapper
     json.physical_representations.map do |representation|
       next unless representation_published?(representation, json)
 
+      representation_id = JSONModel::JSONModel(:physical_representation).id_for(json.fetch('uri'))
+
       whitelisted = parse_representation(representation, json)
+      whitelisted['id'] = "physical_representation:#{representation_id}"
       whitelisted['format'] = representation['format']
       whitelisted
     end.compact
@@ -134,7 +140,6 @@ class ItemMapper < AbstractMapper
   def parse_representation(json, parent_json)
     whitelisted = {}
 
-    whitelisted['id'] = "#{json['jsonmodel_type']}:#{json['id']}"
     whitelisted['qsa_id'] = json['qsa_id']
     whitelisted['qsa_id_prefixed'] = json['qsa_id_prefixed']
 
