@@ -49,10 +49,20 @@ class ItemMapper < AbstractMapper
       solr_doc['responsible_agency_id'] = "agent_corporate_entity:#{agency_id}"
     end
 
-    solr_doc['digital_representation_count'] = parse_digital_representations(json).length
+    parsed_digital = parse_digital_representations(json)
+    parsed_physical = parse_physical_representations(json)
+
+    solr_doc['digital_representation_count'] = parsed_digital.length
     solr_doc['has_digital_representations'] = solr_doc['digital_representation_count'] > 0
-    solr_doc['physical_representation_count'] = parse_physical_representations(json).length
+    solr_doc['physical_representation_count'] = parsed_physical.length
     solr_doc['has_physical_representations'] = solr_doc['physical_representation_count'] > 0
+
+    solr_doc['additional_solr_docs'] = (parsed_digital + parsed_physical).map do |representation_doc|
+      {
+        'id' => representation_doc.fetch('id'),
+        'json' => representation_doc.to_json
+      }
+    end
 
     solr_doc
   end
@@ -103,7 +113,7 @@ class ItemMapper < AbstractMapper
     json.digital_representations.map do |representation|
       next unless representation_published?(representation, json) && json['rap_access_status'] == 'Open Access'
 
-      whitelisted = parse_representation(representation)
+      whitelisted = parse_representation(representation, json)
       whitelisted['file_size'] = representation['file_size']
       whitelisted['file_type'] = representation['file_type']
       whitelisted
@@ -114,15 +124,16 @@ class ItemMapper < AbstractMapper
     json.physical_representations.map do |representation|
       next unless representation_published?(representation, json)
 
-      whitelisted = parse_representation(representation)
+      whitelisted = parse_representation(representation, json)
       whitelisted['format'] = representation['format']
       whitelisted
     end.compact
   end
 
-  def parse_representation(json)
+  def parse_representation(json, parent_json)
     whitelisted = {}
 
+    whitelisted['id'] = "#{json['jsonmodel_type']}:#{json['id']}"
     whitelisted['qsa_id'] = json['qsa_id']
     whitelisted['qsa_id_prefixed'] = json['qsa_id_prefixed']
 
@@ -135,6 +146,11 @@ class ItemMapper < AbstractMapper
     whitelisted['intended_use'] = json['intended_use']
 
     whitelisted['rap_applied'] = parse_rap(json['rap_applied'])
+
+    whitelisted['parent_id'] = "archival_object:#{parent_json['id']}"
+    whitelisted['parent_display_string'] = parent_json['display_string']
+    whitelisted['parent_qsa_id'] = parent_json['qsa_id_prefixed']
+    whitelisted['responsible_agency'] = parent_json['responsible_agency']
 
     whitelisted
   end
