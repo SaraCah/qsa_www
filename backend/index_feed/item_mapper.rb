@@ -60,6 +60,7 @@ class ItemMapper < AbstractMapper
     solr_doc['additional_solr_docs'] = (parsed_digital + parsed_physical).map do |representation_doc|
       {
         'id' => representation_doc.fetch('id'),
+        'primary_type' => representation_doc.fetch('jsonmodel_type'),
         'json' => representation_doc.to_json
       }
     end
@@ -136,6 +137,8 @@ class ItemMapper < AbstractMapper
     whitelisted['id'] = "#{json['jsonmodel_type']}:#{json['id']}"
     whitelisted['qsa_id'] = json['qsa_id']
     whitelisted['qsa_id_prefixed'] = json['qsa_id_prefixed']
+
+    whitelisted['jsonmodel_type'] = json['jsonmodel_type']
 
     whitelisted['display_string'] = json['display_string']
     whitelisted['title'] = json['title']
