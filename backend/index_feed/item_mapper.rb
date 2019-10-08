@@ -154,6 +154,8 @@ class ItemMapper < AbstractMapper
     whitelisted['intended_use'] = json['intended_use']
 
     whitelisted['rap_applied'] = parse_rap(json['rap_applied'])
+    whitelisted['rap_access_status'] = parse_rap(json['rap_access_status'])
+    whitelisted['rap_expiration'] = json['rap_expiration']
 
     whitelisted['parent_id'] = "archival_object:#{parent_json['id']}"
     whitelisted['parent_display_string'] = parent_json['display_string']
