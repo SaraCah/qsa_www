@@ -1,0 +1,13 @@
+<%= setup_context :object => @reading_room_request, :title => "Hi" %>
+
+<div class="row">
+  <div class="col-md-3">
+    <%= render_aspace_partial :partial => "sidebar", locals: {is_readonly: true} %>
+  </div>
+  <div class="col-md-9">
+    <%= render_aspace_partial :partial => "toolbar" %>
+    <div class="record-pane">
+      <%= render_aspace_partial :partial => "reading_room_requests/form", locals: {is_readonly: true} %>
+    </div>
+  </div>
+</div>

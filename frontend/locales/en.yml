@@ -4,3 +4,7 @@ en:
 
   reading_room_requests:
     _plural: Reading Room Requests
+    requested_item: Requested Item
+    researcher_name: Researcher Name
+    status: Status
+    date_required: Date Required

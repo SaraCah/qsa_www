@@ -1,0 +1,31 @@
+<%= readonly_context :reading_room_request, @reading_room_request do |readonly| %>
+    <h2>
+        Hi
+    </h2>
+
+    <%= render_aspace_partial :partial => "shared/flash_messages" %>
+
+    <pre><%= @reading_room_request.to_hash(:trusted).pretty_inspect %></pre>
+
+    <% define_template "reading_room_request", jsonmodel_definition(:reading_room_request) do |form, reading_room_request| %>
+        <section id="basic_information">
+            <h3><%= I18n.t("reading_room_request._frontend.section.basic_information") %></h3>
+
+            <%= render_plugin_partials("top_of_basic_information_reading_room_request",
+                                       :form => form,
+                                       :record => @reading_room_request) %>
+
+            <%= render_aspace_partial :partial => 'shared/qsa_id_form', :locals => {:form => form, :model => :reading_room_request} %>
+
+    <% end %>
+
+    <% readonly.emit_template "reading_room_request" %>
+
+    <%= show_plugins_for(@reading_room_request, readonly) %>
+<% end %>
+
+<script>
+ $(function() {
+     $(".linker:not(.initialised)").linker();
+ });
+</script>
