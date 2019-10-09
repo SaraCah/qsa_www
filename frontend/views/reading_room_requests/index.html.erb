@@ -6,20 +6,22 @@
 
 <%
 add_column(I18n.t("reading_room_requests.requested_item"),
-proc {|record|
-      parsed = ASUtils.json_parse(record['json'])
-      requested_item = parsed.fetch('requested_item', {}).fetch('_resolved', {})
+           proc {|record|
+                 parsed = ASUtils.json_parse(record['json'])
+                 requested_item = parsed.fetch('requested_item', {}).fetch('_resolved', {})
 
-      ('<div class="token-list">' +
-       render_token(:object => requested_item,
-                    :label => ("%s: %s" % [requested_item['qsa_id_prefixed'], requested_item['title']]).html_safe,
-                    :type => requested_item['jsonmodel_type'],
-                    :uri => requested_item["uri"],
-                    :placement => "top",
-                    :inside_linker_browse => true) +
-       '</div>').html_safe
-})
+                 ('<div class="token-list">' +
+                  render_token(:object => requested_item,
+                               :label => ("%s: %s" % [requested_item['qsa_id_prefixed'], requested_item['title']]).html_safe,
+                               :type => requested_item['jsonmodel_type'],
+                               :uri => requested_item["uri"],
+                               :placement => "top",
+                               :inside_linker_browse => true) +
+                  '</div>').html_safe
+           })
+%>
 
+<%
 add_column(I18n.t("reading_room_requests.researcher_name"),
            proc {|record|
                  parsed = ASUtils.json_parse(record['json'])
@@ -32,18 +34,27 @@ add_column(I18n.t("reading_room_requests.researcher_name"),
                    "%s <%s>" % [names, user.fetch('email')]
                  end
            })
+%>
 
 
+<%
 add_column(I18n.t("reading_room_requests.status"),
            proc {|record|
                  parsed = ASUtils.json_parse(record['json'])
                  ('<div class="badge">' + parsed.fetch('status') + '</div>').html_safe
            })
+%>
 
+<%
 add_column(I18n.t("reading_room_requests.date_required"),
            proc {|record|
                  parsed = ASUtils.json_parse(record['json'])
-                 parsed.fetch('date_required', '')
+                 date = parsed.fetch('date_required', '')
+                 if date.to_s.empty?
+                   ''
+                 else
+                   Time.at(Integer(date) / 1000).to_date.iso8601
+                 end
            })
 
 %>
