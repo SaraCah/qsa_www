@@ -1,0 +1,35 @@
+<%= setup_context(:title => I18n.t("reading_room_requests._plural")) %>
+
+<%
+@no_title = true
+%>
+
+<%
+add_column(I18n.t("reading_room_requests.requested_item"),
+proc {|record|
+parsed = ASUtils.json_parse(record['json'])
+requested_item = parsed.fetch('requested_item', {}).fetch('_resolved', {})
+requested_item['title'].html_safe
+
+}, :sortable => true, :sort_by => 'map_agency_name_u_ssort')
+%>
+
+<div class="row">
+  <div class="col-md-3">
+    <div class="sidebar">
+      <%= render_aspace_partial :partial => "search/filter" %>
+    </div>
+  </div>
+  <div class="col-md-9">
+    <div class="record-pane">
+      <%= link_to_help :topic => "search" %>
+
+      <h2><%= I18n.t("reading_room_requests._plural") %></h2>
+
+      <%= render_aspace_partial :partial => "shared/flash_messages" %>
+
+      <%= render_aspace_partial :partial => "search/listing" %>
+    </div>
+  </div>
+</div>
+
