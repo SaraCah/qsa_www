@@ -6,6 +6,7 @@ module QSAWWWModel
 
     if base.ancestors.include?(ASModel)
       base.include(ASModelCompat)
+      base.external_system_name = 'QSA Public'
     end
   end
 
