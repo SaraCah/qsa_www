@@ -7,12 +7,12 @@
     "properties" => {
       "uri" => {"type" => "string"},
 
-      "user_id" => {"type" => "string"},
-      "agency_request_id" => {"type" => "string"},
+      "user_id" => {"type" => "integer"},
+      "agency_request_id" => {"type" => "integer"},
       "item_id" => {"type" => "string"},
       "item_uri" => {"type" => "string"},
       "status" => {"type" => "string"},
-      "date_required" => {"type" => "string"},
+      "date_required" => {"type" => "integer"},
 
       "requested_item" => {
         "readonly" => "true",
@@ -35,8 +35,8 @@
 
       "created_by" => {"type" => "string"},
       "modified_by" => {"type" => "string"},
-      "create_time" => {"type" => "string"},
-      "modified_time" => {"type" => "string"},
+      "create_time" => {"type" => "integer"},
+      "modified_time" => {"type" => "integer"},
     }
   }
 }
