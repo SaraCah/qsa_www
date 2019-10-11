@@ -77,7 +77,7 @@
                 <% end %>
               </td>
               <td class="rrr-status">
-                <div><%= ("<div class='label #{badge_class_for_status(parsed.fetch('status'))}'>" + parsed.fetch('status') + '</div>').html_safe %></div>
+                <div><%= ("<div class='label #{badge_class_for_status(parsed.fetch('status'))}'>" + I18n.t('reading_room_requests.statuses.' + parsed.fetch('status').downcase).upcase + '</div>').html_safe %></div>
               </td>
               <td>
                 <% date = parsed.fetch('date_required', '') %>
