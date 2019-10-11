@@ -25,3 +25,4 @@ en:
   search_results:
     filter:
       rrr_status_u_ssort: Status
+      date_required: Within Days

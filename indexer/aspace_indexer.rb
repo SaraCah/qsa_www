@@ -11,9 +11,6 @@ class IndexerCommon
 
         doc['rrr_date_created_u_ssortdate'] = record['record']['create_time']
         doc['rrr_status_u_ssort'] = record['record']['status']
-
-        # doc
-        require 'pp';$stderr.puts("\n*** DEBUG #{(Time.now.to_f * 1000).to_i} [aspace_indexer.rb:16 CoarseWhippet]: " + {%Q^doc^ => doc}.pretty_inspect + "\n")
       end
     }
   end

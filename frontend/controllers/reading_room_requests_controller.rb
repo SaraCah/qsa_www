@@ -16,10 +16,51 @@ class ReadingRoomRequestsController < ApplicationController
       criteria['filter_term[]'] = params['filter_term']
     end
 
+    if criteria['filter_term[]']
+      if date_required_term = criteria['filter_term[]'].find {|term| JSON.parse(term).keys[0] == 'date_required'}
+        criteria['filter_term[]'].delete(date_required_term)
+
+        date_required = JSON.parse(date_required_term).values[0]
+      end
+    end
+
+    if date_required
+      start_date, end_date = [Date.today, Date.today + date_required].sort
+
+      query = {'query' => {
+                 'jsonmodel_type' => 'boolean_query',
+                 'op' => 'AND',
+                 'subqueries' => [
+                   {
+                     'jsonmodel_type' => 'date_field_query',
+                     'comparator' => 'greater_than',
+                     'field' => 'rrr_date_required_u_ssortdate',
+                     'value' => "%sT00:00:00Z" % [start_date.iso8601],
+                   },
+                   {
+                     'jsonmodel_type' => 'date_field_query',
+                     'comparator' => 'lesser_than',
+                     'field' => 'rrr_date_required_u_ssortdate',
+                     'value' => "%sT00:00:00Z" % [end_date.iso8601],
+                   }
+                 ]
+               }
+              }
+
+      criteria['filter'] = JSONModel(:advanced_query).from_hash(query).to_json
+    end
+
     Search.build_filters(criteria)
 
     response = JSONModel::HTTP.get_json('/reading_room_requests/search', params_for_backend_search.merge(criteria))
+    response ||= {'results' => [], 'facets' => {'facet_fields' => []}}
     response[:criteria] = criteria
+
+    # If we dropped the filter_term out, add it back so the results page looks right.
+    if date_required_term
+      response[:criteria]['filter_term[]'] << date_required_term
+    end
+
     @search_data = SearchResultData.new(response)
   end
 

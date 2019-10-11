@@ -23,6 +23,18 @@
   <div class="col-md-3">
     <div class="sidebar">
       <%= render_aspace_partial :partial => "search/filter" %>
+
+      <% if @search_data.results? && !Array(@search_data[:criteria]['filter_term[]']).find {|term| JSON.parse(term).keys[0] == 'date_required'} %>
+        <h3>Date required</h3>
+        <ul>
+          <li><%= link_to("Today", build_search_params({}).merge("filter_term[]" => {"date_required" => 1}.to_json)) %></li>
+          <li><%= link_to("Within 3 days", build_search_params({}).merge("filter_term[]" => {"date_required" => 3}.to_json)) %></li>
+          <li><%= link_to("Within 7 days", build_search_params({}).merge("filter_term[]" => {"date_required" => 7}.to_json)) %></li>
+          <li><%= link_to("Within 14 days", build_search_params({}).merge("filter_term[]" => {"date_required" => 14}.to_json)) %></li>
+        </ul>
+      <% end %>
+
+
     </div>
   </div>
   <div class="col-md-9">

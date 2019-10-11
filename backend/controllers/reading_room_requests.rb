@@ -8,6 +8,7 @@ class ArchivesSpaceService < Sinatra::Base
     .returns([200, ""]) \
   do
     params[:type] = ['reading_room_request']
+    params[:sort] ||= "rrr_date_required_u_ssortdate desc"
 
     results = Search.search(params, nil)
 
