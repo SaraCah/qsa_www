@@ -5,10 +5,13 @@ class ReadingRoomRequestsController < ApplicationController
   include ApplicationHelper
 
   # TODO: review access controls for these endpoints
-  set_access_control  "view_repository" => [:index, :show, :picking_slip]
+  set_access_control  "view_repository" => [:index, :show, :picking_slip, :set_status]
 
   def index
-    @search_data = Search.for_type(session[:repo_id], "reading_room_request", params)
+    params[:page] ||= 1
+    response = JSONModel::HTTP.get_json('/reading_room_requests/search', params)
+    response[:criteria] = params
+    @search_data = SearchResultData.new(response)
   end
 
   def show
@@ -17,6 +20,11 @@ class ReadingRoomRequestsController < ApplicationController
 
   def current_record
     @reading_room_request
+  end
+
+  def set_status
+    response = JSONModel::HTTP.post_form("/reading_room_requests/#{params[:id]}/set_status", :status => params[:status])
+    render :json => {:status => 'updated'}
   end
 
   java_import Java::org::apache::fop::apps::FopFactory

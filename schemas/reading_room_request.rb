@@ -7,6 +7,8 @@
     "properties" => {
       "uri" => {"type" => "string"},
 
+      "title" => {"type" => "string", "readonly" => "true"},
+
       "user_id" => {"type" => "integer"},
       "agency_request_id" => {"type" => "integer"},
       "item_id" => {"type" => "string"},

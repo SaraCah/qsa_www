@@ -6,6 +6,38 @@ class ReadingRoomRequest < Sequel::Model
   include QSAWWWModel
   qsa_www_table :reading_room_request
 
+  STATUS_AWAITING_AGENCY_APPROVAL = 'AWAITING_AGENCY_APPROVAL'
+  STATUS_APPROVED_BY_AGENCY = 'APPROVED_BY_AGENCY'
+  STATUS_REJECTED_BY_AGENCY = 'REJECTED_BY_AGENCY'
+  STATUS_PENDING = 'PENDING'
+  STATUS_IN_RETRIEVAL = 'IN_RETRIEVAL'
+  STATUS_READY_FOR_RETRIEVAL = 'READY_FOR_RETRIEVAL'
+  STATUS_WITH_RESEARCHER = 'WITH_RESEARCHER'
+  STATUS_RETURNED_BY_RESEARCHER = 'RETURNED_BY_RESEARCHER'
+  STATUS_COMPLETE = 'COMPLETE'
+  STATUS_CANCELLED_BY_QSA = 'CANCELLED_BY_QSA'
+  STATUS_CANCELLED_BY_RESEARCHER = 'CANCELLED_BY_RESEARCHER'
+  
+  VALID_STATUS = [
+    STATUS_AWAITING_AGENCY_APPROVAL,
+    STATUS_APPROVED_BY_AGENCY,
+    STATUS_REJECTED_BY_AGENCY,
+    STATUS_PENDING,
+    STATUS_IN_RETRIEVAL,
+    STATUS_READY_FOR_RETRIEVAL,
+    STATUS_WITH_RESEARCHER,
+    STATUS_RETURNED_BY_RESEARCHER,
+    STATUS_COMPLETE,
+    STATUS_CANCELLED_BY_QSA,
+    STATUS_CANCELLED_BY_RESEARCHER,
+  ]
+
+  def update_from_json(json, opts = {}, apply_nested_records = true)
+    # opts['modified_time'] = java.lang.System.currentTimeMillis
+    # opts['modified_by'] = RequestContext.get(:current_username)
+
+    super
+  end
 
   def self.build_user_map(user_ids)
     PublicDB.open do |db|
@@ -21,9 +53,53 @@ class ReadingRoomRequest < Sequel::Model
 
     users = build_user_map(jsons.map {|request| request['user_id']}.uniq)
 
-    jsons.each do |request|
+    jsons.zip(objs).each do |request, obj|
+      request['title'] = "RRR#{obj.id}"
       request['requested_item'] = {'ref' => request['item_uri']}
       request['requesting_user'] = users.fetch(request['user_id'])
+    end
+
+    jsons
+  end
+
+  def set_status(status)
+    if VALID_STATUS.include?(status)
+      PublicDB.open do |db|
+        json = self.class.to_jsonmodel(self)
+
+        if json.status == STATUS_AWAITING_AGENCY_APPROVAL
+          if status == STATUS_APPROVED_BY_AGENCY
+            db[:agency_request_item]
+              .filter(:agency_request_id => self.agency_request_id)
+              .filter(:item_id => self.item_id)
+              .update(:status => 'APPROVED',
+                      :modified_time => java.lang.System.currentTimeMillis,
+                      :modified_by => RequestContext.get(:current_username))
+            status = STATUS_PENDING
+          elsif status == STATUS_REJECTED_BY_AGENCY
+            db[:agency_request_item]
+              .filter(:agency_request_id => self.agency_request_id)
+              .filter(:item_id => self.item_id)
+              .update(:status => 'REJECTED',
+                      :modified_time => java.lang.System.currentTimeMillis,
+                      :modified_by => RequestContext.get(:current_username))
+          end
+        end
+
+        json.status = status
+        cleaned = JSONModel(:reading_room_request).from_hash(json.to_hash)
+        self.update_from_json(cleaned)
+      end
+    end
+  end
+
+  def self.get_status_map(uris)
+    ids = uris.map{|uri| JSONModel(:reading_room_request).id_for(uri)}
+    PublicDB.open do |db|
+      db[:reading_room_request]
+        .filter(:id => ids)
+        .select(:id, :status)
+        .map {|row| [JSONModel(:reading_room_request).uri_for(row[:id]), row[:status]]}.to_h
     end
   end
 end

@@ -1,64 +1,5 @@
 <%= setup_context(:title => I18n.t("reading_room_requests._plural")) %>
 
-<%
-@no_title = true
-%>
-
-<%
-add_column(I18n.t("reading_room_requests.requested_item"),
-           proc {|record|
-                 parsed = ASUtils.json_parse(record['json'])
-                 requested_item = parsed.fetch('requested_item', {}).fetch('_resolved', {})
-
-                 ('<div class="token-list">' +
-                  render_token(:object => requested_item,
-                               :label => ("%s: %s" % [requested_item['qsa_id_prefixed'], requested_item['title']]).html_safe,
-                               :type => requested_item['jsonmodel_type'],
-                               :uri => requested_item["uri"],
-                               :placement => "top",
-                               :inside_linker_browse => true) +
-                  '</div>').html_safe
-           })
-%>
-
-<%
-add_column(I18n.t("reading_room_requests.researcher_name"),
-           proc {|record|
-                 parsed = ASUtils.json_parse(record['json'])
-                 user = parsed.fetch('requesting_user')
-                 names = [user.fetch('first_name', nil), user.fetch('last_name', nil)].compact.join(" ")
-
-                 if names.empty?
-                   user.fetch('email')
-                 else
-                   "%s <%s>" % [names, user.fetch('email')]
-                 end
-           })
-%>
-
-
-<%
-add_column(I18n.t("reading_room_requests.status"),
-           proc {|record|
-                 parsed = ASUtils.json_parse(record['json'])
-                 ('<div class="badge">' + parsed.fetch('status') + '</div>').html_safe
-           })
-%>
-
-<%
-add_column(I18n.t("reading_room_requests.date_required"),
-           proc {|record|
-                 parsed = ASUtils.json_parse(record['json'])
-                 date = parsed.fetch('date_required', '')
-                 if date.to_s.empty?
-                   ''
-                 else
-                   Time.at(Integer(date) / 1000).to_date.iso8601
-                 end
-           })
-
-%>
-
 <div class="row">
   <div class="col-md-3">
     <div class="sidebar">
@@ -73,8 +14,121 @@ add_column(I18n.t("reading_room_requests.date_required"),
 
       <%= render_aspace_partial :partial => "shared/flash_messages" %>
 
-      <%= render_aspace_partial :partial => "search/listing" %>
+      <% if @search_data.results? %>
+        <%= render_aspace_partial :partial => "shared/pagination_summary" %>
+
+        <table id="tabledSearchResults" class="table table-striped table-bordered table-condensed table-hover table-sortable table-search-results">
+          <thead>
+          <tr>
+            <th style="width:100px">#</th>
+            <th><%= I18n.t("reading_room_requests.requested_item") %></th>
+            <th><%= I18n.t("reading_room_requests.researcher_name") %></th>
+            <th><%= I18n.t("reading_room_requests.status") %></th>
+            <th><%= I18n.t("reading_room_requests.date_required") %></th>
+            <th class="col audit-info"></th>
+            <th class="col actions"><!-- actions --></th>
+          </tr>
+          </thead>
+          <tbody>
+          <% @search_data['results'].each do |result|
+            deleted = (params.has_key?("deleted_uri") and Array(params["deleted_uri"]).include?(result["id"])) || false
+          %>
+            <% parsed = ASUtils.json_parse(result['json']) %>
+            <% request_id = JSONModel(:reading_room_request).id_for(result['uri']) %>
+            <tr class="<%= "deleted" if deleted %>">
+              <td><%= parsed.fetch('title') %></td>
+              <td>
+                <% requested_item = parsed.fetch('requested_item', {}).fetch('_resolved', {}) %>
+                <%= ('<div class="token-list">' +
+                        render_token(:object => requested_item,
+                                     :label => ("%s: %s" % [requested_item['qsa_id_prefixed'], requested_item['title']]).html_safe,
+                                     :type => requested_item['jsonmodel_type'],
+                                     :uri => requested_item["uri"],
+                                     :placement => "top",
+                                     :inside_linker_browse => true) +
+                        '</div>').html_safe %>
+              </td>
+              <td>
+                <% user = parsed.fetch('requesting_user')
+                   names = [user.fetch('first_name', nil), user.fetch('last_name', nil)].compact.join(" ") %>
+                <% if names.empty? %>
+                  <%= user.fetch('email') %>
+                <% else %>
+                   <%= "%s <%s>" % [names, user.fetch('email')] %>  
+                <% end %>
+              </td>
+              <td class="rrr-status">
+                <div><%= ('<div class="badge">' + parsed.fetch('status') + '</div>').html_safe %></div>
+              </td>
+              <td>
+                <% date = parsed.fetch('date_required', '') %>
+                <% unless date.to_s.empty? %>
+                  <%= Time.at(Integer(date) / 1000).to_date.iso8601 %>
+                <% end %>
+              </td>
+              <td>
+                <%= display_audit_info(result, :format => 'compact') %>
+              </td>
+              <td class="table-record-actions">
+                <%= link_to "<span class='fa fa-download' aria-hidden='true'></span> Slip".html_safe, {:controller => :reading_room_requests, :action => :picking_slip, :id => request_id}, :title => "Download picking slip", :target => '_blank', :class => 'btn btn-default btn-xs' %>
+                <div class="rrr-status-actions">
+                  <% if parsed.fetch('status') == 'AWAITING_AGENCY_APPROVAL' %>
+                    <button class="btn btn-success btn-xs" data-id="<%= request_id %>" data-status="APPROVED_BY_AGENCY">Approved by Agency</button>
+                    <button class="btn btn-danger btn-xs" data-id="<%= request_id %>" data-status="REJECTED_BY_AGENCY">Rejected by Agency</button>
+                    <button class="btn btn-danger btn-xs" data-id="<%= request_id %>" data-status="CANCELLED_BY_QSA">Cancelled by QSA</button>
+                    <button class="btn btn-danger btn-xs"  data-id="<%= request_id %>"data-status="CANCELLED_BY_RESEARCHER">Cancelled by Researcher</button>
+                  <% elsif parsed.fetch('status') == 'PENDING' %>
+                    <button class="btn btn-primary btn-xs" data-id="<%= request_id %>" data-status="IN_RETRIEVAL">In Retrieval</button>
+                    <button class="btn btn-danger btn-xs" data-id="<%= request_id %>" data-status="CANCELLED_BY_QSA">Cancelled by QSA</button>
+                    <button class="btn btn-danger btn-xs" data-id="<%= request_id %>" data-status="CANCELLED_BY_RESEARCHER">Cancelled by Researcher</button>
+                  <% elsif parsed.fetch('status') == 'IN_RETRIEVAL' %>
+                    <button class="btn btn-primary btn-xs" data-id="<%= request_id %>" data-status="READY_FOR_RETRIEVAL">Ready for Retrieval</button>
+                    <button class="btn btn-danger btn-xs" data-id="<%= request_id %>" data-status="CANCELLED_BY_QSA">Cancelled by QSA</button>
+                    <button class="btn btn-danger btn-xs" data-id="<%= request_id %>" data-status="CANCELLED_BY_RESEARCHER">Cancelled by Researcher</button>
+                  <% elsif parsed.fetch('status') == 'READY_FOR_RETRIEVAL' %>
+                    <button class="btn btn-primary btn-xs" data-id="<%= request_id %>" data-status="WITH_RESEARCHER">Retrieved by Researcher</button>
+                    <button class="btn btn-danger btn-xs" data-id="<%= request_id %>" data-status="CANCELLED_BY_QSA">Cancelled by QSA</button>
+                    <button class="btn btn-danger btn-xs" data-id="<%= request_id %>" data-status="CANCELLED_BY_RESEARCHER">Cancelled by Researcher</button>
+                  <% elsif parsed.fetch('status') == 'WITH_RESEARCHER' %>
+                    <button class="btn btn-primary btn-xs" data-id="<%= request_id %>" data-status="RETURNED_BY_RESEARCHER">Returned by Researcher</button>
+                  <% elsif parsed.fetch('status') == 'RETURNED_BY_RESEARCHER' %>
+                    <button class="btn btn-primary btn-xs" data-id="<%= request_id %>" data-status="COMPLETE">Item Returned to Home Location</button>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+          </tbody>
+        </table>
+        <%= render_aspace_partial :partial => "shared/pagination" %>
+      <% else %>
+        <p class="alert alert-info">
+          <%= I18n.t("search_results.no_results") %>
+        </p>
+      <% end %>
+
     </div>
   </div>
 </div>
 
+<script>
+  $('.rrr-status-actions button').on('click', function(e) {
+    var data = $(e.target).data();
+    $.ajax({
+      url: APP_PATH + 'reading_room_requests/' + data.id + '/set_status',
+      method: 'POST',
+      data: {
+        'status': data.status
+      },
+      success: function() {
+        location.reload();
+      }
+    })
+  });
+</script>
+<style>
+  .rrr-status-actions button {
+    display: block;
+    margin-top: 5px;
+  }
+</style>
