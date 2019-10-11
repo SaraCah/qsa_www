@@ -1,5 +1,24 @@
 <%= setup_context(:title => I18n.t("reading_room_requests._plural")) %>
 
+<%
+  def badge_class_for_status(status)
+    if status.starts_with?('CANCELLED') || status.starts_with?('REJECTED')
+      'label-danger'
+    elsif status == 'AWAITING_AGENCY_APPROVAL'
+      'label-warning'
+    elsif status == 'PENDING'
+      'label-default'
+    elsif status == 'COMPLETE'
+      'label-success'
+    elsif ['READY_FOR_RETRIEVAL', 'WITH_RESEARCHER', 'RETURNED_BY_RESEARCHER'].include?(status) 
+      'label-primary'
+    else
+      'label-info'
+    end
+  end
+%>
+
+
 <div class="row">
   <div class="col-md-3">
     <div class="sidebar">
@@ -58,7 +77,7 @@
                 <% end %>
               </td>
               <td class="rrr-status">
-                <div><%= ('<div class="badge">' + parsed.fetch('status') + '</div>').html_safe %></div>
+                <div><%= ("<div class='label #{badge_class_for_status(parsed.fetch('status'))}'>" + parsed.fetch('status') + '</div>').html_safe %></div>
               </td>
               <td>
                 <% date = parsed.fetch('date_required', '') %>
@@ -92,7 +111,7 @@
                   <% elsif parsed.fetch('status') == 'WITH_RESEARCHER' %>
                     <button class="btn btn-primary btn-xs" data-id="<%= request_id %>" data-status="RETURNED_BY_RESEARCHER">Returned by Researcher</button>
                   <% elsif parsed.fetch('status') == 'RETURNED_BY_RESEARCHER' %>
-                    <button class="btn btn-primary btn-xs" data-id="<%= request_id %>" data-status="COMPLETE">Item Returned to Home Location</button>
+                    <button class="btn btn-success btn-xs" data-id="<%= request_id %>" data-status="COMPLETE">Item Returned to Home Location</button>
                   <% end %>
                 </div>
               </td>
