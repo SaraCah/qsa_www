@@ -8,9 +8,18 @@ class ReadingRoomRequestsController < ApplicationController
   set_access_control  "view_repository" => [:index, :show, :picking_slip, :set_status]
 
   def index
-    params[:page] ||= 1
-    response = JSONModel::HTTP.get_json('/reading_room_requests/search', params)
-    response[:criteria] = params
+    criteria = params.to_hash
+
+    criteria[:page] ||= 1
+    criteria["facet[]"] = Plugins.search_facets_for_type(:reading_room_request)
+    if params['filter_term']
+      criteria['filter_term[]'] = params['filter_term']
+    end
+
+    Search.build_filters(criteria)
+
+    response = JSONModel::HTTP.get_json('/reading_room_requests/search', params_for_backend_search.merge(criteria))
+    response[:criteria] = criteria
     @search_data = SearchResultData.new(response)
   end
 

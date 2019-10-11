@@ -8,3 +8,20 @@ en:
     researcher_name: Researcher Name
     status: Status
     date_required: Date Required
+    statuses:
+      awaiting_agency_approval: Awaiting Agency Approval
+      approved_by_agency: Approved by Agency
+      rejected_by_agency: Rejected by Agency
+      pending: Pending
+      in_retrieval: In Retrieval
+      ready_for_retrieval: Ready for Retrieval
+      with_researcher: With Researcher
+      returned_by_researcher: Returned by Researcher
+      complete: Complete
+      cancelled_by_qsa: Cancelled by QSA
+      cancelled_by_researcher: Cancelled by Researcher
+
+
+  search_results:
+    filter:
+      rrr_status_u_ssort: Status
