@@ -51,7 +51,7 @@
         <table id="tabledSearchResults" class="table table-striped table-bordered table-condensed table-hover table-sortable table-search-results">
           <thead>
           <tr>
-            <th style="width:100px">#</th>
+            <th style="width:100px"><%= I18n.t("as_runcorn.qsa_id") %></th>
             <th><%= I18n.t("reading_room_requests.requested_item") %></th>
             <th><%= I18n.t("reading_room_requests.researcher_name") %></th>
             <th><%= I18n.t("reading_room_requests.status") %></th>
@@ -67,7 +67,7 @@
             <% parsed = ASUtils.json_parse(result['json']) %>
             <% request_id = JSONModel(:reading_room_request).id_for(result['uri']) %>
             <tr class="<%= "deleted" if deleted %>">
-              <td><%= parsed.fetch('title') %></td>
+              <td><%= QSAIdHelper.id(parsed.fetch('qsa_id_prefixed')) %></td>
               <td>
                 <% requested_item = parsed.fetch('requested_item', {}).fetch('_resolved', {}) %>
                 <%= ('<div class="token-list">' +

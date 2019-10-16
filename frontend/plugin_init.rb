@@ -12,6 +12,9 @@ Rails.application.config.after_initialize do
     JSONModel(File.basename(schema, ".rb").intern)
   end
 
+  # register models for qsa_ids
+  require_relative '../common/qsa_id_registrations'
+
   # add new movement context models
   require_relative '../common/movement_contexts'
 end

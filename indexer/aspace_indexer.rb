@@ -3,6 +3,9 @@ class IndexerCommon
   @@resolved_attributes << 'requested_item'
 
   add_indexer_initialize_hook do |indexer|
+    QSAId.mode(:indexer)
+    require_relative '../common/qsa_id_registrations'
+
     indexer.add_document_prepare_hook {|doc, record|
       if doc['primary_type'] == 'reading_room_request'
         if record['record']['date_required']

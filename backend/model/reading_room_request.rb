@@ -63,7 +63,7 @@ class ReadingRoomRequest < Sequel::Model
     users = build_user_map(jsons.map {|request| request['user_id']}.uniq)
 
     jsons.zip(objs).each do |request, obj|
-      request['title'] = "RRR#{obj.id}"
+      request['title'] = "Reading Room Request #{obj.id}"
       request['requested_item'] = {'ref' => request['item_uri']}
       request['requesting_user'] = users.fetch(request['user_id'])
     end
