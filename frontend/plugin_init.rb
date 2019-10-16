@@ -11,4 +11,7 @@ Rails.application.config.after_initialize do
     next if schema.end_with?('_ext.rb')
     JSONModel(File.basename(schema, ".rb").intern)
   end
+
+  # add new movement context models
+  require_relative '../common/movement_contexts'
 end

@@ -32,6 +32,15 @@ class ReadingRoomRequest < Sequel::Model
     STATUS_CANCELLED_BY_RESEARCHER,
   ]
 
+  READING_ROOM_LOCATION_ENUM_VALUE = 'PSR'
+  HOME_LOCATION_ENUM_VALUE = 'HOME'
+
+  STATUSES_TRIGGERING_MOVEMENTS = {
+    STATUS_READY_FOR_RETRIEVAL => READING_ROOM_LOCATION_ENUM_VALUE,
+    STATUS_COMPLETE => HOME_LOCATION_ENUM_VALUE,
+  }
+
+
   def update_from_json(json, opts = {}, apply_nested_records = true)
     # opts['modified_time'] = java.lang.System.currentTimeMillis
     # opts['modified_by'] = RequestContext.get(:current_username)
@@ -83,6 +92,16 @@ class ReadingRoomRequest < Sequel::Model
               .update(:status => 'REJECTED',
                       :modified_time => java.lang.System.currentTimeMillis,
                       :modified_by => RequestContext.get(:current_username))
+          end
+        end
+
+        if STATUSES_TRIGGERING_MOVEMENTS.keys.include?(status)
+          repo_uri = JSONModel.parse_reference(self.item_uri)[:repository]
+          repo_id = JSONModel.parse_reference(repo_uri)[:id]
+          RequestContext.open(:repo_id => repo_id) do
+            requested_item = PhysicalRepresentation.get_or_die(JSONModel(:physical_representation).id_for(self.item_uri))
+            requested_item.move(:context => self.uri,
+                                :location => STATUSES_TRIGGERING_MOVEMENTS[status])
           end
         end
 
