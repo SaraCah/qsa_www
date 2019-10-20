@@ -3,6 +3,7 @@ require_relative 'series_mapper'
 require_relative 'item_mapper'
 require_relative 'mandate_mapper'
 require_relative 'function_mapper'
+require_relative 'representation_mapper'
 
 class PublicIndexerFeedProfile < IndexerFeedProfile
 
@@ -15,6 +16,8 @@ class PublicIndexerFeedProfile < IndexerFeedProfile
       AgentCorporateEntity,
       Mandate,
       Function,
+      PhysicalRepresentation,
+      DigitalRepresentation,
     ]
   end
 
@@ -56,6 +59,8 @@ class PublicIndexerFeedProfile < IndexerFeedProfile
       MandateMapper.new(sequel_records, jsonmodels)
     elsif record_model == Function
       FunctionMapper.new(sequel_records, jsonmodels)
+    elsif [PhysicalRepresentation, DigitalRepresentation].include?(record_model)
+      RepresentationMapper.new(sequel_records, jsonmodels)
     else
       raise "Record type not supported: #{record_model}"
     end

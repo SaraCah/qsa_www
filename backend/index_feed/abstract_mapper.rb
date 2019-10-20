@@ -44,12 +44,6 @@ class AbstractMapper
       if published?(json)
         result = map_record(obj, json, base_solr_doc(obj, json))
 
-        Array(result['additional_solr_docs']).each do |solr_doc|
-          solr_doc['parent_solr_doc_uri'] = result.fetch('uri')
-          yield(solr_doc)
-        end
-        result.delete('additional_solr_docs')
-
         yield(result)
       else
         yield({})
