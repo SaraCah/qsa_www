@@ -3,6 +3,7 @@ en:
     user_services: User Services
 
   reading_room_requests:
+    _singular: Reading Room Request
     _plural: Reading Room Requests
     requested_item: Requested Item
     researcher_name: Researcher Name
