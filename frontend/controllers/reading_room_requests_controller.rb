@@ -10,8 +10,8 @@ class ReadingRoomRequestsController < ApplicationController
   def index
     criteria = params.to_hash
 
-    criteria[:page] ||= 1
-    criteria["facet[]"] = Plugins.search_facets_for_type(:reading_room_request)
+    criteria['page'] ||= '1'
+    criteria['facet[]'] = Plugins.search_facets_for_type(:reading_room_request)
     if params['filter_term']
       criteria['filter_term[]'] = params['filter_term']
     end
