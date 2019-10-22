@@ -56,7 +56,6 @@
             <th><%= I18n.t("reading_room_requests.researcher_name") %></th>
             <th><%= I18n.t("reading_room_requests.status") %></th>
             <th><%= I18n.t("reading_room_requests.date_required") %></th>
-            <th class="col audit-info"></th>
             <th class="col actions"><!-- actions --></th>
           </tr>
           </thead>
@@ -78,6 +77,13 @@
                                      :placement => "top",
                                      :inside_linker_browse => true) +
                         '</div>').html_safe %>
+
+                <% unless requested_item.fetch('calculated_availability') == 'available' %>
+                  <div class="clearfix"></div>
+                  <div class="label label-danger">
+                    <%= I18n.t('reading_room_requests.availability.' + requested_item.fetch('calculated_availability')) %>
+                  </div>
+                <% end %>
               </td>
               <td>
                 <% user = parsed.fetch('requesting_user')
@@ -96,9 +102,6 @@
                 <% unless date.to_s.empty? %>
                   <%= Time.at(Integer(date) / 1000).to_date.iso8601 %>
                 <% end %>
-              </td>
-              <td>
-                <%= display_audit_info(result, :format => 'compact') %>
               </td>
               <td class="table-record-actions">
                 <%= link_to "<span class='fa fa-download' aria-hidden='true'></span> Slip".html_safe, {:controller => :reading_room_requests, :action => :picking_slip, :id => request_id}, :title => "Download picking slip", :target => '_blank', :class => 'btn btn-default btn-xs' %>
