@@ -11,6 +11,7 @@ class ReadingRoomRequestsController < ApplicationController
     criteria = params.to_hash
 
     criteria['page'] ||= '1'
+    criteria['page_size'] = '30'
     criteria['facet[]'] = Plugins.search_facets_for_type(:reading_room_request)
     if params['filter_term']
       criteria['filter_term[]'] = params['filter_term']
