@@ -147,27 +147,8 @@
               <td class="table-record-actions">
                 <%= link_to "Download slip", {:controller => :reading_room_requests, :action => :picking_slip, :id => request_id}, :title => "Download picking slip", :target => '_blank', :class => 'btn btn-default btn-xs' %>
                 <div class="rrr-status-actions">
-                  <% if parsed.fetch('status') == 'AWAITING_AGENCY_APPROVAL' %>
-                    <button class="btn btn-success btn-xs" data-id="<%= request_id %>" data-status="APPROVED_BY_AGENCY">Approved by Agency</button>
-                    <button class="btn btn-danger btn-xs" data-id="<%= request_id %>" data-status="REJECTED_BY_AGENCY">Rejected by Agency</button>
-                    <button class="btn btn-danger btn-xs" data-id="<%= request_id %>" data-status="CANCELLED_BY_QSA">Cancelled by QSA</button>
-                    <button class="btn btn-danger btn-xs"  data-id="<%= request_id %>"data-status="CANCELLED_BY_RESEARCHER">Cancelled by Researcher</button>
-                  <% elsif parsed.fetch('status') == 'PENDING' %>
-                    <button class="btn btn-primary btn-xs" data-id="<%= request_id %>" data-status="IN_RETRIEVAL">In Retrieval</button>
-                    <button class="btn btn-danger btn-xs" data-id="<%= request_id %>" data-status="CANCELLED_BY_QSA">Cancelled by QSA</button>
-                    <button class="btn btn-danger btn-xs" data-id="<%= request_id %>" data-status="CANCELLED_BY_RESEARCHER">Cancelled by Researcher</button>
-                  <% elsif parsed.fetch('status') == 'IN_RETRIEVAL' %>
-                    <button class="btn btn-primary btn-xs" data-id="<%= request_id %>" data-status="READY_FOR_RETRIEVAL">Ready for Retrieval</button>
-                    <button class="btn btn-danger btn-xs" data-id="<%= request_id %>" data-status="CANCELLED_BY_QSA">Cancelled by QSA</button>
-                    <button class="btn btn-danger btn-xs" data-id="<%= request_id %>" data-status="CANCELLED_BY_RESEARCHER">Cancelled by Researcher</button>
-                  <% elsif parsed.fetch('status') == 'READY_FOR_RETRIEVAL' %>
-                    <button class="btn btn-primary btn-xs" data-id="<%= request_id %>" data-status="WITH_RESEARCHER">Retrieved by Researcher</button>
-                    <button class="btn btn-danger btn-xs" data-id="<%= request_id %>" data-status="CANCELLED_BY_QSA">Cancelled by QSA</button>
-                    <button class="btn btn-danger btn-xs" data-id="<%= request_id %>" data-status="CANCELLED_BY_RESEARCHER">Cancelled by Researcher</button>
-                  <% elsif parsed.fetch('status') == 'WITH_RESEARCHER' %>
-                    <button class="btn btn-primary btn-xs" data-id="<%= request_id %>" data-status="RETURNED_BY_RESEARCHER">Returned by Researcher</button>
-                  <% elsif parsed.fetch('status') == 'RETURNED_BY_RESEARCHER' %>
-                    <button class="btn btn-success btn-xs" data-id="<%= request_id %>" data-status="COMPLETE">Item Returned to Home Location</button>
+                  <% buttons_for_request(parsed.fetch('status'), request_id).each do |button| %>
+                    <%= button %>
                   <% end %>
                 </div>
               </td>
