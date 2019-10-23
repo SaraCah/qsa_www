@@ -136,4 +136,41 @@ class ReadingRoomRequestsController < ApplicationController
       end
     end
   end
+
+  def self.status_button_map
+    @status_button_map ||= {
+      'APPROVED_BY_AGENCY' => {:style => 'success', :label => 'Approved by Agency'},
+      'REJECTED_BY_AGENCY' => {:style => 'danger', :label => 'Rejected by Agency'},
+      'CANCELLED_BY_QSA' => {:style => 'danger', :label => 'Cancelled by QSA'},
+      'CANCELLED_BY_RESEARCHER' => {:style => 'danger', :label => 'Cancelled by Researcher'},
+      'IN_RETRIEVAL' => {:style => 'primary', :label => 'In Retrieval'},
+      'READY_FOR_RETRIEVAL' => {:style => 'primary', :label => 'Ready for Retrieval'},
+      'WITH_RESEARCHER' => {:style => 'primary', :label => 'Retrieved by Researcher'},
+      'RETURNED_BY_RESEARCHER' => {:style => 'primary', :label => 'Returned by Researcher'},
+      'COMPLETE' => {:style => 'success', :label => 'Item Returned to Home Location'},
+    }
+
+  end
+
+  def self.status_workflow_map
+    @status_workflow_map = {
+      'AWAITING_AGENCY_APPROVAL' => ['APPROVED_BY_AGENCY', 'REJECTED_BY_AGENCY', 'CANCELLED_BY_QSA', 'CANCELLED_BY_RESEARCHER'],
+      'PENDING' => ['IN_RETRIEVAL', 'CANCELLED_BY_QSA', 'CANCELLED_BY_RESEARCHER'],
+      'IN_RETRIEVAL' => ['READY_FOR_RETRIEVAL', 'CANCELLED_BY_QSA', 'CANCELLED_BY_RESEARCHER'],
+      'READY_FOR_RETRIEVAL' => ['WITH_RESEARCHER', 'CANCELLED_BY_QSA', 'CANCELLED_BY_RESEARCHER'],
+      'WITH_RESEARCHER' => ['RETURNED_BY_RESEARCHER'],
+      'RETURNED_BY_RESEARCHER' => ['COMPLETE'],
+    }
+  end
+
+  def status_button(status, id)
+    btn_def = self.class.status_button_map[status]
+    "<button class=\"btn btn-#{btn_def[:style]} btn-xs\" data-id=\"#{id}\" data-status=\"#{status}\">#{btn_def[:label]}</button>".html_safe
+  end
+
+  helper_method :buttons_for_request
+  def buttons_for_request(status, id)
+    buttons = self.class.status_workflow_map[status.upcase] || []
+    buttons.map{|button| status_button(button, id)}
+  end
 end
