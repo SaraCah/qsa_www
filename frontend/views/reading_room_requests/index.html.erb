@@ -50,7 +50,7 @@
           </span> selected requests:
 
           <div class="btn-group">
-            <%= link_to "Download slip", request.parameters, id: "batch_slips",  class:  "btn btn-xs btn-default" %>
+            <%= link_to "Download slip", request.parameters, id: "999",  class:  "btn btn-xs btn-default" %>
           </div>
 
           <% status_term = Array(@search_data[:criteria]['filter_term[]']).find {|term| JSON.parse(term).keys[0] == 'rrr_status_u_ssort'} %>
@@ -99,7 +99,7 @@
             <% request_id = JSONModel(:reading_room_request).id_for(result['uri']) %>
             <tr class="<%= "deleted" if deleted %>">
               <td>
-                <input class="rrr-selected-item" type="checkbox" name="selected-item" value="<%= result['id'] %>" checked="true"/>
+                <input class="rrr-selected-item" type="checkbox" name="selected-item" value="<%= request_id %>" checked="true"/>
               </td>
               <td><%= QSAIdHelper.id(parsed.fetch('qsa_id_prefixed')) %></td>
               <td>

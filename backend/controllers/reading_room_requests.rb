@@ -57,4 +57,19 @@ class ArchivesSpaceService < Sinatra::Base
     request.set_status(params[:status])
     json_response({:status => "success"})
   end
+
+  Endpoint.post('/reading_room_requests/bulk_set_status')
+    .description("Bulk update request statuses")
+    .params(["ids", String, "Comma separated list of ids to update"],
+            ["status", String, "New status"])
+    .permissions([])
+    .returns([200, "(:success)"],
+             [404, "Not found"]) \
+  do
+    params[:ids].split(',').each do |id|
+      request = ReadingRoomRequest.get_or_die(id)
+      request.set_status(params[:status])
+    end
+    json_response({:status => "success"})
+  end
 end

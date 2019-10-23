@@ -5,7 +5,7 @@ class ReadingRoomRequestsController < ApplicationController
   include ApplicationHelper
 
   # TODO: review access controls for these endpoints
-  set_access_control  "view_repository" => [:index, :show, :picking_slip, :set_status]
+  set_access_control  "view_repository" => [:index, :show, :picking_slip, :set_status, :bulk_set_status]
 
   def index
     criteria = params.to_hash
@@ -75,6 +75,11 @@ class ReadingRoomRequestsController < ApplicationController
 
   def set_status
     response = JSONModel::HTTP.post_form("/reading_room_requests/#{params[:id]}/set_status", :status => params[:status])
+    render :json => {:status => 'updated'}
+  end
+
+  def bulk_set_status
+    response = JSONModel::HTTP.post_form("/reading_room_requests/bulk_set_status", :status => params[:status], :ids => params[:ids])
     render :json => {:status => 'updated'}
   end
 
