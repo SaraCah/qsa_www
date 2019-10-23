@@ -103,13 +103,19 @@
               </td>
 
               <td>
-                <% user = parsed.fetch('requesting_user')
-                   names = [user.fetch('first_name', nil), user.fetch('last_name', nil)].compact.join(" ") %>
-                <% if names.empty? %>
-                  <%= user.fetch('email') %>
-                <% else %>
-                   <%= "%s <%s>" % [names, user.fetch('email')] %>  
-                <% end %>
+                <%
+                   user = parsed.fetch('requesting_user')
+                   names = [user.fetch('first_name', nil), user.fetch('last_name', nil)].compact.join(" ")
+                   email = user.fetch('email')
+                   email = "%s <%s>" % [names, email] unless names.empty?
+                %>
+                <a href="mailto:<%= email %>">
+                  <% if names.empty? %>
+                    <%= user.fetch('email') %>
+                  <% else %>
+                     <%= names %>  
+                  <% end %>
+                </a>
               </td>
               <td class="rrr-status">
                 <div><%= ("<div class='label #{badge_class_for_status(parsed.fetch('status'))}'>" + I18n.t('reading_room_requests.statuses.' + parsed.fetch('status').downcase).upcase + '</div>').html_safe %></div>
