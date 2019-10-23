@@ -66,6 +66,7 @@
             <th class="col"></th>
             <th style="width:100px"><%= I18n.t("as_runcorn.qsa_id") %></th>
             <th><%= I18n.t("reading_room_requests.requested_item") %></th>
+            <th><%= I18n.t("reading_room_requests.item_availability") %></th>
             <th><%= I18n.t("reading_room_requests.researcher_name") %></th>
             <th><%= I18n.t("reading_room_requests.status") %></th>
             <th><%= I18n.t("reading_room_requests.date_required") %></th>
@@ -93,14 +94,14 @@
                                      :placement => "top",
                                      :inside_linker_browse => true) +
                         '</div>').html_safe %>
-
-                <% unless requested_item.fetch('calculated_availability') == 'available' %>
-                  <div class="clearfix"></div>
-                  <div class="label label-danger">
-                    <%= I18n.t('reading_room_requests.availability.' + requested_item.fetch('calculated_availability')) %>
-                  </div>
-                <% end %>
               </td>
+
+              <td>
+                <div class="label label-<%= requested_item.fetch('calculated_availability') == 'available' ? 'success' : 'danger' %>">
+                  <%= I18n.t('reading_room_requests.availability.' + requested_item.fetch('calculated_availability')) %>
+                </div>
+              </td>
+
               <td>
                 <% user = parsed.fetch('requesting_user')
                    names = [user.fetch('first_name', nil), user.fetch('last_name', nil)].compact.join(" ") %>

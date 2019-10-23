@@ -6,6 +6,7 @@ en:
     _singular: Reading Room Request
     _plural: Reading Room Requests
     requested_item: Requested Item
+    item_availability: Availability
     researcher_name: Researcher Name
     status: Status
     date_required: Date Required
