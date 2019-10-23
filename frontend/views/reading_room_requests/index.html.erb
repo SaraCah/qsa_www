@@ -41,8 +41,7 @@
     <div class="record-toolbar">
       <div class="btn-group pull-right">
         <%
-          slips_label = '<span class="fa fa-download" aria-hidden="true"></span>'
-          slips_label += ' Slips for '
+          slips_label = ' Download slips for '
           slips_label += '<span id="batch-slips-button-count">' + [@search_data['total_hits'], @search_data['page_size']].min.to_s + '</span>'
           slips_label += ' requests'
         %>
@@ -121,7 +120,7 @@
                 <% end %>
               </td>
               <td class="table-record-actions">
-                <%= link_to "<span class='fa fa-download' aria-hidden='true'></span> Slip".html_safe, {:controller => :reading_room_requests, :action => :picking_slip, :id => request_id}, :title => "Download picking slip", :target => '_blank', :class => 'btn btn-default btn-xs' %>
+                <%= link_to "Download slip", {:controller => :reading_room_requests, :action => :picking_slip, :id => request_id}, :title => "Download picking slip", :target => '_blank', :class => 'btn btn-default btn-xs' %>
                 <div class="rrr-status-actions">
                   <% if parsed.fetch('status') == 'AWAITING_AGENCY_APPROVAL' %>
                     <button class="btn btn-success btn-xs" data-id="<%= request_id %>" data-status="APPROVED_BY_AGENCY">Approved by Agency</button>
