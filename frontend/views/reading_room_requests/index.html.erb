@@ -42,22 +42,16 @@
   <div class="col-md-9">
     <div class="record-toolbar">
       <div class="pull-right">
-        <%
-          status_term = Array(@search_data[:criteria]['filter_term[]']).find {|term| JSON.parse(term).keys[0] == 'rrr_status_u_ssort'}
-
-          slips_label = ' Download slips for '
-          slips_label += '<span id="batch-slips-button-count">' + [@search_data['total_hits'], @search_data['page_size']].min.to_s + '</span>'
-          slips_label += ' requests'
-        %>
-
         Bulk action for
-        <span class="readingroom-request-selected-count">
+        <span class="rrr-selected-requests-count">
           <%= [@search_data['total_hits'], @search_data['page_size']].min.to_s %>
         </span> selected requests:
 
         <div class="btn-group">
           <%= link_to "Download slip", request.parameters, id: "batch_slips",  class:  "btn btn-xs btn-default" %>
         </div>
+
+        <% status_term = Array(@search_data[:criteria]['filter_term[]']).find {|term| JSON.parse(term).keys[0] == 'rrr_status_u_ssort'} %>
 
         <% unless status_term.nil? %>
           <% status = JSON.parse(status_term).values[0] %>
