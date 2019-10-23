@@ -1,5 +1,7 @@
 <%= setup_context(:title => I18n.t("reading_room_requests._plural")) %>
 
+<%= javascript_include_tag 'readingroom_requests' %>
+
 <%
   def badge_class_for_status(status)
     if status.starts_with?('CANCELLED') || status.starts_with?('REJECTED')
@@ -167,25 +169,3 @@
     </div>
   </div>
 </div>
-
-<script>
-  $('.rrr-status-actions button').on('click', function(e) {
-    var data = $(e.target).data();
-    $.ajax({
-      url: APP_PATH + 'reading_room_requests/' + data.id + '/set_status',
-      method: 'POST',
-      data: {
-        'status': data.status
-      },
-      success: function() {
-        location.reload();
-      }
-    })
-  });
-</script>
-<style>
-  .rrr-status-actions button {
-    display: block;
-    margin-top: 5px;
-  }
-</style>
