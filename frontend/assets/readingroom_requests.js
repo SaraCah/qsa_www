@@ -1,4 +1,20 @@
 $(function() {
+  var updateBulkReadingroomRequestsCount = function() {
+    var num_chkd = $('input[name=selected-item]:checked').length;
+
+    if (num_chkd == 0) {
+      $('.rrr-bulk-action-buttons').hide();
+    } else {
+      $('.rrr-selected-requests-count').text(num_chkd);
+      $('.rrr-bulk-action-buttons').show();
+    }
+
+  }
+
+  $('input[name=selected-item]').on('change', function(e) {
+    updateBulkReadingroomRequestsCount();
+  });
+
   $('.rrr-status-actions button').on('click', function(e) {
     var data = $(e.target).data();
     $.ajax({
@@ -12,4 +28,6 @@ $(function() {
       }
     })
   });
+
+  updateBulkReadingroomRequestsCount();
 });

@@ -39,10 +39,11 @@
 
     </div>
   </div>
+
   <div class="col-md-9">
     <div class="record-toolbar">
-      <div class="pull-right">
-        <% if @search_data['total_hits'] > 0 %>
+      <% if @search_data['total_hits'] > 0 %>
+        <div class="rrr-bulk-action-buttons pull-right">
           Bulk action for
           <span class="rrr-selected-requests-count">
             <%= [@search_data['total_hits'], @search_data['page_size']].min.to_s %>
@@ -98,7 +99,7 @@
             <% request_id = JSONModel(:reading_room_request).id_for(result['uri']) %>
             <tr class="<%= "deleted" if deleted %>">
               <td>
-                <input type="checkbox" name="selected_item" value="<%= result['id'] %>" checked="true"/>
+                <input class="rrr-selected-item" type="checkbox" name="selected-item" value="<%= result['id'] %>" checked="true"/>
               </td>
               <td><%= QSAIdHelper.id(parsed.fetch('qsa_id_prefixed')) %></td>
               <td>
