@@ -152,7 +152,7 @@ class ReadingRoomRequestsController < ApplicationController
       'CANCELLED_BY_RESEARCHER' => {:style => 'danger', :label => 'Cancelled by Researcher'},
       'BEING_RETRIEVED' => {:style => 'info', :label => 'Being Retrieved'},
       'DELIVERED_TO_READING_ROOM' => {:style => 'primary', :label => 'Delivered to Reading Room'},
-      'COMPLETE' => {:style => 'success', :label => 'Returned to Home Location / Complete'},
+      'COMPLETE' => {:style => 'success', :label => 'Returned to Home Location'},
     }
 
   end
