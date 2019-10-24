@@ -15,10 +15,10 @@ en:
       approved_by_agency: Approved by Agency
       rejected_by_agency: Rejected by Agency
       pending: Pending
-      in_retrieval: In Retrieval
-      ready_for_retrieval: Ready for Retrieval
-      with_researcher: With Researcher
-      returned_by_researcher: Returned by Researcher
+      being_retrieved: Being Retrieved
+      delivered_to_reading_room: Delivered to Reading Room
+      delivered_to_archivist: Delivered to Archivist
+      delivered_to_conservation: Delivered to Conservation
       complete: Complete
       cancelled_by_qsa: Cancelled by QSA
       cancelled_by_researcher: Cancelled by Researcher

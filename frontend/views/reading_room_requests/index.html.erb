@@ -12,7 +12,7 @@
       'label-default'
     elsif status == 'COMPLETE'
       'label-success'
-    elsif ['READY_FOR_RETRIEVAL', 'WITH_RESEARCHER', 'RETURNED_BY_RESEARCHER'].include?(status) 
+    elsif ['DELIVERED_TO_READING_ROOM'].include?(status) 
       'label-primary'
     else
       'label-info'

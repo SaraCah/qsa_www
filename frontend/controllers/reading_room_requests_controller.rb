@@ -150,11 +150,9 @@ class ReadingRoomRequestsController < ApplicationController
       'REJECTED_BY_AGENCY' => {:style => 'danger', :label => 'Rejected by Agency'},
       'CANCELLED_BY_QSA' => {:style => 'danger', :label => 'Cancelled by QSA'},
       'CANCELLED_BY_RESEARCHER' => {:style => 'danger', :label => 'Cancelled by Researcher'},
-      'IN_RETRIEVAL' => {:style => 'primary', :label => 'In Retrieval'},
-      'READY_FOR_RETRIEVAL' => {:style => 'primary', :label => 'Ready for Retrieval'},
-      'WITH_RESEARCHER' => {:style => 'primary', :label => 'Retrieved by Researcher'},
-      'RETURNED_BY_RESEARCHER' => {:style => 'primary', :label => 'Returned by Researcher'},
-      'COMPLETE' => {:style => 'success', :label => 'Item Returned to Home Location'},
+      'BEING_RETRIEVED' => {:style => 'info', :label => 'Being Retrieved'},
+      'DELIVERED_TO_READING_ROOM' => {:style => 'primary', :label => 'Delivered to Reading Room'},
+      'COMPLETE' => {:style => 'success', :label => 'Returned to Home Location / Complete'},
     }
 
   end
@@ -162,11 +160,9 @@ class ReadingRoomRequestsController < ApplicationController
   def self.status_workflow_map
     @status_workflow_map = {
       'AWAITING_AGENCY_APPROVAL' => ['APPROVED_BY_AGENCY', 'REJECTED_BY_AGENCY', 'CANCELLED_BY_QSA', 'CANCELLED_BY_RESEARCHER'],
-      'PENDING' => ['IN_RETRIEVAL', 'CANCELLED_BY_QSA', 'CANCELLED_BY_RESEARCHER'],
-      'IN_RETRIEVAL' => ['READY_FOR_RETRIEVAL', 'CANCELLED_BY_QSA', 'CANCELLED_BY_RESEARCHER'],
-      'READY_FOR_RETRIEVAL' => ['WITH_RESEARCHER', 'CANCELLED_BY_QSA', 'CANCELLED_BY_RESEARCHER'],
-      'WITH_RESEARCHER' => ['RETURNED_BY_RESEARCHER'],
-      'RETURNED_BY_RESEARCHER' => ['COMPLETE'],
+      'PENDING' => ['BEING_RETRIEVED', 'CANCELLED_BY_QSA', 'CANCELLED_BY_RESEARCHER'],
+      'BEING_RETRIEVED' => ['DELIVERED_TO_READING_ROOM', 'CANCELLED_BY_QSA', 'CANCELLED_BY_RESEARCHER'],
+      'DELIVERED_TO_READING_ROOM' => ['COMPLETE']
     }
   end
 
