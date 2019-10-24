@@ -51,8 +51,8 @@ class ReadingRoomRequest < Sequel::Model
   def self.build_user_map(user_ids)
     PublicDB.open do |db|
       db[:user]
-        .filter(:id => user_ids).select(:id, :email, :first_name, :last_name)
-        .map {|row| [row[:id], [:id, :email, :first_name, :last_name].map {|a| [a, row[a]]}.to_h]}
+        .filter(:id => user_ids).select(:id, :email, :first_name, :last_name, :verified)
+        .map {|row| [row[:id], [:id, :email, :first_name, :last_name, :verified].map {|a| [a, a == :verified ? !(row[a] == 0) : row[a]]}.to_h]}
         .to_h
     end
   end

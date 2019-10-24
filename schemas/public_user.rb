@@ -8,6 +8,7 @@
       "email" => {"type" => "string"},
       "first_name" => {"type" => "string"},
       "last_name" => {"type" => "string"},
+      "verified" => {"type" => "boolean"},
     }
   }
 }

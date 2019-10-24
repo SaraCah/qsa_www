@@ -140,6 +140,11 @@
                      <%= names %>  
                   <% end %>
                 </a>
+
+                <div class="clearfix"></div>
+
+                <div class="label label-<%= user.fetch('verified') ? 'success' : 'danger' %>"><%= user.fetch('verified') ? 'Verified' : 'Unverified' %></div>
+
               </td>
               <td class="rrr-status">
                 <div><%= ("<div class='label #{badge_class_for_status(parsed.fetch('status'))}'>" + I18n.t('reading_room_requests.statuses.' + parsed.fetch('status').downcase).upcase + '</div>').html_safe %></div>
