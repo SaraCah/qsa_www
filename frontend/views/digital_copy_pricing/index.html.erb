@@ -1,0 +1,95 @@
+<div class="row">
+  <div class="col-md-12">
+    <div class="record-pane">
+      <h1>Digital Copy Pricing</h1>
+
+      <div class="well">
+        <div class="row">
+          <div class="col-sm-12">
+            <div class="form-group">
+              <label for="record_uri">Record URI</label>
+              <div>
+                <input type="text" id="record_uri" class="form-control"/>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="price">Price in cents</label>
+              <div>
+                <input type="number" id="price" class="form-control"/>
+              </div>
+            </div>
+            <div class="form-group">
+              <button id="addDigitalCopyPricing" class="btn btn-primary">Add/Update Pricing</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <table class="table table-bordered table-condensed table-striped">
+        <thead>
+          <tr>
+            <th>Record URI</th>
+            <th class="text-right">Price in cents</th>
+            <th width="80px"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @prices.each do |price| %>
+            <tr>
+              <td><%= price.item['ref'] %></td>
+              <td class="text-right"><%= price.price_cents %></td>
+              <td class="text-right"><button class="btn btn-danger btn-xs delete-price" data-uri="<%= price.item['ref'] %>"><i class="fa fa-trash"></i> Delete</button></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  $(function() {
+    $('#addDigitalCopyPricing').on('click', function() {
+      var uri = $('#record_uri').val();
+      var price = $('#price').val();
+
+      if (uri.length === 0 || price.length === 0) {
+        return;
+      }
+
+      $('.delete-price').prop('disabled', true);
+      $('#addDigitalCopyPricing').prop('disabled', true);
+
+      $.ajax({
+        url: APP_PATH + "digital_copy_prices",
+        method: 'POST',
+        data: {
+          price: price,
+          uri: uri
+        },
+        success: function() {
+          location.reload();
+        }
+      })
+    });
+
+    $('.delete-price').on('click', function() {
+      var uri = $(this).data('uri');
+
+      $('.delete-price').prop('disabled', true);
+      $('#addDigitalCopyPricing').prop('disabled', true);
+
+      $.ajax({
+        url: APP_PATH + "digital_copy_prices/delete",
+        method: 'POST',
+        data: {
+          uri: uri
+        },
+        success: function() {
+          location.reload();
+        }
+      })
+    });
+  });
+</script>
