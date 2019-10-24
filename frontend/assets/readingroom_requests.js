@@ -1,6 +1,7 @@
 $(function() {
   var updateSelectedReadingroomRequests = function() {
     var chkd_items = $('input[name=selected-item]:checked');
+    var num_all_items = $('input[name=selected-item]').length;
     var num_chkd = chkd_items.length;
 
     var id_a = Array();
@@ -13,14 +14,31 @@ $(function() {
 
     if (num_chkd == 0) {
       $('.rrr-bulk-action-buttons').hide();
+      $('.rrr-bulk-action-explainer').show();
     } else {
+      $('.rrr-bulk-action-explainer').hide();
       $('.rrr-selected-requests-count').text(num_chkd);
       $('.rrr-bulk-action-buttons').show();
     }
 
+    if (num_chkd == num_all_items) {
+      $('.rrr-select-all-items').prop('checked', true);
+    } else {
+      $('.rrr-select-all-items').prop('checked', false);
+    }
   }
 
   $('input[name=selected-item]').on('change', function(e) {
+    updateSelectedReadingroomRequests();
+  });
+
+  $('.rrr-select-all-items').on('change', function(e) {
+    if ($(e.target).prop('checked')) {
+      $('input[name=selected-item]').prop('checked', true);
+    } else {
+      $('input[name=selected-item]').prop('checked', false);
+    }
+
     updateSelectedReadingroomRequests();
   });
 
@@ -51,6 +69,10 @@ $(function() {
         location.reload();
       }
     })
+  });
+
+  $('.rrr-selected-item-cell').on('click', function(e) {
+    $(e.target).find('input[type=checkbox]').trigger('click');
   });
 
   updateSelectedReadingroomRequests();

@@ -64,7 +64,11 @@
             <% end %>
           <% end %>
         </div>
-        <br style="clear:both" />
+
+        <div class="rrr-bulk-action-explainer pull-right" style="display:none;">
+          Select one or more requests to perform bulk actions
+          <br style="clear:both" />
+        </div>
       <% end %>
     </div>
 
@@ -81,7 +85,9 @@
         <table id="tabledSearchResults" class="table table-striped table-bordered table-condensed table-hover table-sortable table-search-results">
           <thead>
           <tr>
-            <th class="col"></th>
+            <th class="rrr-selected-item-cell col">
+              <input class="rrr-select-all-items" type="checkbox" name="select-all-items" value="all" checked="true"/>
+            </th>
             <th style="width:100px"><%= I18n.t("as_runcorn.qsa_id") %></th>
             <th><%= I18n.t("reading_room_requests.requested_item") %></th>
             <th><%= I18n.t("reading_room_requests.item_availability") %></th>
@@ -98,7 +104,7 @@
             <% parsed = ASUtils.json_parse(result['json']) %>
             <% request_id = JSONModel(:reading_room_request).id_for(result['uri']) %>
             <tr class="<%= "deleted" if deleted %>">
-              <td>
+              <td class="rrr-selected-item-cell">
                 <input class="rrr-selected-item" type="checkbox" name="selected-item" value="<%= request_id %>" checked="true"/>
               </td>
               <td><%= QSAIdHelper.id(parsed.fetch('qsa_id_prefixed')) %></td>
