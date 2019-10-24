@@ -2,6 +2,11 @@ en:
   browse_menu:
     user_services: User Services
 
+  plugins:
+    reading_room_request:
+      _singular: Reading Room Request
+      _plural: Reading Room Requests
+
   reading_room_requests:
     _singular: Reading Room Request
     _plural: Reading Room Requests
