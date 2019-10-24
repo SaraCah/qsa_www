@@ -6,7 +6,7 @@ class ArchivesSpaceService < Sinatra::Base
     .permissions([])
     .returns([200, "[(:digital_copy_pricing)]"]) \
     do
-    handle_unlimited_listing(DigitalCopyPricing, :active => 1)
+    handle_unlimited_listing(DigitalCopyPricing, :active => 1, :type => 'record')
   end
 
   Endpoint.post('/digital_copy_prices')

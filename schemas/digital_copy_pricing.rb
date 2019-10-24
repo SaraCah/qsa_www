@@ -22,15 +22,15 @@
             "readonly" => "true"
           },
 
-          # "qsa_id_prefixed" => {
-          #   "type" => "string",
-          #   "readonly" => "true"
-          # },
-          #
-          # "display_string" => {
-          #   "type" => "string",
-          #   "readonly" => "true"
-          # }
+          "qsa_id_prefixed" => {
+            "type" => "string",
+            "readonly" => "true"
+          },
+
+          "display_string" => {
+            "type" => "string",
+            "readonly" => "true"
+          }
         }
       },
 
