@@ -24,12 +24,13 @@ class DigitalCopyPricing < Sequel::Model
     now = Time.now
 
     DigitalCopyPricing.create(:aspace_record_uri => json.item['ref'],
+                              :type => 'record',
                               :price_cents => json.price_cents,
                               :active => 1,
                               :created_by => RequestContext.get(:current_username),
                               :modified_by => RequestContext.get(:current_username),
-                              :create_time => now.to_i,
-                              :modified_time => now.to_i,
+                              :create_time => java.lang.System.currentTimeMillis,
+                              :modified_time => java.lang.System.currentTimeMillis,
                               :system_mtime => now)
   end
 
@@ -37,7 +38,8 @@ class DigitalCopyPricing < Sequel::Model
     DigitalCopyPricing
       .filter(:aspace_record_uri => uri)
       .update(:modified_by => RequestContext.get(:current_username),
-              :modified_time => Time.now.to_i,
+              :modified_time => java.lang.System.currentTimeMillis,
+              :system_mtime => now,
               :active => 0)
   end
 end
