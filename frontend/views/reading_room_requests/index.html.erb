@@ -118,6 +118,11 @@
                                      :placement => "top",
                                      :inside_linker_browse => true) +
                         '</div>').html_safe %>
+
+                <% if requested_item['rap_access_status'] == 'Restricted Access' %>
+                  <div class="clearfix"></div>
+                  <div class="label label-danger"><%= requested_item['rap_access_status'] %></div>
+                <% end %>
               </td>
 
               <td>
