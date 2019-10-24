@@ -17,6 +17,8 @@ class ReadingRoomRequestsController < ApplicationController
       criteria['filter_term[]'] = params['filter_term']
     end
 
+    criteria['sort'] ||= 'qsa_id_u_sort desc'
+
     if criteria['filter_term[]']
       if date_required_term = criteria['filter_term[]'].find {|term| JSON.parse(term).keys[0] == 'date_required'}
         criteria['filter_term[]'].delete(date_required_term)
