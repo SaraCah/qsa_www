@@ -6,3 +6,8 @@
 .rrr-selected-requests-count {
   font-weight: bold;
 }
+
+.rrr-date-required {
+  white-space: nowrap;
+  font-weight: bold;
+}

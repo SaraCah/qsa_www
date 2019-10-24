@@ -18,6 +18,17 @@ $(function() {
     } else {
       $('.rrr-bulk-action-explainer').hide();
       $('.rrr-selected-requests-count').text(num_chkd);
+
+      // only show the buttons that all of the checked items have
+      $('.rrr-bulk-action-buttons').find('.rrr-status').each(function() {
+        var status = $(this).data('status');
+	if (chkd_items.length == chkd_items.closest('tr').find('.rrr-status-' + status).length) {
+	  $(this).closest('.btn-group').show();
+	} else {
+	  $(this).closest('.btn-group').hide();
+	}
+      });
+
       $('.rrr-bulk-action-buttons').show();
     }
 

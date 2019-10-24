@@ -57,7 +57,7 @@
 
           <% unless status_term.nil? %>
             <% status = JSON.parse(status_term).values[0] %>
-            <% buttons_for_request(status, 999).each do |button| %>
+            <% buttons_for_request(status, 999, :restricted => :both).each do |button| %>
               <div class="btn-group">
                 <%= button %>
               </div>
@@ -98,18 +98,19 @@
           </tr>
           </thead>
           <tbody>
-          <% @search_data['results'].each do |result|
-            deleted = (params.has_key?("deleted_uri") and Array(params["deleted_uri"]).include?(result["id"])) || false
-          %>
+          <% @search_data['results'].each do |result| %>
+            <% deleted = (params.has_key?("deleted_uri") and Array(params["deleted_uri"]).include?(result["id"])) || false %>
             <% parsed = ASUtils.json_parse(result['json']) %>
             <% request_id = JSONModel(:reading_room_request).id_for(result['uri']) %>
-            <tr class="<%= "deleted" if deleted %>">
+            <% requested_item = parsed.fetch('requested_item', {}).fetch('_resolved', {}) %>
+            <% restricted_item = requested_item['rap_access_status'] == 'Restricted Access' %>
+
+            <tr class="<%= 'deleted' if deleted %> <%= 'rrr-restricted-item' if restricted_item %>">
               <td class="rrr-selected-item-cell">
-                <input class="rrr-selected-item" type="checkbox" name="selected-item" value="<%= request_id %>" checked="true"/>
+                <input class="rrr-selected-item" type="checkbox" name="selected-item" value="<%= request_id %>" checked="true" id="selected-item-<%= request_id %>"/>
               </td>
               <td><%= QSAIdHelper.id(parsed.fetch('qsa_id_prefixed')) %></td>
               <td>
-                <% requested_item = parsed.fetch('requested_item', {}).fetch('_resolved', {}) %>
                 <%= ('<div class="token-list">' +
                         render_token(:object => requested_item,
                                      :label => ("%s: %s" % [requested_item['qsa_id_prefixed'], requested_item['title']]).html_safe,
@@ -119,7 +120,7 @@
                                      :inside_linker_browse => true) +
                         '</div>').html_safe %>
 
-                <% if requested_item['rap_access_status'] == 'Restricted Access' %>
+                <% if restricted_item %>
                   <div class="clearfix"></div>
                   <div class="label label-danger"><%= requested_item['rap_access_status'] %></div>
                 <% end %>
@@ -151,19 +152,25 @@
                 <div class="label label-<%= user.fetch('verified') ? 'success' : 'danger' %>"><%= user.fetch('verified') ? 'Verified' : 'Unverified' %></div>
 
               </td>
+
               <td class="rrr-status">
-                <div><%= ("<div class='label #{badge_class_for_status(parsed.fetch('status'))}'>" + I18n.t('reading_room_requests.statuses.' + parsed.fetch('status').downcase).upcase + '</div>').html_safe %></div>
+                <div>
+                  <%= ("<div class='label #{badge_class_for_status(parsed.fetch('status'))}'>" + I18n.t('reading_room_requests.statuses.' + parsed.fetch('status').downcase).upcase + '</div>').html_safe %>
+                </div>
               </td>
+
               <td>
                 <% date = parsed.fetch('date_required', '') %>
                 <% unless date.to_s.empty? %>
-                  <%= Time.at(Integer(date) / 1000).to_date.iso8601 %>
+                  <div class="rrr-date-required">
+                    <%= Time.at(Integer(date) / 1000).to_date.iso8601 %>
+                  </div>
                 <% end %>
               </td>
               <td class="table-record-actions">
                 <%= link_to "Download slip", {:controller => :reading_room_requests, :action => :picking_slip, :id => request_id}, :title => "Download picking slip", :target => '_blank', :class => 'btn btn-default btn-xs' %>
                 <div class="rrr-status-actions">
-                  <% buttons_for_request(parsed.fetch('status'), request_id).each do |button| %>
+                  <% buttons_for_request(parsed.fetch('status'), request_id, :restricted => (restricted_item ? :restricted : :unrestricted)).each do |button| %>
                     <%= button %>
                   <% end %>
                 </div>

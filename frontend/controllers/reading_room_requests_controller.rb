@@ -152,6 +152,8 @@ class ReadingRoomRequestsController < ApplicationController
       'CANCELLED_BY_RESEARCHER' => {:style => 'danger', :label => 'Cancelled by Researcher'},
       'BEING_RETRIEVED' => {:style => 'info', :label => 'Being Retrieved'},
       'DELIVERED_TO_READING_ROOM' => {:style => 'primary', :label => 'Delivered to Reading Room'},
+      'DELIVERED_TO_ARCHIVIST' => {:style => 'primary', :label => 'Delivered to Archivist'},
+      'DELIVERED_TO_CONSERVATION' => {:style => 'primary', :label => 'Delivered to Conservation'},
       'COMPLETE' => {:style => 'success', :label => 'Returned to Home Location'},
     }
 
@@ -162,18 +164,38 @@ class ReadingRoomRequestsController < ApplicationController
       'AWAITING_AGENCY_APPROVAL' => ['APPROVED_BY_AGENCY', 'REJECTED_BY_AGENCY', 'CANCELLED_BY_QSA', 'CANCELLED_BY_RESEARCHER'],
       'PENDING' => ['BEING_RETRIEVED', 'CANCELLED_BY_QSA', 'CANCELLED_BY_RESEARCHER'],
       'BEING_RETRIEVED' => ['DELIVERED_TO_READING_ROOM', 'CANCELLED_BY_QSA', 'CANCELLED_BY_RESEARCHER'],
-      'DELIVERED_TO_READING_ROOM' => ['COMPLETE']
+      'BEING_RETRIEVED_RESTRICTED' => ['DELIVERED_TO_ARCHIVIST', 'DELIVERED_TO_CONSERVATION', 'CANCELLED_BY_QSA', 'CANCELLED_BY_RESEARCHER'],
+      'DELIVERED_TO_CONSERVATION' => ['DELIVERED_TO_READING_ROOM', 'DELIVERED_TO_ARCHIVIST'],
+      'DELIVERED_TO_READING_ROOM' => ['COMPLETE'],
+      'DELIVERED_TO_ARCHIVIST' => ['COMPLETE'],
     }
+  end
+
+
+  def status_workflow(status, restricted)
+    self.class.status_workflow_map.fetch(status + (restricted ? '_RESTRICTED' : ''), [])
   end
 
   def status_button(status, id)
     btn_def = self.class.status_button_map[status]
-    "<button class=\"btn btn-#{btn_def[:style]} btn-xs\" data-id=\"#{id}\" data-status=\"#{status}\">#{btn_def[:label]}</button>".html_safe
+    "<button class=\"btn btn-#{btn_def[:style]} btn-xs rrr-status rrr-status-#{status}\" data-id=\"#{id}\" data-status=\"#{status}\">#{btn_def[:label]}</button>".html_safe
   end
 
   helper_method :buttons_for_request
-  def buttons_for_request(status, id)
-    buttons = self.class.status_workflow_map[status.upcase] || []
+  def buttons_for_request(status, id, opts = {})
+    opts[:restricted] ||= :unrestricted
+    status = status.upcase
+    buttons = []
+    if [:unrestricted, :both].include?(opts[:restricted])
+      buttons += status_workflow(status, false)
+    end
+    if [:restricted, :both].include?(opts[:restricted])
+      buttons += status_workflow(status, true)
+    end
+
+    # stoopid reversing to keep cancel buttons at the end
+    buttons = buttons.reverse.uniq.reverse
+
     buttons.map{|button| status_button(button, id)}
   end
 end
