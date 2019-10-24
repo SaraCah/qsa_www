@@ -33,12 +33,7 @@ $(function() {
   });
 
   $('.rrr-select-all-items').on('change', function(e) {
-    if ($(e.target).prop('checked')) {
-      $('input[name=selected-item]').prop('checked', true);
-    } else {
-      $('input[name=selected-item]').prop('checked', false);
-    }
-
+    $('input[name=selected-item]').prop('checked', $(e.target).prop('checked'));
     updateSelectedReadingroomRequests();
   });
 
@@ -52,12 +47,14 @@ $(function() {
 	'status': data.status
       },
       success: function() {
-        location.reload();
+	$('input[name=selected-item]:checked').closest('tr').remove();
+        updateSelectedReadingroomRequests();
       }
     })
   });
 
   $('.rrr-status-actions button').on('click', function(e) {
+    var target = $(e.target);
     var data = $(e.target).data();
     $.ajax({
       url: APP_PATH + 'reading_room_requests/' + data.id + '/set_status',
@@ -66,7 +63,12 @@ $(function() {
         'status': data.status
       },
       success: function() {
-        location.reload();
+        if (location.search.match('rrr_status_u_ssort')) {
+	  target.closest('tr').remove();
+	} else {
+          location.reload();
+	}
+        updateSelectedReadingroomRequests();
       }
     })
   });
