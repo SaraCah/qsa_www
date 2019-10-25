@@ -140,9 +140,19 @@ class AbstractMapper
   end
 
   def parse_notes(notes)
-    # FIXME filter unpublished sub notes and content
-    # Don't push note_label = 'Archivists Note'
-    notes.select{|note| note['publish']}
+    # filter unpublished and Archivist's Notes
+    published_notes = notes
+                        .select{|note| note['publish']}
+                        .reject{|note| note['label'] && note['label'].strip =~ /Archivist\'?s Notes?/}
+
+    published_notes.each do |note|
+      # Drop unpublished subnotes
+      unless ASUtils.wrap(note['subnotes']).empty?
+        note['subnotes'] = note['subnotes'].select{|subnote| subnote['publish'] }
+      end
+    end
+
+    published_notes
   end
 
   def parse_external_documents(docs)
