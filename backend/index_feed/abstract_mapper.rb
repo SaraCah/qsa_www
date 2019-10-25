@@ -144,6 +144,7 @@ class AbstractMapper
     published_notes = notes
                         .select{|note| note['publish']}
                         .reject{|note| note['label'] && note['label'].strip =~ /Archivist\'?s Notes?/}
+                        .reject{|note| note['type'] == 'archivists_notes'}
 
     published_notes.each do |note|
       # Drop unpublished subnotes
