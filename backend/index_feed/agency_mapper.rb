@@ -42,7 +42,11 @@ class AgencyMapper < AbstractMapper
   end
 
   def parse_notes(notes)
-    super.select{|note| note['jsonmodel_type'] == 'note_bioghist' }
+    # FIXME need to confirm what notes are supported in public?
+    # Assume published for now
+    #
+    # super.select{|note| note['jsonmodel_type'] == 'note_bioghist' }
+    super
   end
 
   def parse_names(names)
