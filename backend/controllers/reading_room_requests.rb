@@ -33,6 +33,18 @@ class ArchivesSpaceService < Sinatra::Base
     handle_listing(ReadingRoomRequest, params)
   end
 
+  Endpoint.get('/reading_room_requests/batch')
+    .description("Get a batch of reading room requests by ID")
+    .params(["ids", String, "Comma delimited list of ids"],
+            ["resolve", :resolve])
+    .permissions([])
+    .returns([200, "[(:reading_room_request)]"],
+             [404, "Not found"]) \
+  do
+    jsons = ReadingRoomRequest.sequel_to_jsonmodel(ReadingRoomRequest.filter(:id => params[:ids].split(',')).all)
+    json_response(resolve_references(jsons, params[:resolve]))
+  end
+
   Endpoint.get('/reading_room_requests/:id')
     .description("Get a reading room request by ID")
     .params(["id", :id],

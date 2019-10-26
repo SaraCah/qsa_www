@@ -50,7 +50,7 @@
           </span> selected requests:
 
           <div class="btn-group">
-            <%= link_to "Download slip", request.parameters, id: "999",  class:  "btn btn-xs btn-default" %>
+            <%= link_to "Download slips", {:controller => :reading_room_requests, :action => :picking_slip, :ids => "999"}, :title => "Download slips", :target => '_blank', :class => 'btn btn-default btn-xs rrr-bulk-picking-slip-button' %>
           </div>
 
           <% status_term = Array(@search_data[:criteria]['filter_term[]']).find {|term| JSON.parse(term).keys[0] == 'rrr_status_u_ssort'} %>
@@ -168,7 +168,7 @@
                 <% end %>
               </td>
               <td class="table-record-actions">
-                <%= link_to "Download slip", {:controller => :reading_room_requests, :action => :picking_slip, :id => request_id}, :title => "Download picking slip", :target => '_blank', :class => 'btn btn-default btn-xs' %>
+                <%= link_to "Download slip", {:controller => :reading_room_requests, :action => :picking_slip, :ids => request_id}, :title => "Download picking slip", :target => '_blank', :class => 'btn btn-default btn-xs' %>
                 <div class="rrr-status-actions">
                   <% buttons_for_request(parsed.fetch('status'), request_id, :restricted => (restricted_item ? :restricted : :unrestricted)).each do |button| %>
                     <%= button %>

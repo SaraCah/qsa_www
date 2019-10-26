@@ -13,10 +13,13 @@
   </fo:layout-master-set>
   <fo:page-sequence master-reference="content">
     <fo:flow flow-name="body">
-      <% ['QSA copy', 'Client copy'].each_with_index do |copy, idx| %>
-        <% if idx > 0 %>
-          <fo:block page-break-before="always" />
-        <% end %>
+
+      <% @reading_room_requests.each_with_index do |rrr, idx| %>
+
+      <% ['QSA copy', 'Client copy'].each do |copy| %>
+
+        <fo:block-container height="12cm">
+
         <fo:table border-width="0.25mm" border-style="solid">
           <fo:table-column column-width="4.5cm"/>
           <fo:table-column column-width="4.5cm"/>
@@ -25,7 +28,7 @@
           <fo:table-body>
             <fo:table-row>
               <fo:table-cell number-columns-spanned="2" wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
-                <fo:block wrap-option="wrap" font-weight="bold">Queensland State Archive</fo:block>
+                <fo:block wrap-option="wrap" font-weight="bold">Queensland State Archives</fo:block>
               </fo:table-cell>
               <fo:table-cell number-columns-spanned="2" wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
                 <fo:block wrap-option="wrap" font-weight="bold"><%= copy %></fo:block>
@@ -37,7 +40,7 @@
               </fo:table-cell>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
                 <fo:block wrap-option="wrap">
-                  <%= @reading_room_request['requested_item'].fetch('_resolved').fetch('qsa_id_prefixed') %>
+                  <%= rrr['requested_item'].fetch('_resolved').fetch('qsa_id_prefixed') %>
                 </fo:block>
               </fo:table-cell>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
@@ -45,7 +48,7 @@
               </fo:table-cell>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
                 <fo:block wrap-option="wrap">
-                  <%= @reading_room_request['requested_item'].fetch('_resolved').fetch('external_ids', []).collect {|ext| [ext['source'], ext['external_id']].compact.join(':')}.join('; ') %>
+                  <%= rrr['requested_item'].fetch('_resolved').fetch('external_ids', []).collect {|ext| [ext['source'], ext['external_id']].compact.join(':')}.join('; ') %>
                 </fo:block>
               </fo:table-cell>
             </fo:table-row>
@@ -56,9 +59,11 @@
                 </fo:block>
               </fo:table-cell>
               <fo:table-cell number-columns-spanned="3" wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
+<fo:block-container overflow="hidden" height="0.5cm">
                 <fo:block wrap-option="wrap">
-                  <%= @reading_room_request['requested_item'].fetch('_resolved').fetch('responsible_agency').fetch('_resolved').fetch('qsa_id_prefixed') %> <%= @reading_room_request['requested_item'].fetch('_resolved').fetch('responsible_agency').fetch('_resolved').fetch('title') %>
+                  <%= rrr['requested_item'].fetch('_resolved').fetch('responsible_agency').fetch('_resolved').fetch('qsa_id_prefixed') %> <%= rrr['requested_item'].fetch('_resolved').fetch('responsible_agency').fetch('_resolved').fetch('title') %>
                 </fo:block>
+</fo:block-container>
               </fo:table-cell>
             </fo:table-row>
             <fo:table-row>
@@ -66,14 +71,14 @@
                 <fo:block wrap-option="wrap" font-weight="bold">Access</fo:block>
               </fo:table-cell>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
-                <fo:block wrap-option="wrap"><%= @reading_room_request['requested_item'].fetch('_resolved').fetch('rap_access_status') %></fo:block>
+                <fo:block wrap-option="wrap"><%= rrr['requested_item'].fetch('_resolved').fetch('rap_access_status') %></fo:block>
               </fo:table-cell>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
                 <fo:block wrap-option="wrap" font-weight="bold">Dates</fo:block>
               </fo:table-cell>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
                 <fo:block wrap-option="wrap">
-                  <% if date = @reading_room_request['requested_item'].fetch('_resolved').fetch('controlling_record').fetch('_resolved').fetch('dates', []).first %>
+                  <% if date = rrr['requested_item'].fetch('_resolved').fetch('controlling_record').fetch('_resolved').fetch('dates', []).first %>
                     <%= date['begin'] %> <%= date['certainty'] %> - <%= date['end'] %> <%= date['certainty_end'] %>
                   <% else %>
                     No date available
@@ -88,9 +93,9 @@
                 </fo:block>
               </fo:table-cell>
               <fo:table-cell number-columns-spanned="3" wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
-                <fo:block wrap-option="wrap"><%= @reading_room_request['requested_item'].fetch('_resolved').fetch('display_string') %></fo:block>
-                <fo:block wrap-option="wrap" linefeed-treatment="preserve" white-space-collapse="false"><%= @reading_room_request['requested_item'].fetch('_resolved').fetch('description', '') %></fo:block>
-                <fo:block wrap-option="wrap" linefeed-treatment="preserve" white-space-collapse="false"><%= @reading_room_request['requested_item'].fetch('_resolved').fetch('controlling_record').fetch('_resolved').fetch('description', '') %></fo:block>
+                <fo:block wrap-option="wrap"><%= rrr['requested_item'].fetch('_resolved').fetch('display_string') %></fo:block>
+                <fo:block wrap-option="wrap" linefeed-treatment="preserve" white-space-collapse="false"><%= rrr['requested_item'].fetch('_resolved').fetch('description', '') %></fo:block>
+                <fo:block wrap-option="wrap" linefeed-treatment="preserve" white-space-collapse="false"><%= rrr['requested_item'].fetch('_resolved').fetch('controlling_record').fetch('_resolved').fetch('description', '') %></fo:block>
               </fo:table-cell>
             </fo:table-row>
             <fo:table-row>
@@ -101,7 +106,7 @@
               </fo:table-cell>
               <fo:table-cell number-columns-spanned="3" wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
                 <fo:block wrap-option="wrap">
-                  <%= @reading_room_request['requested_item'].fetch('_resolved').fetch('controlling_record_series').fetch('_resolved').fetch('qsa_id_prefixed') %>
+                  <%= rrr['requested_item'].fetch('_resolved').fetch('controlling_record_series').fetch('_resolved').fetch('qsa_id_prefixed') %>
                 </fo:block>
               </fo:table-cell>
             </fo:table-row>
@@ -113,7 +118,7 @@
               </fo:table-cell>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
                 <fo:block wrap-option="wrap">
-                  <% location = @reading_room_request['requested_item'].fetch('_resolved').fetch('normal_location') %>
+                  <% location = rrr['requested_item'].fetch('_resolved').fetch('normal_location') %>
                   <%= I18n.t("enumerations.runcorn_location.#{location}", :default => location) %>
                 </fo:block>
               </fo:table-cell>
@@ -124,7 +129,7 @@
               </fo:table-cell>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
                 <fo:block wrap-option="wrap">
-                  <%= @reading_room_request['requested_item'].fetch('_resolved').fetch('container').fetch('_resolved').fetch('display_string') %>
+                  <%= rrr['requested_item'].fetch('_resolved').fetch('container').fetch('_resolved').fetch('display_string') %>
                 </fo:block>
               </fo:table-cell>
             </fo:table-row>
@@ -136,9 +141,9 @@
               </fo:table-cell>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
                 <fo:block wrap-option="wrap">
-                  <%= @reading_room_request['requesting_user'].fetch('first_name') %>
-                  <%= @reading_room_request['requesting_user'].fetch('last_name') %>
-                  &lt;<%= wrappable_text(@reading_room_request['requesting_user'].fetch('email')) %>&gt;
+                  <%= rrr['requesting_user'].fetch('first_name') %>
+                  <%= rrr['requesting_user'].fetch('last_name') %>
+                  &lt;<%= wrappable_text(rrr['requesting_user'].fetch('email')) %>&gt;
                 </fo:block>
               </fo:table-cell>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
@@ -148,15 +153,26 @@
               </fo:table-cell>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
                 <fo:block wrap-option="wrap">
-                  <% if @reading_room_request['date_required'] %>
-                    <%= Time.at(@reading_room_request['date_required'] / 1000).to_date.iso8601 %>
+                  <% if rrr['date_required'] %>
+                    <%= Time.at(rrr['date_required'] / 1000).to_date.iso8601 %>
                   <% end %>
                 </fo:block>
               </fo:table-cell>
             </fo:table-row>
           </fo:table-body>
         </fo:table>
+
+        </fo:block-container>
+
       <% end %>
+
+      <% if idx < @reading_room_requests.length - 1 %>
+        <fo:block page-break-before="always" />
+      <% end %>
+
+      <% end %>
+
+
     </fo:flow>
   </fo:page-sequence>
 </fo:root>

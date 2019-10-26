@@ -93,8 +93,8 @@ class ReadingRoomRequestsController < ApplicationController
   import javax.xml.transform.sax.SAXResult
 
   def picking_slip
-    @reading_room_request = JSONModel(:reading_room_request).find(
-      params[:id],
+    @reading_room_requests = JSONModel::HTTP.get_json('/reading_room_requests/batch',
+      'ids' => params[:ids],
       'resolve[]' => ['requested_item',
                       'requested_item::container',
                       'requested_item::controlling_record',
