@@ -97,6 +97,7 @@ class ReadingRoomRequestsController < ApplicationController
       'ids' => params[:ids],
       'resolve[]' => ['requested_item',
                       'requested_item::container',
+                      'requested_item::container::container_locations',
                       'requested_item::controlling_record',
                       'requested_item::controlling_record_series',
                       'requested_item::responsible_agency'])

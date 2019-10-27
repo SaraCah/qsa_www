@@ -7,7 +7,7 @@
 <?xml version="1.1" encoding="utf-8"?>
 <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
   <fo:layout-master-set>
-    <fo:simple-page-master master-name="content" margin="1.5cm">
+    <fo:simple-page-master master-name="content" margin="1.5cm" margin-bottom="0cm">
       <fo:region-body region-name="body" />
     </fo:simple-page-master>
   </fo:layout-master-set>
@@ -18,7 +18,11 @@
 
       <% ['QSA copy', 'Client copy'].each do |copy| %>
 
-        <fo:block-container height="12cm">
+        <% if copy == 'Client copy' %>
+          <fo:block-container height="12cm">
+        <% else %>
+          <fo:block-container height="14cm">
+        <% end %>
 
         <fo:table border-width="0.25mm" border-style="solid">
           <fo:table-column column-width="4.5cm"/>
@@ -59,11 +63,9 @@
                 </fo:block>
               </fo:table-cell>
               <fo:table-cell number-columns-spanned="3" wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
-<fo:block-container overflow="hidden" height="0.5cm">
                 <fo:block wrap-option="wrap">
-                  <%= rrr['requested_item'].fetch('_resolved').fetch('responsible_agency').fetch('_resolved').fetch('qsa_id_prefixed') %> <%= rrr['requested_item'].fetch('_resolved').fetch('responsible_agency').fetch('_resolved').fetch('title') %>
+                  <%= rrr['requested_item'].fetch('_resolved').fetch('responsible_agency').fetch('_resolved').fetch('agency_assigned_id', '') %>
                 </fo:block>
-</fo:block-container>
               </fo:table-cell>
             </fo:table-row>
             <fo:table-row>
@@ -93,44 +95,67 @@
                 </fo:block>
               </fo:table-cell>
               <fo:table-cell number-columns-spanned="3" wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
-                <fo:block wrap-option="wrap"><%= rrr['requested_item'].fetch('_resolved').fetch('display_string') %></fo:block>
-                <fo:block wrap-option="wrap" linefeed-treatment="preserve" white-space-collapse="false"><%= rrr['requested_item'].fetch('_resolved').fetch('description', '') %></fo:block>
-                <fo:block wrap-option="wrap" linefeed-treatment="preserve" white-space-collapse="false"><%= rrr['requested_item'].fetch('_resolved').fetch('controlling_record').fetch('_resolved').fetch('description', '') %></fo:block>
+                <fo:block-container overflow="hidden" height="1cm">
+                  <fo:block wrap-option="wrap"><%= rrr['requested_item'].fetch('_resolved').fetch('display_string') %></fo:block>
+                  <fo:block wrap-option="wrap" linefeed-treatment="preserve" white-space-collapse="false"><%= rrr['requested_item'].fetch('_resolved').fetch('description', '') %></fo:block>
+                  <fo:block wrap-option="wrap" linefeed-treatment="preserve" white-space-collapse="false"><%= rrr['requested_item'].fetch('_resolved').fetch('controlling_record').fetch('_resolved').fetch('description', '') %></fo:block>
+                </fo:block-container>
               </fo:table-cell>
             </fo:table-row>
             <fo:table-row>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
                 <fo:block wrap-option="wrap" font-weight="bold">
-                  Series ID
+                  Series
                 </fo:block>
               </fo:table-cell>
               <fo:table-cell number-columns-spanned="3" wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
-                <fo:block wrap-option="wrap">
-                  <%= rrr['requested_item'].fetch('_resolved').fetch('controlling_record_series').fetch('_resolved').fetch('qsa_id_prefixed') %>
-                </fo:block>
+                <fo:block-container overflow="hidden" height="1cm">
+                  <fo:block wrap-option="wrap">
+                    <% series = rrr['requested_item'].fetch('_resolved').fetch('controlling_record_series').fetch('_resolved') %>
+                    <%= series.fetch('qsa_id_prefixed') %>
+                    <%= series.fetch('title') %>
+                  </fo:block>
+                </fo:block-container>
               </fo:table-cell>
             </fo:table-row>
             <fo:table-row>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
                 <fo:block wrap-option="wrap" font-weight="bold">
-                  Home location
-                </fo:block>
-              </fo:table-cell>
-              <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
-                <fo:block wrap-option="wrap">
-                  <% location = rrr['requested_item'].fetch('_resolved').fetch('normal_location') %>
-                  <%= I18n.t("enumerations.runcorn_location.#{location}", :default => location) %>
-                </fo:block>
-              </fo:table-cell>
-              <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
-                <fo:block wrap-option="wrap" font-weight="bold">
-                  Top Container ID
+                  Container ID
                 </fo:block>
               </fo:table-cell>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
                 <fo:block wrap-option="wrap">
                   <%= rrr['requested_item'].fetch('_resolved').fetch('container').fetch('_resolved').fetch('display_string') %>
                 </fo:block>
+              </fo:table-cell>
+              <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
+                <fo:block wrap-option="wrap" font-weight="bold">
+                  Current Location
+                </fo:block>
+              </fo:table-cell>
+              <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
+                <fo:block wrap-option="wrap">
+                  <% location = rrr['requested_item'].fetch('_resolved').fetch('container').fetch('_resolved').fetch('current_location') %>
+                  <%= I18n.t("enumerations.runcorn_location.#{location}", :default => location) %>
+                </fo:block>
+              </fo:table-cell>
+            </fo:table-row>
+            <fo:table-row>
+              <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
+                <fo:block wrap-option="wrap" font-weight="bold">
+                  Home Location
+                </fo:block>
+              </fo:table-cell>
+              <fo:table-cell number-columns-spanned="3" wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
+                <fo:block-container overflow="hidden" height="0.5cm">
+                  <fo:block wrap-option="wrap">
+                    <% location = rrr['requested_item'].fetch('_resolved').fetch('container').fetch('_resolved').fetch('container_locations') %>
+                    <% unless location.empty? %>
+                      <%= location[0].fetch('_resolved').fetch('title') %>
+                    <% end %>
+                  </fo:block>
+                </fo:block-container>
               </fo:table-cell>
             </fo:table-row>
             <fo:table-row>
