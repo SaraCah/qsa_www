@@ -10,17 +10,7 @@ class ArchivesSpaceService < Sinatra::Base
     params[:type] = ['reading_room_request']
     params[:sort] ||= "rrr_date_required_u_ssortdate desc"
 
-    results = Search.search(params, nil)
-
-    uris = results['results'].map{|result| result.fetch('uri')}
-    status_map = ReadingRoomRequest.get_status_map(uris)
-    results['results'].each do |result|
-      json = ASUtils.json_parse(result.fetch('json'))
-      json['status'] = status_map.fetch(result.fetch('uri'))
-      result['json'] = ASUtils.to_json(json)
-    end
-
-    json_response(results)
+    json_response(ReadingRoomRequest.prepare_search_results(Search.search(params, nil)))
   end
 
   # FIXME Need permissions on these too

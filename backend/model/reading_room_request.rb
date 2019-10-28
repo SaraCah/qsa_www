@@ -123,4 +123,45 @@ class ReadingRoomRequest < Sequel::Model
         .map {|row| [JSONModel(:reading_room_request).uri_for(row[:id]), row[:status]]}.to_h
     end
   end
+
+  def self.resolve_requested_items(record_uris)
+    ids = record_uris.map{|uri| JSONModel.parse_reference(uri)[:id] }
+    objs = PhysicalRepresentation
+            .any_repo
+            .filter(:id => ids)
+            .all
+
+    result = {}
+
+    objs.group_by{|obj| obj.repo_id}.each do |repo_id, objs|
+      RequestContext.open(:repo_id => repo_id) do
+        PhysicalRepresentation.sequel_to_jsonmodel(objs).each do |json|
+          result[json.uri] = json
+        end
+      end
+    end
+
+    result
+  end
+
+  def self.prepare_search_results(search_results)
+    uri_to_json = search_results['results'].map{|result| [result.fetch('uri'), ASUtils.json_parse(result.fetch('json'))]}.to_h
+
+    status_map = get_status_map(uri_to_json.keys)
+
+    requested_item_uris = uri_to_json.values.map{|json| json.fetch('item_uri')}
+    resolved_items = resolve_requested_items(requested_item_uris)
+
+    search_results['results'].each do |result|
+      uri = result.fetch('uri')
+
+      json = uri_to_json.fetch(uri)
+      json['status'] = status_map.fetch(uri)
+      json['requested_item']['_resolved'] = resolved_items.fetch(json.fetch('item_uri'))
+      result['json'] = json.to_json
+    end
+
+    search_results
+  end
+
 end

@@ -1,6 +1,5 @@
 class IndexerCommon
   @@record_types << :reading_room_request
-  @@resolved_attributes << 'requested_item'
 
   add_indexer_initialize_hook do |indexer|
     QSAId.mode(:indexer)
