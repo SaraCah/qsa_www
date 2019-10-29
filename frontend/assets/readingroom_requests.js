@@ -11,7 +11,7 @@ $(function() {
     var id_s = id_a.join();
 
     var pick_href = $('.rrr-bulk-picking-slip-button').attr('href');
-    $('.rrr-bulk-picking-slip-button').attr('href', pick_href.replace(/ids\=(\d+\,)*\d+/, ('ids=' + id_s)));
+    $('.rrr-bulk-picking-slip-button').attr('href', pick_href.replace(/ids\=((\d+\,)*\d+)?/, ('ids=' + id_s)));
 
     $('.rrr-bulk-action-buttons button').attr('data-id', id_s);
 
