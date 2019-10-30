@@ -29,6 +29,8 @@ class RepresentationMapper < AbstractMapper
 
     if json['jsonmodel_type'] == 'physical_representation'
       whitelisted['format'] = json['format']
+      whitelisted['availability'] = json['calculated_availability']
+
     elsif json['jsonmodel_type'] == 'digital_representation'
       whitelisted['file_size'] = json['file_size']
       whitelisted['file_type'] = json['file_type']
@@ -37,8 +39,18 @@ class RepresentationMapper < AbstractMapper
     whitelisted
   end
 
+  def available?(json)
+    if json['jsonmodel_type'] == 'physical_representation'
+      if json['calculated_availability'] === 'unavailable_due_to_deaccession'
+        return false
+      end
+    end
+
+    true
+  end
+
   def published?(jsonmodel)
-    jsonmodel['publish'] && !jsonmodel['has_unpublished_ancestor']
+    jsonmodel['publish'] && !jsonmodel['has_unpublished_ancestor'] && available?(jsonmodel)
   end
 
   def map_record(obj, json, solr_doc)
