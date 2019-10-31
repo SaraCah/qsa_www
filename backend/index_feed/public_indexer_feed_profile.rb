@@ -66,9 +66,51 @@ class PublicIndexerFeedProfile < IndexerFeedProfile
     end
   end
 
-
   def index_round_starting
     @repository_published_cache = nil
+  end
+
+  def updates_for_model(db, model_dataset, model, last_index_time)
+    base_dataset = super
+
+    # We want to update any record that has had a tag added/updated since we
+    # last checked.
+    additional_records =
+      if model.has_jsonmodel?
+        record_type = model.my_jsonmodel.record_type
+
+        # Cripes.  last_index_time is a ruby Time; record_tag.modified_time is
+        # milliseconds since epoch; system_mtime is seconds since epoch.
+        # TMTWWTDI I suppose!
+        PublicDB.open do |public_db|
+          public_db[:record_tag]
+            .filter(:record_type => record_type)
+            .where { modified_time >= (last_index_time.to_i * 1000) }
+            .select(:record_id, :modified_time)
+            .map {|row|
+            {
+              :id => Integer(row[:record_id].split(/:/).last),
+              :system_mtime => row[:modified_time] / 1000,
+            }
+          }
+        end
+      else
+        []
+      end
+
+    # Public DB isn't repo aware, so we need to drop any records that aren't in
+    # scope for the current dataset.
+    records_in_active_repo =
+      Set.new(model_dataset.filter(:id => additional_records.map {|rec| rec[:id]})
+                .select(:id)
+                .map {|row| row[:id]})
+
+    result = (
+      base_dataset.all +
+      additional_records.select {|rec| records_in_active_repo.include?(rec[:id])}
+    ).uniq {|rec| rec[:id]}
+
+    result
   end
 
   private
