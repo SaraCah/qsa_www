@@ -40,14 +40,34 @@ class AbstractMapper
   end
 
   def each
-    @sequel_records.zip(@jsonmodels).each do |obj, json|
+    records = @sequel_records.zip(@jsonmodels).map do |obj, json|
       if published?(json)
-        result = map_record(obj, json, base_solr_doc(obj, json))
-
-        yield(result)
+        map_record(obj, json, base_solr_doc(obj, json))
       else
-        yield({})
+        {}
       end
+    end
+
+    record_tags_by_solr_id = {}
+
+    PublicDB.open do |public_db|
+      public_db[:record_tag]
+        .filter(:record_id => records.map {|record| record['id']}.compact)
+        .select(:record_id, :tag)
+        .each do |row|
+        record_tags_by_solr_id[row[:record_id]] ||= []
+        record_tags_by_solr_id[row[:record_id]] << row[:tag]
+      end
+    end
+
+    records.each do |record|
+      unless record.empty?
+        record['tags'] = record_tags_by_solr_id.fetch(record['id'], [])
+      end
+    end
+
+    records.each do |record|
+      yield record
     end
   end
 
