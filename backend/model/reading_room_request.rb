@@ -6,6 +6,8 @@ class ReadingRoomRequest < Sequel::Model
   include QSAWWWModel
   qsa_www_table :reading_room_request
 
+  include ItemUses
+
   STATUS_AWAITING_AGENCY_APPROVAL = 'AWAITING_AGENCY_APPROVAL'
   STATUS_APPROVED_BY_AGENCY = 'APPROVED_BY_AGENCY'
   STATUS_REJECTED_BY_AGENCY = 'REJECTED_BY_AGENCY'
@@ -164,4 +166,26 @@ class ReadingRoomRequest < Sequel::Model
     search_results
   end
 
+  def self.to_item_uses(json)
+    return [] unless json['date_required']
+
+    ru = json['requesting_user']
+    used_by = "%s %s <%s>" % [(ru['first_name'] || ru[:first_name]),
+                              (ru['last_name'] || ru[:last_name]),
+                              (ru['email'] || ru[:email])]
+
+    qsa_id = QSAId.prefixed_id_for(ReadingRoomRequest,
+                                   JSONModel.parse_reference(json['uri'])[:id])
+
+    start_date = Time.at(json['date_required']/1000).strftime('%Y-%m-%d')
+
+    JSONModel(:item_use).from_hash({
+      'physical_representation' => {'ref' => json['item_uri']},
+      'item_use_type' => 'reading_room_request',
+      'use_identifier' => qsa_id,
+      'status' => json['status'],
+      'used_by' => used_by,
+      'start_date' => start_date
+    })
+  end
 end
