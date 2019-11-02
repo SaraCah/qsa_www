@@ -27,6 +27,7 @@ en:
       complete: Complete
       cancelled_by_qsa: Cancelled by QSA
       cancelled_by_researcher: Cancelled by Researcher
+      active: Active
     availability:
       available: Available
       unavailable_temporarily: "Unavailable: Temporary"
