@@ -15,6 +15,7 @@ en:
     researcher_name: Researcher
     status: Status
     date_required: Date Required
+    actions: Actions
     statuses:
       awaiting_agency_approval: Awaiting Agency Approval
       approved_by_agency: Approved by Agency
