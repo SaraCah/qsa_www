@@ -52,6 +52,7 @@ class AbstractMapper
 
     PublicDB.open do |public_db|
       public_db[:record_tag]
+        .filter(:deleted => 0)
         .filter(:record_id => records.map {|record| record['id']}.compact)
         .select(:record_id, :tag)
         .each do |row|
