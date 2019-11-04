@@ -28,14 +28,6 @@ en:
       cancelled_by_qsa: Cancelled by QSA
       cancelled_by_researcher: Cancelled by Researcher
       active: Active
-    availability:
-      available: Available
-      unavailable_temporarily: "Unavailable: Temporary"
-      unavailable_due_to_conservation: "Unavailable: Conservation"
-      unavailable_due_to_condition: "Unavailable: Condition"
-      unavailable_due_to_format: "Unavailable: Format"
-      unavailable_due_to_deaccession: "Unavailable: Deaccession"
-
 
   search_results:
     filter:
