@@ -19,7 +19,7 @@ require_relative 'tasks/agency_request_task'
 require_relative 'tasks/password_reset_task'
 require_relative 'tasks/quote_request_task'
 require_relative 'tasks/welcome_task'
-require_relative 'tasks/email_renderer'
+require_relative 'tasks/email_delivery'
 
 DeferredTaskRunner.add_handler_for_type('quote_request', QuoteRequestTask)
 DeferredTaskRunner.add_handler_for_type('welcome', WelcomeTask)

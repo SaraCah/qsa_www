@@ -33,8 +33,8 @@ class DeferredTaskRunner
         begin
           run_round
         rescue
-          $LOG.error("Deferred task runner caught exception: #{$!}")
-          $LOG.error($@.join("\n"))
+          Log.error("Deferred task runner caught exception: #{$!}")
+          Log.error($@.join("\n"))
         end
 
         sleep 5                 # FIXME: AppConfig
@@ -43,7 +43,7 @@ class DeferredTaskRunner
   end
 
   def run_round
-    PublicDB.open(transaction: false) do |publicdb|
+    PublicDB.open(transaction = false) do |publicdb|
       tasks_by_type = {}
 
       # Anything that looks to have been abandoned gets picked up again
@@ -72,7 +72,7 @@ class DeferredTaskRunner
       watchdog_running = java.util.concurrent.atomic.AtomicBoolean.new(true)
 
       watchdog_thread = Thread.new do
-        PublicDB.open(transaction: false) do |publicdb|
+        PublicDB.open(transaction = false) do |publicdb|
           while watchdog_running.get
             now = java.lang.System.currentTimeMillis
 
@@ -97,7 +97,7 @@ class DeferredTaskRunner
             .filter(:id => task_results.map(&:id))
             .where { retries_remaining <= 0 }
             .each do |task|
-            $LOG.error("Task could not be completed: #{task.inspect}")
+            Log.error("Task could not be completed: #{task.inspect}")
           end
 
           publicdb[:deferred_task]
@@ -108,8 +108,8 @@ class DeferredTaskRunner
           # Decrement retry count for those who failed
           publicdb[:deferred_task].filter(:id => task_results.map(&:id)).update(:status => PENDING_STATUS)
         rescue
-          $LOG.error("FATAL ERROR running tasks of type #{type}: #{tasks.inspect}: #{$!}")
-          $LOG.error($@.join("\n"))
+          Log.error("FATAL ERROR running tasks of type #{type}: #{tasks.inspect}: #{$!}")
+          Log.error($@.join("\n"))
           publicdb[:deferred_task].filter(:id => tasks.map {|task| task[:id]}).update(:status => 'ABORTED')
         end
       end
