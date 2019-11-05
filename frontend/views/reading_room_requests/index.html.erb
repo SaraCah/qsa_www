@@ -88,12 +88,13 @@
             <th class="rrr-selected-item-cell col">
               <input class="rrr-select-all-items" type="checkbox" name="select-all-items" value="all" checked="true"/>
             </th>
-            <th style="width:100px"><%= I18n.t("as_runcorn.qsa_id") %></th>
-            <th><%= I18n.t("reading_room_requests.requested_item") %></th>
-            <th><%= I18n.t("reading_room_requests.item_availability") %></th>
-            <th><%= I18n.t("reading_room_requests.researcher_name") %></th>
-            <th><%= I18n.t("reading_room_requests.status") %></th>
-            <th><%= I18n.t("reading_room_requests.date_required") %></th>
+
+            <% @rrr_sort_columns.each do |col| %>
+              <th class="col sortable <%= "sort-#{@search_data.current_sort_direction}" if @search_data.sorted_by === col %>">
+                <%= link_to I18n.t("search_sorting.#{col}"), build_search_params("sort" => @search_data.sort_filter_for(col)) %>
+              </th>
+            <% end %>
+
             <th class="col actions"><%= I18n.t("reading_room_requests.actions") %></th>
           </tr>
           </thead>

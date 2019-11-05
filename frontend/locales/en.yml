@@ -30,6 +30,14 @@ en:
       cancelled_by_researcher: Cancelled by Researcher
       active: Active
 
+  search_sorting:
+    rrr_requested_item_qsa_id_u_sort: Requested Item
+    rrr_requested_item_availability_u_ssort: Availability
+    rrr_requesting_user_u_ssort: Researcher
+    rrr_date_required_u_ssortdate: Date Required
+    rrr_requesting_user_u_ssort: Researcher
+    rrr_status_u_ssort: Status
+
   search_results:
     filter:
       rrr_status_u_ssort: Status

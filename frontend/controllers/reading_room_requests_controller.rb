@@ -2,6 +2,15 @@ class ReadingRoomRequestsController < ApplicationController
 
   RESOLVES = ['requested_item']
 
+  SORT_COLUMNS = [
+                  'qsa_id_u_sort',
+                  'rrr_requested_item_qsa_id_u_sort',
+                  'rrr_requested_item_availability_u_ssort',
+                  'rrr_requesting_user_u_ssort',
+                  'rrr_status_u_ssort',
+                  'rrr_date_required_u_ssortdate',
+                 ]
+
   include ApplicationHelper
 
   # TODO: review access controls for these endpoints
@@ -10,6 +19,9 @@ class ReadingRoomRequestsController < ApplicationController
   def index
     criteria = params.to_hash
 
+    # added this to allow for poking into @search_data.sort_fields - obscure huh?
+    criteria['type[]'] = ['reading_room_request']
+
     criteria['page'] ||= '1'
     criteria['page_size'] = '30'
     criteria['facet[]'] = Plugins.search_facets_for_type(:reading_room_request)
@@ -17,7 +29,7 @@ class ReadingRoomRequestsController < ApplicationController
       criteria['filter_term[]'] = params['filter_term']
     end
 
-    criteria['sort'] ||= 'qsa_id_u_sort desc'
+    criteria['sort'] ||= 'user_mtime desc'
 
     if criteria['filter_term[]']
       if date_required_term = criteria['filter_term[]'].find {|term| JSON.parse(term).keys[0] == 'date_required'}
@@ -65,6 +77,12 @@ class ReadingRoomRequestsController < ApplicationController
     end
 
     @search_data = SearchResultData.new(response)
+
+    SORT_COLUMNS.each do |col|
+      @search_data.sort_fields << col
+    end
+
+    @rrr_sort_columns = SORT_COLUMNS
   end
 
   def show
