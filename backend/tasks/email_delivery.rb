@@ -15,7 +15,7 @@ class EmailDelivery
     end
 
     renderer = ERB.new(File.read(file))
-    renderer.result(binding)
+    renderer.result(binding).strip
   end
 
   def send!

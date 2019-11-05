@@ -2,20 +2,29 @@
 
 Queensland State Archives has your details as the delegate responsible for approving requests to access closed records for your agency which are held in the custody of QSA.
 
-A QSA user has requested permission to access the following record/s:
+A QSA user has requested permission to access the following record/s:<% @data.fetch('requested_items', []).each do |item| %>
+---
+  QSA Id: <%= item['item_qsa_id'] %>
+  Title: <%= item['item_display_string'] %>
+<% end %>
+---
 
-FIXME Agency will need to have:
-Item ID and Title
-Additional info where available/relevant (file number, box number, dept no)
-Series ID and Title
-Date range and RAP period
+User details to be provided:
+  User name: <%= @data.dig('user', 'first_name') %> <%= @data.dig('user', 'last_name') %>
+  Contact details:
+    Email: <%= @data.dig('user', 'email') %>
+    Street Address: <%= @data.dig('user', 'street_address') %>
+    City/Suburb: <%= @data.dig('user', 'city_suburb') %>
+    State: <%= @data.dig('user', 'state') %>
+    Post code: <%= @data.dig('user', 'post_code') %>
+    Phone: <%= @data.dig('user', 'phone') %>
 
-FIXME User details to be provided:
-Name
-Email address
-Postal address & Phone number (my understanding is that some agencies want this info)
-Reason for the request
-Whether person is also seeking permission to copy record
+
+Reason for the request:
+<%= @data['purpose'] %>
+
+Whether person is also seeking permission to copy record:
+<%= @data['publication_details'] %>
 
 Once a decision has been made about permission to access this restricted record, please complete the ‘Access to Restricted Records Authorisation Form’ available here https://www.forgov.qld.gov.au/file/21646/download?token=p_7tILfK. This form must be signed by an officer with the delegation to grant access to the records in accordance with section 18(2) of the Public Records Act 2002.
 
@@ -32,5 +41,3 @@ If you require assistance or further information about completing this ‘Access
 Thank you,
 Access Services Team
 Queensland State Archives
-
-DATA: <%= @data.inspect %>

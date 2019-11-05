@@ -1,10 +1,26 @@
 Please prepare a quote for the following item/s to be digitised.
 
-User name [from system]
-Contact details [from system]
-Item/s information [same info as on picking slip]
-Copy preference [format, resolution]
-Delivery mode [digital download, USB registered, mail]
-NB: Please check that order and your contact details are correct before you send your request.
+User name: <%= @data.dig('user', 'first_name') %> <%= @data.dig('user', 'last_name') %>
+Contact details:
+  Email: <%= @data.dig('user', 'email') %>
+  Street Address: <%= @data.dig('user', 'street_address') %>
+  City/Suburb: <%= @data.dig('user', 'city_suburb') %>
+  State: <%= @data.dig('user', 'state') %>
+  Post code: <%= @data.dig('user', 'post_code') %>
+  Phone: <%= @data.dig('user', 'phone') %>
 
-DATA: <%= @data.inspect %>
+Item/s information <% @data.fetch('requested_items', []).each do |item| %>
+---
+  QSA Id: <%= item['item_qsa_id'] %>
+  Title: <%= item['item_display_string'] %>
+  Copy preference: <%= item['digital_copy_type'] %>
+  Delivery mode: <%= item['digital_copy_delivery'] %>
+  Copy format: <%= item['digital_copy_format'] %>
+  Copy resolution: <%= item['digital_copy_resolution'] %>
+  Copy mode: <%= item['digital_copy_mode'] %>
+  Copy size: <%= item['digital_copy_size'] %>
+  Copy notes: <%= item['digital_copy_notes'] %>
+<% end %>
+---
+
+NB: Please check that order and your contact details are correct before you send your request.
