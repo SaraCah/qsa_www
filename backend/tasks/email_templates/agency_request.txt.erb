@@ -4,10 +4,9 @@ Queensland State Archives has your details as the delegate responsible for appro
 
 A QSA user has requested permission to access the following record/s:<% @data.fetch('requested_items', []).each do |item| %>
 ---
-  QSA Id: <%= item['item_qsa_id'] %>
-  Title: <%= item['item_display_string'] %>
-<% end %>
----
+QSA Id: <%= item['item_qsa_id'] %>
+Title: <%= item['item_display_string'] %>
+<% end %>---
 
 User details to be provided:
   User name: <%= @data.dig('user', 'first_name') %> <%= @data.dig('user', 'last_name') %>
