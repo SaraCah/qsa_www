@@ -5,6 +5,7 @@ class ItemMapper < AbstractMapper
   def initialize(sequel_records, jsonmodels)
     super
 
+    @resources_map = build_resources_map
     @linked_agents_publish_map = build_linked_agents_publish_map
   end
 
@@ -68,7 +69,7 @@ class ItemMapper < AbstractMapper
 
     whitelisted['ancestors'] = json.ancestors
     whitelisted['parent'] = json.parent
-    whitelisted['resource'] = json.resource
+    whitelisted['resource'] = parse_resource(json.resource)
     whitelisted['position'] = json.position
 
     whitelisted['display_string'] = json.display_string
@@ -96,6 +97,17 @@ class ItemMapper < AbstractMapper
     whitelisted['physical_representations'] = parse_physical_representations(json)
 
     whitelisted
+  end
+
+  def parse_resource(resource_ref)
+    uri = resource_ref.fetch('ref')
+    resource_obj = @resources_map.fetch(uri)
+
+    {
+      'ref' => uri,
+      'qsa_id_prefixed' => QSAId.prefixed_id_for(Resource, resource_obj.qsa_id),
+      'display_string' => resource_obj.title,
+    }
   end
 
   def parse_description(jsonmodel)
@@ -148,6 +160,24 @@ class ItemMapper < AbstractMapper
         .each do |row|
         result[row[:id]] = row[:publish] == 1
       end
+    end
+
+    result
+  end
+
+  def build_resources_map
+    result = {}
+
+    resource_ids = @jsonmodels.map do |json|
+      JSONModel.parse_reference(json.resource.fetch('ref'))[:id]
+    end
+
+    DB.open do |db|
+      Resource
+        .filter(:id => resource_ids)
+        .map {|obj|
+          result[obj.uri] = obj
+        }
     end
 
     result

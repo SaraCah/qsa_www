@@ -6,6 +6,11 @@ A QSA user has requested permission to access the following record/s:<% @data.fe
 ---
 QSA Id: <%= item['item_qsa_id'] %>
 Title: <%= item['item_display_string'] %>
+Parent: <%= item.dig('controlling_record', 'qsa_id') %> <%= item.dig('controlling_record', 'display_string') %>
+Series: <%= item.dig('series', 'qsa_id') %> <%= item.dig('series', 'display_string') %>
+Dates: <%= item['dates'] %>
+RAP: <%= item.dig('rap_applied', 'display_string') %>
+RAP Expiry Date: <%= item.dig('rap_expiration', 'expiry_date') %>
 <% end %>---
 
 User details to be provided:
@@ -17,7 +22,6 @@ User details to be provided:
     State: <%= @data.dig('user', 'state') %>
     Post code: <%= @data.dig('user', 'post_code') %>
     Phone: <%= @data.dig('user', 'phone') %>
-
 
 Reason for the request:
 <%= @data['purpose'] %>
