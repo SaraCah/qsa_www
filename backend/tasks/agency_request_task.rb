@@ -9,14 +9,19 @@ class AgencyRequestTask
       emails = delegate_emails_for_agency(json.fetch('agency').fetch('uri'))
       json['agency_has_delegate'] = !emails.empty?
 
-      EmailDelivery.new('Closed record request - Queensland State Archives User',
-                        json,
-                        'agency_request.txt.erb',
-                        emails.empty? ? [AppConfig[:email_qsa_requests_email]] : emails,
-                        [AppConfig[:email_qsa_requests_email]])
-                    .send!
+      begin
+        EmailDelivery.new('Closed record request - Queensland State Archives User',
+                          json,
+                          'agency_request.txt.erb',
+                          emails.empty? ? [AppConfig[:email_qsa_requests_email]] : emails,
+                          [AppConfig[:email_qsa_requests_email]])
+                      .send!
 
-      results << DeferredTaskRunner::TaskResult.new(task[:id], :success)
+        results << DeferredTaskRunner::TaskResult.new(task[:id], :success)
+      rescue
+        Log.error($!)
+        results << DeferredTaskRunner::TaskResult.new(task[:id], :failed)
+      end
     end
 
     results

@@ -6,13 +6,18 @@ class PasswordResetTask
     tasks.each do |task|
       json = JSON.parse(task[:blob])
 
-      EmailDelivery.new('Reset password - Queensland State Archives',
-                        json,
-                        'password_reset.txt.erb',
-                        [json.fetch('user').fetch('email')])
-                    .send!
+      begin
+        EmailDelivery.new('Reset password - Queensland State Archives',
+                          json,
+                          'password_reset.txt.erb',
+                          [json.fetch('user').fetch('email')])
+                      .send!
 
-      results << DeferredTaskRunner::TaskResult.new(task[:id], :success)
+        results << DeferredTaskRunner::TaskResult.new(task[:id], :success)
+      rescue
+        Log.error($!)
+        results << DeferredTaskRunner::TaskResult.new(task[:id], :failed)
+      end
     end
 
     results
