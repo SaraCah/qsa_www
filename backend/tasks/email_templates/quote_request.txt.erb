@@ -9,17 +9,15 @@ Contact details:
   Post code: <%= @data.dig('user', 'post_code') %>
   Phone: <%= @data.dig('user', 'phone') %>
 
-Item/s information <% @data.fetch('requested_items', []).each do |item| %>
----
-QSA Id: <%= item['item_qsa_id'] %>
-Title: <%= item['item_display_string'] %>
-Copy preference: <%= item['digital_copy_type'] %>
-Delivery mode: <%= item['digital_copy_delivery'] %>
-Copy format: <%= item['digital_copy_format'] %>
-Copy resolution: <%= item['digital_copy_resolution'] %>
-Copy mode: <%= item['digital_copy_mode'] %>
-Copy size: <%= item['digital_copy_size'] %>
-Copy notes: <%= item['digital_copy_notes'] %>
-<% end %>---
+Item/s information <% @data.fetch('requested_items', []).each_with_index do |item, idx| %>
+<%= idx %>. <%= QSA Id: item['item_qsa_id'] %> <%= item['item_display_string'] %>
+  Copy preference: <%= item['digital_copy_type'] %>
+  Delivery mode: <%= item['digital_copy_delivery'] %>
+  Copy format: <%= item['digital_copy_format'] %>
+  Copy resolution: <%= item['digital_copy_resolution'] %>
+  Copy mode: <%= item['digital_copy_mode'] %>
+  Copy size: <%= item['digital_copy_size'] %>
+  Copy notes: <%= item['digital_copy_notes'] %>
+<% end %>
 
 NB: Please check that order and your contact details are correct before you send your request.
