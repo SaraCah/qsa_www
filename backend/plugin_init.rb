@@ -28,3 +28,10 @@ DeferredTaskRunner.add_handler_for_type('agency_request_confirmation', AgencyReq
 DeferredTaskRunner.add_handler_for_type('password_reset', PasswordResetTask)
 
 DeferredTaskRunner.start
+
+require 'mail'
+if AppConfig[:email_enabled]
+  Mail.defaults do
+    delivery_method :smtp, AppConfig[:email_smtp_settings]
+  end
+end

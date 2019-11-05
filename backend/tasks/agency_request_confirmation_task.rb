@@ -6,7 +6,7 @@ class AgencyRequestConfirmationTask
     tasks.each do |task|
       json = JSON.parse(task[:blob])
 
-      EmailDelivery.new('QSA Closed Record Request',
+      EmailDelivery.new('Confirmation closed record request sent',
                         json,
                         'agency_request_confirmation.txt.erb',
                         [json.fetch('user'.fetch('email'))],

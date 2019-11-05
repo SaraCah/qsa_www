@@ -6,7 +6,7 @@ class PasswordResetTask
     tasks.each do |task|
       json = JSON.parse(task[:blob])
 
-      EmailDelivery.new('QSA Password Reset',
+      EmailDelivery.new('Reset password - Queensland State Archives',
                         json,
                         'password_reset.txt.erb',
                         [json.fetch('user').fetch('email')])

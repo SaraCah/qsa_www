@@ -33,7 +33,6 @@ class EmailDelivery
     end
 
     if AppConfig[:email_enabled]
-      msg.delivery_method :smtp
       msg.deliver
     else
       Log.info(msg)

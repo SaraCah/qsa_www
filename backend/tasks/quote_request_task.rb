@@ -6,7 +6,7 @@ class QuoteRequestTask
     tasks.each do |task|
       json = JSON.parse(task[:blob])
 
-      EmailDelivery.new('QSA Digital Copy Quote Request',
+      EmailDelivery.new('Digital copy order - Public User',
                         json,
                         'quote_request.txt.erb',
                         [AppConfig[:email_qsa_requests_email]],

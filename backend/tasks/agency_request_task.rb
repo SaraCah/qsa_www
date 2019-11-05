@@ -9,7 +9,7 @@ class AgencyRequestTask
       emails = delegate_emails_for_agency(json.fetch('agency').fetch('uri'))
       json['agency_has_delegate'] = !emails.empty?
 
-      EmailDelivery.new('QSA Closed Record Request',
+      EmailDelivery.new('Closed record request - Queensland State Archives User',
                         json,
                         'agency_request.txt.erb',
                         emails.empty? ? [AppConfig[:email_qsa_requests_email]] : emails,
