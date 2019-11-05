@@ -7,7 +7,9 @@ class AgencyRequestTask
       json = JSON.parse(task[:blob])
 
       p "******************************************************************"
+      p self
       p json
+      p EmailRenderer.new(json, 'agency_request.txt.erb').render
       p "******************************************************************"
 
       results << DeferredTaskRunner::TaskResult.new(task[:id], :success)
