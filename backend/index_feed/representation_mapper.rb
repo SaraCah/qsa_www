@@ -34,6 +34,10 @@ class RepresentationMapper < AbstractMapper
     elsif json['jsonmodel_type'] == 'digital_representation'
       whitelisted['file_size'] = json['file_size']
       whitelisted['file_type'] = json['file_type']
+
+      if json['rap_access_status'] == 'Open Access'
+        whitelisted['representation_file'] = json['representation_file']
+      end
     end
 
     whitelisted
