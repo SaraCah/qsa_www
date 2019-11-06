@@ -5,7 +5,7 @@
 %>
 
 <?xml version="1.1" encoding="utf-8"?>
-<fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
+<fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format" font-size="10px">
   <fo:layout-master-set>
     <fo:simple-page-master master-name="content" margin="1.5cm" margin-bottom="0cm">
       <fo:region-body region-name="body" />
@@ -15,6 +15,10 @@
     <fo:flow flow-name="body">
 
       <% @reading_room_requests.each_with_index do |rrr, idx| %>
+
+      <% item = rrr['requested_item'].fetch('_resolved') %>
+      <% record = item.fetch('controlling_record').fetch('_resolved') %>
+      <% parent = record.fetch('parent', {}).fetch('_resolved', {}) %>
 
       <% ['QSA copy', 'Client copy'].each do |copy| %>
 
@@ -31,56 +35,58 @@
           <fo:table-column column-width="4.5cm"/>
           <fo:table-body>
             <fo:table-row>
-              <fo:table-cell number-columns-spanned="2" wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
+              <fo:table-cell number-columns-spanned="4" wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
                 <fo:block wrap-option="wrap" font-weight="bold">Queensland State Archives</fo:block>
               </fo:table-cell>
-              <fo:table-cell number-columns-spanned="2" wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
-                <fo:block wrap-option="wrap" font-weight="bold"><%= copy %></fo:block>
+            </fo:table-row>
+
+            <fo:table-row>
+              <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
+                <fo:block wrap-option="wrap" font-weight="bold">Previous System ID</fo:block>
+              </fo:table-cell>
+              <fo:table-cell number-columns-spanned="3" wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
+                <fo:block wrap-option="wrap">
+                  <%= record.fetch('external_ids', []).collect {|ext| [ext['source'], ext['external_id']].compact.join(':')}.first %>
+                </fo:block>
               </fo:table-cell>
             </fo:table-row>
+
             <fo:table-row>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
                 <fo:block wrap-option="wrap" font-weight="bold">Item ID</fo:block>
               </fo:table-cell>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
                 <fo:block wrap-option="wrap">
-                  <%= rrr['requested_item'].fetch('_resolved').fetch('qsa_id_prefixed') %>
+                  <%= item.fetch('controlling_record').fetch('qsa_id_prefixed') %>
                 </fo:block>
               </fo:table-cell>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
-                <fo:block wrap-option="wrap" font-weight="bold">Previous System ID</fo:block>
+                <fo:block wrap-option="wrap" font-weight="bold">Parent Item ID</fo:block>
               </fo:table-cell>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
                 <fo:block wrap-option="wrap">
-                  <%= rrr['requested_item'].fetch('_resolved').fetch('external_ids', []).collect {|ext| [ext['source'], ext['external_id']].compact.join(':')}.join('; ') %>
+                  <%= parent['qsa_id_prefixed'] %>
                 </fo:block>
               </fo:table-cell>
             </fo:table-row>
+
             <fo:table-row>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
                 <fo:block wrap-option="wrap" font-weight="bold">
-                  Dept ID
+                  Agency control no.
                 </fo:block>
               </fo:table-cell>
-              <fo:table-cell number-columns-spanned="3" wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
+              <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
                 <fo:block wrap-option="wrap">
-                  <%= rrr['requested_item'].fetch('_resolved').fetch('responsible_agency').fetch('_resolved').fetch('agency_assigned_id', '') %>
+                  <%= record.fetch('agency_assigned_id', '') %>
                 </fo:block>
-              </fo:table-cell>
-            </fo:table-row>
-            <fo:table-row>
-              <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
-                <fo:block wrap-option="wrap" font-weight="bold">Access</fo:block>
-              </fo:table-cell>
-              <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
-                <fo:block wrap-option="wrap"><%= rrr['requested_item'].fetch('_resolved').fetch('rap_access_status') %></fo:block>
               </fo:table-cell>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
                 <fo:block wrap-option="wrap" font-weight="bold">Dates</fo:block>
               </fo:table-cell>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
                 <fo:block wrap-option="wrap">
-                  <% if date = rrr['requested_item'].fetch('_resolved').fetch('controlling_record').fetch('_resolved').fetch('dates', []).first %>
+                  <% if date = record.fetch('dates', []).first %>
                     <%= date['begin'] %> <%= date['certainty'] %> - <%= date['end'] %> <%= date['certainty_end'] %>
                   <% else %>
                     No date available
@@ -88,6 +94,24 @@
                 </fo:block>
               </fo:table-cell>
             </fo:table-row>
+
+            <fo:table-row>
+              <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
+                <fo:block wrap-option="wrap" font-weight="bold">Access</fo:block>
+              </fo:table-cell>
+              <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
+                <fo:block wrap-option="wrap"><%= item.fetch('rap_access_status') %></fo:block>
+              </fo:table-cell>
+              <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
+                <fo:block wrap-option="wrap" font-weight="bold">Item Availability</fo:block>
+              </fo:table-cell>
+              <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
+                <fo:block wrap-option="wrap">
+                  <%= I18n.t('enumerations.runcorn_physical_representation_availability_concise.' + item.fetch('calculated_availability')) %>
+                </fo:block>
+              </fo:table-cell>
+            </fo:table-row>
+
             <fo:table-row>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
                 <fo:block wrap-option="wrap" font-weight="bold">
@@ -95,29 +119,17 @@
                 </fo:block>
               </fo:table-cell>
               <fo:table-cell number-columns-spanned="3" wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
-                <fo:block-container overflow="hidden" height="1cm">
-                  <fo:block wrap-option="wrap"><%= rrr['requested_item'].fetch('_resolved').fetch('display_string') %></fo:block>
-                  <fo:block wrap-option="wrap" linefeed-treatment="preserve" white-space-collapse="false"><%= rrr['requested_item'].fetch('_resolved').fetch('description', '') %></fo:block>
-                  <fo:block wrap-option="wrap" linefeed-treatment="preserve" white-space-collapse="false"><%= rrr['requested_item'].fetch('_resolved').fetch('controlling_record').fetch('_resolved').fetch('description', '') %></fo:block>
+                <fo:block-container>
+                  <%
+                    desc = record.fetch('description', nil)
+                    desc = [desc, item.fetch('description', nil)].compact.join("\n")
+                    desc = desc[0,80]
+                  %>
+                  <fo:block wrap-option="wrap" linefeed-treatment="preserve" white-space-collapse="false"><%= desc %></fo:block>
                 </fo:block-container>
               </fo:table-cell>
             </fo:table-row>
-            <fo:table-row>
-              <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
-                <fo:block wrap-option="wrap" font-weight="bold">
-                  Series
-                </fo:block>
-              </fo:table-cell>
-              <fo:table-cell number-columns-spanned="3" wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
-                <fo:block-container overflow="hidden" height="1cm">
-                  <fo:block wrap-option="wrap">
-                    <% series = rrr['requested_item'].fetch('_resolved').fetch('controlling_record_series').fetch('_resolved') %>
-                    <%= series.fetch('qsa_id_prefixed') %>
-                    <%= series.fetch('title') %>
-                  </fo:block>
-                </fo:block-container>
-              </fo:table-cell>
-            </fo:table-row>
+
             <fo:table-row>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
                 <fo:block wrap-option="wrap" font-weight="bold">
@@ -126,7 +138,7 @@
               </fo:table-cell>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
                 <fo:block wrap-option="wrap">
-                  <%= rrr['requested_item'].fetch('_resolved').fetch('container').fetch('_resolved').fetch('display_string') %>
+                  <%= item.fetch('container').fetch('_resolved').fetch('display_string') %>
                 </fo:block>
               </fo:table-cell>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
@@ -136,11 +148,12 @@
               </fo:table-cell>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
                 <fo:block wrap-option="wrap">
-                  <% location = rrr['requested_item'].fetch('_resolved').fetch('container').fetch('_resolved').fetch('current_location') %>
+                  <% location = item.fetch('container').fetch('_resolved').fetch('current_location') %>
                   <%= I18n.t("enumerations.runcorn_location.#{location}", :default => location) %>
                 </fo:block>
               </fo:table-cell>
             </fo:table-row>
+
             <fo:table-row>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
                 <fo:block wrap-option="wrap" font-weight="bold">
@@ -148,9 +161,9 @@
                 </fo:block>
               </fo:table-cell>
               <fo:table-cell number-columns-spanned="3" wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
-                <fo:block-container overflow="hidden" height="0.5cm">
+                <fo:block-container>
                   <fo:block wrap-option="wrap">
-                    <% location = rrr['requested_item'].fetch('_resolved').fetch('container').fetch('_resolved').fetch('container_locations') %>
+                    <% location = item.fetch('container').fetch('_resolved').fetch('container_locations') %>
                     <% unless location.empty? %>
                       <%= location[0].fetch('_resolved').fetch('title') %>
                     <% end %>
@@ -158,6 +171,7 @@
                 </fo:block-container>
               </fo:table-cell>
             </fo:table-row>
+
             <fo:table-row>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
                 <fo:block wrap-option="wrap" font-weight="bold">
@@ -166,9 +180,7 @@
               </fo:table-cell>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
                 <fo:block wrap-option="wrap">
-                  <%= rrr['requesting_user'].fetch('first_name') %>
-                  <%= rrr['requesting_user'].fetch('last_name') %>
-                  &lt;<%= wrappable_text(rrr['requesting_user'].fetch('email')) %>&gt;
+                  <%= rrr['requesting_user'].fetch('id') %>
                 </fo:block>
               </fo:table-cell>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
@@ -179,7 +191,8 @@
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
                 <fo:block wrap-option="wrap">
                   <% if rrr['date_required'] %>
-                    <%= Time.at(rrr['date_required'] / 1000).to_date.iso8601 %>
+                    <% t = Time.at(rrr['date_required'] / 1000).localtime %>
+                    <%= t.to_date.iso8601 %> <%= t.hour >= 12 ? 'PM' : 'AM' %>
                   <% end %>
                 </fo:block>
               </fo:table-cell>
