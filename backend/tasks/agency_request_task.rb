@@ -13,7 +13,7 @@ class AgencyRequestTask
         EmailDelivery.new('Closed record request - Queensland State Archives User',
                           json,
                           'agency_request.txt.erb',
-                          emails.empty? ? [AppConfig[:email_qsa_requests_email]] : emails,
+                          json['agency_has_delegate'] ? emails : [AppConfig[:email_qsa_requests_email]],
                           [AppConfig[:email_qsa_requests_email]])
                       .send!
 
@@ -31,7 +31,7 @@ class AgencyRequestTask
     agent_id = JSONModel.parse_reference(uri)[:id]
     agent_json = AgentCorporateEntity.to_jsonmodel(agent_id)
 
-    emails = agent_json.delegates.map do |delegate|
+    agent_json.delegates.map do |delegate|
       delegate.fetch('email')
     end
   end
