@@ -1,1 +1,17 @@
-Agency request confirmation - copy to be developed.
+Dear <%= @data.fetch('user').fetch('first_name') %> <%= @data.fetch('user').fetch('last_name') %>,
+
+Your request for permission to view and/or copy has been sent to <%= @data.fetch('agency').fetch('display_string') %> for the following closed records:<% @data.fetch('requested_items').each do |requested_item| %>
+ * <%= requested_item.fetch('item_qsa_id') %> <%= requested_item.fetch('item_display_string') %><% end %>
+
+The decision to give permission rests with <%= @data.fetch('agency').fetch('display_string') %>. They will respond to you by email and to Queensland State Archives to advise the outcome of that decision. Please note that QSA cannot guarantee access will be granted to the records.
+
+If you have approved access to the closed records above please contact QSA by sending an email to info@archives.qld.gov.au  to arrange a day that is convenient for you to visit our Reading Room at 425 Compton Road, Runcorn QLD 4113. A QSA archivist will pre-order the records on your behalf for your nominated day.
+
+You are also able to view the status of your request through your QSA user account by clicking on My Requests.
+
+If the permission included digital copies and you would like to receive a quote for these records to be digitised please indicate this in your email.
+
+Regards,
+Queensland State Archives
+<%= AppConfig[:email_qsa_signature] %>
+

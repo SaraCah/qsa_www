@@ -3,7 +3,7 @@
 Queensland State Archives has your details as the delegate responsible for approving requests to access closed records for your agency which are held in the custody of QSA.
 
 A QSA user has requested permission to access the following record/s:<% @data.fetch('requested_items', []).each_with_index do |item, idx| %>
-<%= idx %>. <%= item['item_qsa_id'] %> <%= item['item_display_string'] %>
+<%= idx + 1 %>. <%= item['item_qsa_id'] %> <%= item['item_display_string'] %>
   Parent: <%= item.dig('controlling_record', 'qsa_id') %> <%= item.dig('controlling_record', 'display_string') %>
   Series: <%= item.dig('series', 'qsa_id') %> <%= item.dig('series', 'display_string') %>
   Dates: <%= item['dates'] %>
@@ -41,3 +41,4 @@ If you require assistance or further information about completing this ‘Access
 Thank you,
 Access Services Team
 Queensland State Archives
+<%= AppConfig[:email_qsa_signature] %>
