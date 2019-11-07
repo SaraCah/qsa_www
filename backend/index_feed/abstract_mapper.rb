@@ -244,6 +244,7 @@ class AbstractMapper
       'json' => ASUtils.to_json(whitelisted),
       'keywords' => parse_keywords(whitelisted),
       'previous_system_ids' => parse_previous_system_ids(jsonmodel),
+      'last_modified_time' => obj.system_mtime.utc.iso8601,
     }
   end
 
