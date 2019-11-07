@@ -10,7 +10,7 @@ Contact details:
   Phone: <%= @data.dig('user', 'phone') %>
 
 Item/s information <% @data.fetch('requested_items', []).each_with_index do |item, idx| %>
-<%= idx %>. <%= QSA Id: item['item_qsa_id'] %> <%= item['item_display_string'] %>
+ * <%= item['item_qsa_id'] %> <%= item['item_display_string'] %>
   Copy preference: <%= item['digital_copy_type'] %>
   Delivery mode: <%= item['digital_copy_delivery'] %>
   Copy format: <%= item['digital_copy_format'] %>
