@@ -13,8 +13,9 @@ class AgencyRequestTask
         EmailDelivery.new('Closed record request - Queensland State Archives User',
                           json,
                           'agency_request.txt.erb',
-                          json['agency_has_delegate'] ? emails : [AppConfig[:email_qsa_requests_email]],
-                          [AppConfig[:email_qsa_requests_email]])
+                          json['agency_has_delegate'] ? emails : [AppConfig[:email_qsa_requests_email]],  # to
+                          [],  # cc
+                          [AppConfig[:email_qsa_requests_email]])  # reply-to
                       .send!
 
         results << DeferredTaskRunner::TaskResult.new(task[:id], :success)

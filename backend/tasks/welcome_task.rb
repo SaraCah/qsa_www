@@ -10,7 +10,7 @@ class WelcomeTask
         EmailDelivery.new('Thank you for registering with the Queensland State Archives',
                           json,
                           'welcome.txt.erb',
-                          [json.fetch('user').fetch('email')])
+                          [json.fetch('user').fetch('email')])  # to
                       .send!
 
         results << DeferredTaskRunner::TaskResult.new(task[:id], :success)

@@ -10,14 +10,8 @@ Contact details:
   Phone: <%= @data.dig('user', 'phone') %>
 
 Item/s information <% @data.fetch('requested_items', []).each_with_index do |item, idx| %>
- * <%= item['item_qsa_id'] %> <%= item['item_display_string'] %>
-  Copy preference: <%= item['digital_copy_type'] %>
-  Delivery mode: <%= item['digital_copy_delivery'] %>
-  Copy format: <%= item['digital_copy_format'] %>
-  Copy resolution: <%= item['digital_copy_resolution'] %>
-  Copy mode: <%= item['digital_copy_mode'] %>
-  Copy size: <%= item['digital_copy_size'] %>
-  Copy notes: <%= item['digital_copy_notes'] %>
+ * <%= item['item_qsa_id'] %> <%= item['item_display_string'] %><% [['Copy preference', 'digital_copy_type'], ['Delivery mode', 'digital_copy_delivery'], ['Copy format', 'digital_copy_format'], ['Copy resolution', 'digital_copy_resolution'], ['Copy mode', 'digital_copy_mode'], ['Copy size', 'digital_copy_size'], ['Copy notes', 'digital_copy_notes']].reject{|entry| item[entry[1]].nil? || item[entry[1]].empty?}.each do |entry| %>
+  <%= entry[0] %>: <%= item[entry[1]] %><% end %>
 <% end %>
 
 NB: Please check that order and your contact details are correct before you send your request.

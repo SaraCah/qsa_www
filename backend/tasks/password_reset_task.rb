@@ -10,7 +10,7 @@ class PasswordResetTask
         EmailDelivery.new('Reset password - Queensland State Archives',
                           json,
                           'password_reset.txt.erb',
-                          [json.fetch('user').fetch('email')])
+                          [json.fetch('user').fetch('email')])  # to
                       .send!
 
         results << DeferredTaskRunner::TaskResult.new(task[:id], :success)

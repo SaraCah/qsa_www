@@ -10,8 +10,9 @@ class AgencyRequestConfirmationTask
         EmailDelivery.new('Confirmation closed record request sent',
                           json,
                           'agency_request_confirmation.txt.erb',
-                          [json.fetch('user').fetch('email')],
-                          [AppConfig[:email_qsa_requests_email]])
+                          [json.fetch('user').fetch('email')],  # to
+                          [],  # cc
+                          [AppConfig[:email_qsa_requests_email]])  # reply-to
                      .send!
 
         results << DeferredTaskRunner::TaskResult.new(task[:id], :success)
