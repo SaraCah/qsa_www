@@ -63,7 +63,11 @@ class AbstractMapper
 
     records.each do |record|
       unless record.empty?
-        record['tags'] = record_tags_by_solr_id.fetch(record['id'], [])
+        # A mapper is allowed to provide tags and we'll incorporate those into
+        # the list.  We use this to allow the Item Mapper to pull in tags for
+        # any published representations.
+        record['tags'] = Array(record['tags']) + record_tags_by_solr_id.fetch(record['id'], [])
+        record['tags'].uniq!
       end
     end
 

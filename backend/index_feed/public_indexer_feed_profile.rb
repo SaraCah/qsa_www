@@ -83,7 +83,7 @@ class PublicIndexerFeedProfile < IndexerFeedProfile
         # milliseconds since epoch; system_mtime is seconds since epoch.
         # TMTWWTDI I suppose!
         PublicDB.open do |public_db|
-          public_db[:record_tag]
+          result = public_db[:record_tag]
             .filter(:record_type => record_type)
             .where { modified_time >= (last_index_time.to_i * 1000) }
             .select(:record_id, :modified_time)
@@ -93,10 +93,55 @@ class PublicIndexerFeedProfile < IndexerFeedProfile
               :system_mtime => row[:modified_time] / 1000,
             }
           }
+
+          # Fun complication: representation tags get indexed into their parent AO, so
+          # we need to reindex the corresponding AO when a representation is tagged.
+          if model == ArchivalObject
+
+            # {'physical_representation' => [{record_id: 'physical_representation:123',
+            #                                 record_type: 'physical_representation',
+            #                                 modified_time: 1573172924333} ...]}
+            tagged_representations_by_type =
+              public_db[:record_tag]
+                .filter(:record_type => ['physical_representation', 'digital_representation'])
+                .where { modified_time >= (last_index_time.to_i * 1000) }
+                .select(:record_id, :record_type, :modified_time)
+                .all
+                .group_by {|row| row[:record_type]}
+
+            # the extra AOs we need to index mapped to the mtime we'll report
+            # back (we take the mtime of when the tag was added, not the mtime
+            # of the record itself)
+            aos_to_reindex = {}
+
+            [:physical_representation, :digital_representation].each do |representation|
+              # representation_id -> tag mtime
+              representation_tag_mtime = tagged_representations_by_type
+                                           .fetch(representation.to_s, [])
+                                           .map {|row| [
+                                                   Integer(row[:record_id].split(':').last),
+                                                   row[:modified_time]
+                                                 ]}
+                                           .to_h
+
+              model_dataset.db[representation]
+                .filter(:id => representation_tag_mtime.keys)
+                .select(:id, :archival_object_id)
+                .each do |row|
+                aos_to_reindex[row[:archival_object_id]] = representation_tag_mtime.fetch(row[:id])
+              end
+            end
+
+            result += aos_to_reindex.map {|id, system_mtime| {id: id, system_mtime: system_mtime / 1000}}
+            result.uniq!
+          end
+
+          result
         end
       else
         []
       end
+
 
     # Public DB isn't repo aware, so we need to drop any records that aren't in
     # scope for the current dataset.

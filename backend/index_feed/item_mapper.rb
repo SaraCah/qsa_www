@@ -53,12 +53,33 @@ class ItemMapper < AbstractMapper
     parsed_digital = parse_digital_representations(json)
     parsed_physical = parse_physical_representations(json)
 
+    solr_doc['tags'] = tags_from_representations(parsed_physical + parsed_digital)
+
     solr_doc['digital_representation_count'] = parsed_digital.length
     solr_doc['has_digital_representations'] = solr_doc['digital_representation_count'] > 0
     solr_doc['physical_representation_count'] = parsed_physical.length
     solr_doc['has_physical_representations'] = solr_doc['physical_representation_count'] > 0
 
     solr_doc
+  end
+
+  def tags_from_representations(representations)
+    representation_tags_by_solr_id = {}
+
+    PublicDB.open do |public_db|
+      public_db[:record_tag]
+        .filter(:deleted => 0)
+        .filter(:record_id => representations.map {|record| record['id']}.compact)
+        .select(:record_id, :tag)
+        .each do |row|
+        representation_tags_by_solr_id[row[:record_id]] ||= []
+        representation_tags_by_solr_id[row[:record_id]] << row[:tag]
+      end
+    end
+
+    representations.flat_map {|record|
+      representation_tags_by_solr_id.fetch(record['id'], [])
+    }
   end
 
   def parse_whitelisted_json(obj, json)
