@@ -30,7 +30,7 @@ class EmailDelivery
     cc.reject!{|email| email == 'admin'}
     reply_to.reject!{|email| email == 'admin'}
 
-    subject = email_subject
+    subject = ("%s %s" % [AppConfig[:email_qsa_subject_prefix], email_subject]).strip
     body = render
 
     msg = Mail.new do
