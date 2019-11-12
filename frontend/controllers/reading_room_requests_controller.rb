@@ -180,25 +180,59 @@ class ReadingRoomRequestsController < ApplicationController
   end
 
   def self.status_workflow_map
-    @status_workflow_map = {
-      'AWAITING_AGENCY_APPROVAL' => ['APPROVED_BY_AGENCY', 'REJECTED_BY_AGENCY', 'CANCELLED_BY_QSA', 'CANCELLED_BY_RESEARCHER'],
-      'AWAITING_AGENCY_APPROVAL_RESTRICTED' => ['APPROVED_BY_AGENCY', 'REJECTED_BY_AGENCY', 'CANCELLED_BY_QSA', 'CANCELLED_BY_RESEARCHER'],
-      'PENDING' => ['BEING_RETRIEVED', 'CANCELLED_BY_QSA', 'CANCELLED_BY_RESEARCHER'],
-      'PENDING_RESTRICTED' => ['BEING_RETRIEVED', 'CANCELLED_BY_QSA', 'CANCELLED_BY_RESEARCHER'],
-      'BEING_RETRIEVED' => ['DELIVERED_TO_READING_ROOM', 'CANCELLED_BY_QSA', 'CANCELLED_BY_RESEARCHER'],
-      'BEING_RETRIEVED_RESTRICTED' => ['DELIVERED_TO_ARCHIVIST', 'DELIVERED_TO_CONSERVATION', 'CANCELLED_BY_QSA', 'CANCELLED_BY_RESEARCHER'],
-      'DELIVERED_TO_CONSERVATION' => ['DELIVERED_TO_READING_ROOM', 'DELIVERED_TO_ARCHIVIST'],
-      'DELIVERED_TO_CONSERVATION_RESTRICTED' => ['DELIVERED_TO_READING_ROOM', 'DELIVERED_TO_ARCHIVIST'],
-      'DELIVERED_TO_READING_ROOM' => ['COMPLETE'],
-      'DELIVERED_TO_READING_ROOM_RESTRICTED' => ['COMPLETE'],
-      'DELIVERED_TO_ARCHIVIST' => ['COMPLETE'],
-      'DELIVERED_TO_ARCHIVIST_RESTRICTED' => ['COMPLETE'],
+    @status_workflow_map ||= {
+      'AWAITING_AGENCY_APPROVAL' =>
+      [
+       'APPROVED_BY_AGENCY',
+       'REJECTED_BY_AGENCY',
+       'CANCELLED_BY_QSA',
+       'CANCELLED_BY_RESEARCHER',
+      ],
+      'PENDING' =>
+      [
+       'BEING_RETRIEVED',
+       'CANCELLED_BY_QSA',
+       'CANCELLED_BY_RESEARCHER',
+      ],
+      'BEING_RETRIEVED' =>
+      [
+       'DELIVERED_TO_CONSERVATION',
+       'DELIVERED_TO_ARCHIVIST',
+       'DELIVERED_TO_READING_ROOM',
+       'CANCELLED_BY_QSA',
+       'CANCELLED_BY_RESEARCHER',
+      ],
+      'BEING_RETRIEVED_RESTRICTED' =>
+      [
+       'DELIVERED_TO_CONSERVATION',
+       'DELIVERED_TO_ARCHIVIST',
+       'CANCELLED_BY_QSA',
+       'CANCELLED_BY_RESEARCHER',
+      ],
+      'DELIVERED_TO_CONSERVATION' =>
+      [
+       'DELIVERED_TO_ARCHIVIST',
+       'DELIVERED_TO_READING_ROOM',
+      ],
+      'DELIVERED_TO_CONSERVATION_RESTRICTED' =>
+      [
+       'DELIVERED_TO_ARCHIVIST',
+      ],
+      'DELIVERED_TO_READING_ROOM' =>
+      [
+       'COMPLETE',
+      ],
+      'DELIVERED_TO_ARCHIVIST' =>
+      [
+       'COMPLETE',
+      ],
     }
   end
 
 
   def status_workflow(status, restricted)
-    self.class.status_workflow_map.fetch(status + (restricted ? '_RESTRICTED' : ''), [])
+    key = (restricted && self.class.status_workflow_map.has_key?(status + '_RESTRICTED')) ? status + '_RESTRICTED' : status
+    self.class.status_workflow_map.fetch(key, [])
   end
 
   def status_button(status, id)
