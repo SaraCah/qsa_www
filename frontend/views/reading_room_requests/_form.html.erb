@@ -1,27 +1,98 @@
+<%= javascript_include_tag 'readingroom_requests' %>
+
 <%= readonly_context :reading_room_request, @reading_room_request do |readonly| %>
-    <h2>
-        Hi
-    </h2>
 
-    <%= render_aspace_partial :partial => "shared/flash_messages" %>
+  <h2>
+    <%= @reading_room_request.title %> <span class="label label-info"><%= I18n.t("reading_room_request._singular") %></span>
+  </h2>
 
-    <pre><%= @reading_room_request.to_hash(:trusted).pretty_inspect %></pre>
+  <%= render_aspace_partial :partial => "shared/flash_messages" %>
 
-    <% define_template "reading_room_request", jsonmodel_definition(:reading_room_request) do |form, reading_room_request| %>
-        <section id="basic_information">
-            <h3><%= I18n.t("reading_room_request._frontend.section.basic_information") %></h3>
+  <% define_template "reading_room_request", jsonmodel_definition(:reading_room_request) do |form, reading_room_request| %>
+    <section id="basic_information">
+      <h3><%= I18n.t("reading_room_request._frontend.section.basic_information") %></h3>
 
-            <%= render_plugin_partials("top_of_basic_information_reading_room_request",
-                                       :form => form,
-                                       :record => @reading_room_request) %>
+      <%= render_plugin_partials("top_of_basic_information_reading_room_request",
+                                 :form => form,
+                                 :record => @reading_room_request) %>
 
-            <%= render_aspace_partial :partial => 'shared/qsa_id_form', :locals => {:form => form, :model => :reading_room_request} %>
+      <%= render_aspace_partial :partial => 'shared/qsa_id_form', :locals => {:form => form, :model => :reading_room_request} %>
 
-    <% end %>
+      <div class="form-group">
+        <label class="control-label col-sm-2"><%= I18n.t("reading_room_request.status") %></label>
+        <div class="label-only col-sm-9"><%= status_label(@reading_room_request['status']) %></div>
+      </div>
+
+      <% user = @reading_room_request['requesting_user'] %>
+      <div class="form-group">
+        <label class="control-label col-sm-2"><%= I18n.t("reading_room_request.requesting_user") %></label>
+        <div class="label-only col-sm-9">
+          <%= "%s %s <%s>" % [user['first_name'], user['last_name'], user['email']] %>
+          <div class="label label-<%= user.fetch('verified') ? 'success' : 'danger' %>">
+            <%= user.fetch('verified') ? 'Verified' : 'Unverified' %>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="control-label col-sm-2"><%= I18n.t("reading_room_request.date_required") %></label>
+        <div class="label-only col-sm-9">
+          <% if @reading_room_request['date_required'] %>
+            <%= Time.at(Integer(@reading_room_request['date_required']) / 1000).to_date.iso8601 %>
+          <% else %>
+            <%= I18n.t("reading_room_request.date_required_not_specified") %>
+          <% end %>
+        </div>
+      </div>
+    </section>
+
+    <section id="requested_item">
+      <h3><%= I18n.t("reading_room_request._frontend.section.requested_item") %></h3>
+
+      <% form.push("requested_item", form.obj.fetch('requested_item', {}).fetch('_resolved', {})) do %>
+
+        <% define_template "physical_representation", jsonmodel_definition(:physical_representation) do |form, requested_item| %>
+          <%= render_aspace_partial :partial => 'shared/qsa_id_form', :locals => {:form => form, :model => :physical_representation} %>
+
+          <div class="form-group">
+            <label class="control-label col-sm-2"><%= I18n.t("physical_representation.title") %></label>
+            <div class="label-only col-sm-9">
+                <%= ('<div class="token-list">' +
+                        render_token(:object => form.obj,
+                                     :label => form.obj['display_string'],
+                                     :type => form.obj['jsonmodel_type'],
+                                     :uri => form.obj["uri"],
+                                     :placement => "top",
+                                     :inside_linker_browse => true) +
+                        '</div>').html_safe %>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="control-label col-sm-2"><%= I18n.t("physical_representation.availability") %></label>
+            <div class="label-only col-sm-9">
+              <div class="label label-<%= form.obj.fetch('calculated_availability') == 'available' ? 'success' : 'danger' %>">
+                <%= I18n.t('enumerations.runcorn_physical_representation_availability_concise.' + form.obj.fetch('calculated_availability')) %>
+              </div>
+            </div>
+          </div>
+
+          <% if form.obj['current_location'] %>
+            <%= form.label_and_readonly "current_location" %>
+          <% end %>
+
+        <% end %>
+
+        <% form.emit_template "physical_representation" %>
+
+      <% end %>
+    </section>
+  <% end %>
 
     <% readonly.emit_template "reading_room_request" %>
 
     <%= show_plugins_for(@reading_room_request, readonly) %>
+
 <% end %>
 
 <script>

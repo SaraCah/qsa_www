@@ -1,10 +1,18 @@
+<% requested_item = @reading_room_request['requested_item'].fetch('_resolved', {}) %>
+<% restricted_item = requested_item['rap_access_status'] == 'Restricted Access' %>
+
 <div class="row">
     <div class="col-md-12">
         <div class="record-toolbar file-issue-toolbar">
             <% if !['edit', 'update'].include?(controller.action_name) %>
-                <div class="btn-group pull-left">
-                    <%= link_to I18n.t("actions.edit"), {:controller => :reading_room_requests, :action => :edit, :id => @reading_room_request.id}, :class => "btn btn-sm btn-primary" %>
-                </div>
+              <div class="pull-right">
+                <%= link_to "Download slip", {:controller => :reading_room_requests, :action => :picking_slip, :ids => params['id']}, :title => "Download picking slip", :target => '_blank', :class => 'btn btn-default btn-sm' %>
+                <% buttons_for_request(@reading_room_request['status'], params['id'], :restricted => (restricted_item ? :restricted : :unrestricted), :full_size => true).each do |button| %>
+                  <div class="rrr-status-action btn-group">
+                    <%= button %>
+                  </div>
+                <% end %>
+              </div>
             <% end %>
 
             <% if ['edit', 'update'].include?(controller.action_name) %>

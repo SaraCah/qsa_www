@@ -1,4 +1,4 @@
-<%= setup_context(:title => I18n.t("reading_room_requests._plural")) %>
+<%= setup_context(:title => I18n.t("reading_room_request._plural")) %>
 
 <%= javascript_include_tag 'readingroom_requests' %>
 
@@ -75,7 +75,7 @@
     <div class="record-pane">
       <%= link_to_help :topic => "search" %>
 
-      <h2><%= I18n.t("reading_room_requests._plural") %></h2>
+      <h2><%= I18n.t("reading_room_request._plural") %></h2>
 
       <%= render_aspace_partial :partial => "shared/flash_messages" %>
 
@@ -95,7 +95,7 @@
               </th>
             <% end %>
 
-            <th class="col actions"><%= I18n.t("reading_room_requests.actions") %></th>
+            <th class="col actions"><%= I18n.t("reading_room_request.actions") %></th>
           </tr>
           </thead>
           <tbody>
@@ -110,7 +110,7 @@
               <td class="rrr-selected-item-cell">
                 <input class="rrr-selected-item" type="checkbox" name="selected-item" value="<%= request_id %>" checked="true" id="selected-item-<%= request_id %>"/>
               </td>
-              <td><%= QSAIdHelper.id(parsed.fetch('qsa_id_prefixed')) %></td>
+              <td><%= QSAIdHelper.id(parsed.fetch('qsa_id_prefixed'), :link => true) %></td>
               <td>
                 <%= ('<div class="token-list">' +
                         render_token(:object => requested_item,
@@ -156,7 +156,7 @@
 
               <td class="rrr-status">
                 <div>
-                  <%= ("<div class='label #{badge_class_for_status(parsed.fetch('status'))}'>" + I18n.t('reading_room_requests.statuses.' + parsed.fetch('status').downcase).upcase + '</div>').html_safe %>
+                  <%= ("<div class='label #{badge_class_for_status(parsed.fetch('status'))}'>" + I18n.t('reading_room_request.statuses.' + parsed.fetch('status').downcase).upcase + '</div>').html_safe %>
                 </div>
               </td>
 

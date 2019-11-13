@@ -7,14 +7,16 @@ en:
       _singular: Reading Room Request
       _plural: Reading Room Requests
 
-  reading_room_requests:
+  reading_room_request:
     _singular: Reading Room Request
     _plural: Reading Room Requests
     requested_item: Requested Item
+    requesting_user: Researcher
     item_availability: Availability
     researcher_name: Researcher
     status: Status
     date_required: Date Required
+    date_required_not_specified: "-- Not specified --"
     actions: Actions
     statuses:
       awaiting_agency_approval: Awaiting Agency Approval
@@ -29,6 +31,10 @@ en:
       cancelled_by_qsa: Cancelled by QSA
       cancelled_by_researcher: Cancelled by Researcher
       active: Active
+    _frontend:
+      section:
+        basic_information: Basic Information
+        requested_item: Requested Item
 
   search_sorting:
     rrr_requested_item_qsa_id_u_sort: Requested Item

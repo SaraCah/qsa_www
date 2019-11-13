@@ -166,6 +166,7 @@ class ReadingRoomRequestsController < ApplicationController
 
   def self.status_button_map
     @status_button_map ||= {
+      'PENDING' => {:style => 'default', :label => 'Pending'},
       'APPROVED_BY_AGENCY' => {:style => 'success', :label => 'Approved by Agency'},
       'REJECTED_BY_AGENCY' => {:style => 'danger', :label => 'Rejected by Agency'},
       'CANCELLED_BY_QSA' => {:style => 'danger', :label => 'Cancelled by QSA'},
@@ -176,8 +177,15 @@ class ReadingRoomRequestsController < ApplicationController
       'DELIVERED_TO_CONSERVATION' => {:style => 'primary', :label => 'Delivered to Conservation'},
       'COMPLETE' => {:style => 'success', :label => 'Returned to Home Location'},
     }
-
   end
+
+
+  helper_method :status_label
+  def status_label(status)
+    button = self.class.status_button_map[status]
+    "<span class=\"label label-#{button[:style]}\">#{button[:label]}</span>".html_safe
+  end
+
 
   def self.status_workflow_map
     @status_workflow_map ||= {
@@ -235,14 +243,16 @@ class ReadingRoomRequestsController < ApplicationController
     self.class.status_workflow_map.fetch(key, [])
   end
 
-  def status_button(status, id)
+  def status_button(status, id, opts = {})
     btn_def = self.class.status_button_map[status]
-    "<button class=\"btn btn-#{btn_def[:style]} btn-xs rrr-status rrr-status-#{status}\" data-id=\"#{id}\" data-status=\"#{status}\">#{btn_def[:label]}</button>".html_safe
+    btn_size = opts[:full_size] ? 'btn-sm' : 'btn-xs'
+    "<button class=\"btn btn-#{btn_def[:style]} #{btn_size} rrr-status rrr-status-#{status}\" data-id=\"#{id}\" data-status=\"#{status}\">#{btn_def[:label]}</button>".html_safe
   end
 
   helper_method :buttons_for_request
   def buttons_for_request(status, id, opts = {})
     opts[:restricted] ||= :unrestricted
+    full_size = !!opts[:full_size]
     status = status.upcase
     buttons = []
     if [:unrestricted, :both].include?(opts[:restricted])
@@ -255,6 +265,6 @@ class ReadingRoomRequestsController < ApplicationController
     # stoopid reversing to keep cancel buttons at the end
     buttons = buttons.reverse.uniq.reverse
 
-    buttons.map{|button| status_button(button, id)}
+    buttons.map{|button| status_button(button, id, :full_size => full_size)}
   end
 end
