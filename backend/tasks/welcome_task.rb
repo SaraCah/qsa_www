@@ -9,7 +9,7 @@ class WelcomeTask
       begin
         EmailDelivery.new('Thank you for registering with the Queensland State Archives',
                           json,
-                          'welcome.txt.erb',
+                          'welcome.html.erb',
                           [json.fetch('user').fetch('email')])  # to
                       .send!
 
