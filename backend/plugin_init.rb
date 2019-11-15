@@ -21,6 +21,7 @@ require_relative 'tasks/quote_request_task'
 require_relative 'tasks/welcome_task'
 require_relative 'tasks/email_delivery'
 require_relative 'tasks/set_price_request_task'
+require_relative 'tasks/email_template'
 
 DeferredTaskRunner.add_handler_for_type('quote_request', QuoteRequestTask)
 DeferredTaskRunner.add_handler_for_type('welcome', WelcomeTask)
