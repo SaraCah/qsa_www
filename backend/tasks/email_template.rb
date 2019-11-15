@@ -17,15 +17,11 @@ class EmailTemplates
 
     raise "Page content missing" if page_content.nil?
 
-    p page_content
-
     replacements.each do |replacement_key, replacement_html|
       page_content = page_content.gsub(/%#{replacement_key}%/, replacement_html)
     end
 
-    result = page_content.gsub(/%[A-Z_]+%/, "")
-    p result
-    result
+    page_content.gsub(/%[A-Z_]+%/, "")
   end
 
   def self.render_partial(partial_name, locals = {})
