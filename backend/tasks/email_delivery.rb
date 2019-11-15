@@ -1,3 +1,5 @@
+require 'html2text'
+
 class EmailDelivery
   attr_accessor :email_subject, :data, :email_content, :recipients, :cc_recipients, :reply_to_addresses
 
@@ -23,6 +25,7 @@ class EmailDelivery
 
     subject = ("%s %s" % [AppConfig[:email_qsa_subject_prefix], email_subject]).strip
     body = email_content
+    plaintext_body = Html2Text.convert(body)
 
     msg = Mail.new do
       to to
@@ -33,6 +36,10 @@ class EmailDelivery
       html_part do
         content_type 'text/html;charset=UTF-8'
         body body
+      end
+
+      text_part do
+        body plaintext_body
       end
     end
 
