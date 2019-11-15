@@ -1,0 +1,40 @@
+<p>Generated Order Number: <%= @data.fetch('generated_order_id') %></p>
+
+<p>Customer Details:</p>
+<ul>
+  <% ASUtils.wrap(@data.dig('order_summary', 'customer_detail')).each do |customer_details| %>
+    <li>
+      <div><%= customer_details.fetch('@type') %>:</div>
+      <% ASUtils.wrap(customer_details.fetch('detail')).each do |detail| %>
+      <% next unless detail.is_a?(String) %>
+        <div>&nbsp;&nbsp;<%= detail %></div>
+      <% end %>
+    </li>
+  <% end %>
+</ul>
+
+
+<p>Delivery Details:</p>
+<ul>
+  <% ASUtils.wrap(@data.dig('order_summary', 'delivery_address')).each do |delivery_details| %>
+    <li>
+      <%= delivery_details.fetch('@type') %>:
+      <% ASUtils.wrap(delivery_details.fetch('detail')).each do |detail| %>
+        <% next unless detail.is_a?(String) %>
+        <div><%= detail %></div>
+      <% end %>
+    </li>
+  <% end %>
+</ul>
+
+<p>Order Details:</p>
+<ul>
+  <% ASUtils.wrap(@data.dig('order_summary', 'order', 'orderline')).each do |orderline| %>
+    <li>
+      <%= orderline.dig('product', '@title') %>
+      <div>Ref: <%= orderline.dig('product', '@ref') %></div>
+      <div>Cost: <%= "$%0.2f" % [orderline.dig('product', '@cost').to_f / 100] %></div>
+      <div>Qty: <%= orderline.dig('@quantity') %></div>
+    </li>
+  <% end %>
+</ul>

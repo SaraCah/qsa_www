@@ -1,0 +1,5 @@
+<ul>
+<% @data.fetch('requested_items', []).each do |item| %>
+  <li><%= item['item_qsa_id'] %> <%= item['item_display_string'] %></li>
+<% end %>
+</ul>
