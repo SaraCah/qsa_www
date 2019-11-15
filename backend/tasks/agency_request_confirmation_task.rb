@@ -17,7 +17,8 @@ class AgencyRequestConfirmationTask
 
         results << DeferredTaskRunner::TaskResult.new(task[:id], :success)
       rescue
-        Log.error($!)
+        Log.error("Failure in AgencyRequestConfirmationTask: #{$!}")
+        Log.exception($!)
         results << DeferredTaskRunner::TaskResult.new(task[:id], :failed)
       end
     end
