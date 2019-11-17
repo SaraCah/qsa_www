@@ -20,7 +20,7 @@ class AgencyMapper < AbstractMapper
     whitelisted['qsa_id_prefixed'] = json.qsa_id_prefixed
 
     whitelisted['display_string'] = json.title
-    whitelisted['abstract'] = json.agency_note
+    whitelisted['agency_note'] = json.agency_note
     whitelisted['display_name'] = parse_names([json.display_name]).first
     whitelisted['names'] = parse_names(json.names)
     whitelisted['notes'] = parse_notes(json.notes)
@@ -29,12 +29,14 @@ class AgencyMapper < AbstractMapper
     whitelisted['agent_relationships'] = parse_series_system_rlshps(json.series_system_agent_relationships, ['series_system_agent_agent_succession_relationship', 'series_system_agent_agent_containment_relationship', 'series_system_agent_agent_ownership_relationship', 'series_system_agent_agent_association_relationship'])
     whitelisted['function_relationships'] = parse_series_system_rlshps(json.series_system_function_relationships, ['series_system_agent_function_administers_relationship'])
     whitelisted['mandate_relationships'] = parse_series_system_rlshps(json.series_system_mandate_relationships, ['series_system_agent_mandate_administers_relationship'])
+    whitelisted['agency_category'] = json.agency_category
+    whitelisted['agency_category_label'] = I18n.t("enumerations.agency_category.#{json.agency_category}", default: nil)
 
     whitelisted
   end
 
   def parse_description(jsonmodel)
-    "[PLACEHOLDER FOR AGENCY DESCRIPTION]"
+    jsonmodel.agency_note
   end
 
   def parse_external_resources(resources)
@@ -42,11 +44,9 @@ class AgencyMapper < AbstractMapper
   end
 
   def parse_notes(notes)
-    # FIXME need to confirm what notes are supported in public?
-    # Assume published for now
-    #
-    # super.select{|note| note['jsonmodel_type'] == 'note_bioghist' }
-    super
+    supported_note_types = %w(description information_sources preferred_citation remarks legislation_establish legislation_administered legislation_abolish)
+
+    super.select{|note| supported_note_types.include?(note['type'])}
   end
 
   def parse_names(names)
