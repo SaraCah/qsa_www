@@ -14,7 +14,7 @@ class FunctionMapper < AbstractMapper
 
     whitelisted['display_string'] = json.display_string
     whitelisted['title'] = json.title
-    whitelisted['source'] = json.source
+    whitelisted['source'] = I18n.t("enumerations.function_source.#{json.source}", default: json.source)
     whitelisted['note'] = json.note
     whitelisted['date'] = parse_dates([json.date].compact).first
     whitelisted['non_preferred_names'] = json.non_preferred_names.map {|npn| npn['name']}
