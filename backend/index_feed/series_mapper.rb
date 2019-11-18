@@ -61,10 +61,10 @@ class SeriesMapper < AbstractMapper
 
     whitelisted['display_string'] = json.title
     whitelisted['title'] = json.title
-    whitelisted['description'] = parse_description(json)
-    whitelisted['sensitivity_label'] = json.sensitivity_label
-    whitelisted['disposal_class'] = json.disposal_class
-    whitelisted['copyright_status'] = json.copyright_status
+    whitelisted['description'] = json.description
+    whitelisted['abstract'] = json.abstract
+    whitelisted['sensitivity_label'] = I18n.t("enumerations.runcorn_sensitivity_label.#{json.sensitivity_label}", default: json.sensitivity_label)
+    whitelisted['copyright_status'] = I18n.t("enumerations.runcorn_copyright_status.#{json.copyright_status}", default: json.copyright_status)
     whitelisted['information_sources'] = json.information_sources
     whitelisted['repository_processing_note'] = json.repository_processing_note
     whitelisted['dates'] = parse_dates(json.dates)
@@ -83,7 +83,7 @@ class SeriesMapper < AbstractMapper
   end
 
   def parse_description(jsonmodel)
-    jsonmodel['description']
+    [jsonmodel['abstract'], jsonmodel['description']].compact.join('\n\n')
   end
 
   def parse_previous_system_ids(json)
