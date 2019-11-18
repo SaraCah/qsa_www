@@ -68,7 +68,6 @@ class SeriesMapper < AbstractMapper
     whitelisted['information_sources'] = json.information_sources
     whitelisted['repository_processing_note'] = json.repository_processing_note
     whitelisted['dates'] = parse_dates(json.dates)
-    whitelisted['subjects'] = parse_subjects(json.subjects)
     whitelisted['notes'] = parse_notes(json.notes)
     whitelisted['external_documents'] = parse_external_documents(json.external_documents)
     whitelisted['series_relationships'] = parse_series_system_rlshps(json.series_system_series_relationships, ['series_system_series_series_association_relationship', 'series_system_series_series_ownership_relationship', 'series_system_series_series_succession_relationship'])

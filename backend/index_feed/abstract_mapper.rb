@@ -193,14 +193,6 @@ class AbstractMapper
     external_ids
   end
 
-  def parse_subjects(subjects)
-    subjects.map do |subject|
-      {
-        'ref' => subject['ref'],
-      }
-    end
-  end
-
   def parse_agent_rlshps(rlshps)
     rlshps.select do |rlshp|
       if rlshp['jsonmodel_type'] == 'series_system_agent_record_ownership_relationship'

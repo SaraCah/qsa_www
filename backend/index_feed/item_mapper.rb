@@ -7,6 +7,7 @@ class ItemMapper < AbstractMapper
 
     @resources_map = build_resources_map
     @linked_agents_publish_map = build_linked_agents_publish_map
+    @subjects_map = build_subjects_map
   end
 
   def published?(jsonmodel)
@@ -96,7 +97,8 @@ class ItemMapper < AbstractMapper
     whitelisted['display_string'] = json.display_string
     whitelisted['title'] = json.title
     whitelisted['description'] = json.description
-    whitelisted['sensitivity_label'] = json.sensitivity_label
+    whitelisted['sensitivity_label'] = I18n.t("enumerations.runcorn_sensitivity_label.#{json.sensitivity_label}", default: json.sensitivity_label)
+    whitelisted['copyright_status'] = I18n.t("enumerations.runcorn_copyright_status.#{json.copyright_status}", default: json.copyright_status)
     whitelisted['agency_assigned_id'] = json.agency_assigned_id
     whitelisted['external_ids'] = parse_external_ids(json.external_ids)
 
@@ -107,6 +109,7 @@ class ItemMapper < AbstractMapper
 
     whitelisted['external_documents'] = parse_external_documents(json.external_documents)
     whitelisted['agent_relationships'] = parse_series_system_rlshps(parse_agent_rlshps(json.series_system_agent_relationships), nil, false)
+    whitelisted['item_relationships'] = parse_series_system_rlshps(json.series_system_item_relationships, ['series_system_item_item_containment_relationship', 'series_system_item_item_succession_relationship'], false)
     whitelisted['responsible_agency'] = json.responsible_agency
     whitelisted['creating_agency'] = json.creating_agency
 
@@ -117,7 +120,15 @@ class ItemMapper < AbstractMapper
     whitelisted['digital_representations'] = parse_digital_representations(json)
     whitelisted['physical_representations'] = parse_physical_representations(json)
 
+    whitelisted['previous_system_ids'] = parse_previous_system_ids(json)
+
     whitelisted
+  end
+
+  def parse_subjects(subjects)
+    subjects.map do |subject|
+      @subjects_map.fetch(subject.fetch('ref'))
+    end
   end
 
   def parse_resource(resource_ref)
@@ -163,7 +174,7 @@ class ItemMapper < AbstractMapper
 
 
   def parse_previous_system_ids(json)
-    super + [json.repository_processing_note].compact
+    super + json.previous_system_identifiers.to_s.split("\n").map{|s| s.strip}.reject{|s| s.empty?}
   end
 
   def build_linked_agents_publish_map
@@ -199,6 +210,29 @@ class ItemMapper < AbstractMapper
         .map {|obj|
           result[obj.uri] = obj
         }
+    end
+
+    result
+  end
+
+  def build_subjects_map
+    subject_uris = []
+
+    @jsonmodels.each do |json|
+      subject_uris += json['subjects'].map{|subject| subject['ref']}
+    end
+
+    subject_ids = subject_uris.map{|uri| JSONModel::JSONModel(:subject).id_for(uri)}
+
+    result = {}
+
+    DB.open do |db|
+      Subject
+        .filter(:id => subject_ids)
+        .select(:id, :title)
+        .map do |row|
+        result[JSONModel::JSONModel(:subject).uri_for(row[:id])] = row[:title]
+      end
     end
 
     result
