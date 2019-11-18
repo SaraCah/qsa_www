@@ -18,7 +18,10 @@ class RepresentationMapper < AbstractMapper
     whitelisted['agency_assigned_id'] = json['agency_assigned_id']
     whitelisted['external_ids'] = parse_external_ids(json['external_ids'])
 
-    whitelisted['intended_use'] = json['intended_use']
+    whitelisted['intended_use'] = json['intended_use'] ? I18n.t("enumerations.runcorn_intended_use.#{json['intended_use']}", default: json['intended_use']) : json['intended_use']
+    whitelisted['preferred_citation'] = json['preferred_citation']
+    whitelisted['remarks'] = json['remarks']
+    whitelisted['processing_handling_notes'] = json['processing_handling_notes']
 
     whitelisted['rap_applied'] = parse_rap(json['rap_applied'])
     whitelisted['rap_access_status'] = parse_rap(json['rap_access_status'])
@@ -26,6 +29,8 @@ class RepresentationMapper < AbstractMapper
 
     whitelisted['controlling_record'] = json['controlling_record']
     whitelisted['responsible_agency'] = json['responsible_agency']
+
+    whitelisted['previous_system_ids'] = parse_previous_system_ids(json)
 
     if json['jsonmodel_type'] == 'physical_representation'
       whitelisted['format'] = json['format']
@@ -67,4 +72,7 @@ class RepresentationMapper < AbstractMapper
     solr_doc
   end
 
+  def parse_previous_system_ids(json)
+    super + json['previous_system_identifiers'].to_s.split("\n").map{|s| s.strip}.reject{|s| s.empty?}
+  end
 end
