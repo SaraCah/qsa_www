@@ -109,6 +109,19 @@ class ItemMapper < AbstractMapper
 
     whitelisted['external_documents'] = parse_external_documents(json.external_documents)
     whitelisted['agent_relationships'] = parse_series_system_rlshps(parse_agent_rlshps(json.series_system_agent_relationships), nil, false)
+
+    # If this item doesn't have its own controlling relationship, dummy one up
+    # from the inherited agency
+    if whitelisted['agent_relationships'].none? {|r| r['jsonmodel_type'] == 'series_system_agent_record_ownership_relationship'}
+      whitelisted['agent_relationships'].unshift({
+        'jsonmodel_type' => 'series_system_agent_record_ownership_relationship',
+        'relationship_target_record_type' => 'agent_corporate_entity',
+        'ref' => json.responsible_agency['ref'],
+        'relator' => 'is_controlled_by',
+        'start_date' => json.responsible_agency['start_date'],
+      })
+    end
+
     whitelisted['item_relationships'] = parse_series_system_rlshps(json.series_system_item_relationships, ['series_system_item_item_containment_relationship', 'series_system_item_item_succession_relationship'], false)
     whitelisted['responsible_agency'] = json.responsible_agency
     whitelisted['creating_agency'] = json.creating_agency
