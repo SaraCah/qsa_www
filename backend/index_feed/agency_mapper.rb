@@ -16,10 +16,10 @@ class AgencyMapper < AbstractMapper
     whitelisted['qsa_id'] = json.qsa_id
     whitelisted['qsa_id_prefixed'] = json.qsa_id_prefixed
 
-    whitelisted['display_string'] = json.title
+    whitelisted['display_string'] = parse_title(json)
     whitelisted['agency_note'] = json.agency_note
     whitelisted['display_name'] = parse_names([json.display_name]).first
-    whitelisted['names'] = parse_names(json.names)
+    whitelisted['alternative_names'] = parse_alternative_names(json)
     whitelisted['notes'] = parse_notes(json.notes)
     whitelisted['dates'] = parse_dates(json.dates_of_existence)
     whitelisted['external_documents'] = parse_external_documents(json.external_documents)
@@ -32,8 +32,26 @@ class AgencyMapper < AbstractMapper
     whitelisted
   end
 
+  def parse_title(jsonmodel)
+    parse_names([jsonmodel.display_name]).first.fetch('primary_name')
+  end
+
   def parse_description(jsonmodel)
     jsonmodel.agency_note
+  end
+
+  def parse_alternative_names(jsonmodel)
+    alt_names = []
+
+    jsonmodel.names.each do |name|
+      unless name['is_display_name']
+        alt_names << name['primary_name']
+      end
+      alt_names << name['subordinate_name_1']
+      alt_names << name['subordinate_name_2']
+    end
+
+    alt_names.compact.uniq.sort
   end
 
   def parse_external_resources(resources)
