@@ -57,7 +57,7 @@
               </fo:table-cell>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
                 <fo:block wrap-option="wrap">
-                  <%= item.fetch('controlling_record').fetch('qsa_id_prefixed') %>
+                  <%= item.fetch('qsa_id_prefixed') %>
                 </fo:block>
               </fo:table-cell>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
@@ -180,12 +180,14 @@
               </fo:table-cell>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
                 <fo:block wrap-option="wrap">
-                  <%= rrr['requesting_user'].fetch('id') %>
+                  <%= rrr['requesting_user'].fetch('first_name') %>
+                  <%= rrr['requesting_user'].fetch('last_name') %>
+                  (<%= rrr['requesting_user'].fetch('id') %>)
                 </fo:block>
               </fo:table-cell>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
                 <fo:block wrap-option="wrap" font-weight="bold">
-                  Date Requested
+                  Date Required
                 </fo:block>
               </fo:table-cell>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
