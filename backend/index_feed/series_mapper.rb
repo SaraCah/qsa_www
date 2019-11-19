@@ -8,6 +8,22 @@ class SeriesMapper < AbstractMapper
     @linked_agents_publish_map = build_linked_agents_publish_map
     @linked_mandates_publish_map = build_linked_mandates_publish_map
     @linked_functions_publish_map = build_linked_functions_publish_map
+    @descendant_counts = build_descendant_counts(sequel_records)
+  end
+
+  def build_descendant_counts(sequel_records)
+    result = {}
+
+    DB.open do |db|
+      db[:archival_object]
+        .filter(:root_record_id => sequel_records.map(&:id))
+        .group_and_count(:root_record_id)
+        .each do |row|
+        result[row[:root_record_id]] = row[:count]
+      end
+    end
+
+    result
   end
 
   def published?(jsonmodel)
@@ -58,6 +74,8 @@ class SeriesMapper < AbstractMapper
 
     whitelisted['qsa_id'] = json.qsa_id
     whitelisted['qsa_id_prefixed'] = json.qsa_id_prefixed
+
+    whitelisted['descendant_count'] = @descendant_counts.fetch(obj.id, 0)
 
     whitelisted['display_string'] = json.title
     whitelisted['title'] = json.title
