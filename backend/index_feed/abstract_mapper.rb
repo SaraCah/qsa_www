@@ -197,14 +197,15 @@ class AbstractMapper
   def parse_agent_rlshps(rlshps)
     rlshps.select do |rlshp|
       if rlshp['jsonmodel_type'] == 'series_system_agent_record_ownership_relationship'
+        # only map latest controlled by relationship
         rlshp['end_date'].nil?
       else
-        rlshp['jsonmodel_type'] == 'series_system_agent_record_creation_relationship'
+        true
       end
     end
   end
 
-  def parse_series_system_rlshps(rlshps, filter_by_type = nil, filter_ended = true)
+  def parse_series_system_rlshps(rlshps, filter_by_type = nil, filter_ended = false)
     rlshps.map do |rlshp|
       next if filter_by_type && !ASUtils.wrap(filter_by_type).include?(rlshp['jsonmodel_type'])
       next if filter_ended && rlshp['end_date']

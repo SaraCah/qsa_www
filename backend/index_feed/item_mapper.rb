@@ -108,7 +108,7 @@ class ItemMapper < AbstractMapper
     whitelisted['notes'] = parse_notes(json.notes)
 
     whitelisted['external_documents'] = parse_external_documents(json.external_documents)
-    whitelisted['agent_relationships'] = parse_series_system_rlshps(parse_agent_rlshps(json.series_system_agent_relationships), nil, false)
+    whitelisted['agent_relationships'] = parse_series_system_rlshps(parse_agent_rlshps(json.series_system_agent_relationships))
 
     # If this item doesn't have its own controlling relationship, dummy one up
     # from the inherited agency
@@ -122,7 +122,7 @@ class ItemMapper < AbstractMapper
       })
     end
 
-    whitelisted['item_relationships'] = parse_series_system_rlshps(json.series_system_item_relationships, ['series_system_item_item_containment_relationship', 'series_system_item_item_succession_relationship'], false)
+    whitelisted['item_relationships'] = parse_series_system_rlshps(json.series_system_item_relationships)
     whitelisted['responsible_agency'] = json.responsible_agency
     whitelisted['creating_agency'] = json.creating_agency
 

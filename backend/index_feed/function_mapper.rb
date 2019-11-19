@@ -18,9 +18,9 @@ class FunctionMapper < AbstractMapper
     whitelisted['note'] = json.note
     whitelisted['date'] = parse_dates([json.date].compact).first
     whitelisted['non_preferred_names'] = json.non_preferred_names.map {|npn| npn['name']}
-    whitelisted['function_relationships'] = parse_series_system_rlshps(json.series_system_function_relationships, 'series_system_function_function_containment_relationship')
-    whitelisted['agent_relationships'] = parse_series_system_rlshps(json.series_system_agent_relationships, 'series_system_agent_function_administers_relationship')
-    whitelisted['mandate_relationships'] = parse_series_system_rlshps(json.series_system_mandate_relationships, ['series_system_function_mandate_creation_relationship', 'series_system_function_mandate_association_relationship', 'series_system_function_mandate_abolition_relationship'])
+    whitelisted['function_relationships'] = parse_series_system_rlshps(json.series_system_function_relationships)
+    whitelisted['agent_relationships'] = parse_series_system_rlshps(json.series_system_agent_relationships)
+    whitelisted['mandate_relationships'] = parse_series_system_rlshps(json.series_system_mandate_relationships)
 
     whitelisted
   end
