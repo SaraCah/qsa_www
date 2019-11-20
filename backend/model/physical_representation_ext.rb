@@ -1,0 +1,1 @@
+PhysicalRepresentation.include(ReadingroomRequestItem)
