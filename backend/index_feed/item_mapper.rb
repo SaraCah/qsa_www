@@ -187,7 +187,7 @@ class ItemMapper < AbstractMapper
 
 
   def parse_previous_system_ids(json)
-    super + json.previous_system_identifiers.to_s.split("\n").map{|s| s.strip}.reject{|s| s.empty?}
+    super + split_new_lines_into_array(json.previous_system_identifiers)
   end
 
   def build_linked_agents_publish_map

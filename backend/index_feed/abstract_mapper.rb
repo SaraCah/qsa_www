@@ -369,4 +369,7 @@ class AbstractMapper
     result
   end
 
+  def split_new_lines_into_array(value)
+    value.to_s.split("\n").map{|s| s.strip}.reject{|s| s.empty?}
+  end
 end

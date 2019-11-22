@@ -84,7 +84,7 @@ class SeriesMapper < AbstractMapper
     whitelisted['sensitivity_label'] = I18n.t("enumerations.runcorn_sensitivity_label.#{json.sensitivity_label}", default: json.sensitivity_label)
     whitelisted['copyright_status'] = I18n.t("enumerations.runcorn_copyright_status.#{json.copyright_status}", default: json.copyright_status)
     whitelisted['information_sources'] = json.information_sources
-    whitelisted['repository_processing_note'] = json.repository_processing_note
+    whitelisted['repository_processing_note'] = split_new_lines_into_array(json.repository_processing_note)
     whitelisted['dates'] = parse_dates(json.dates)
     whitelisted['notes'] = parse_notes(json.notes)
     whitelisted['external_documents'] = parse_external_documents(json.external_documents)
