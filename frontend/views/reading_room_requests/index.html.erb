@@ -128,9 +128,12 @@
               </td>
 
               <td>
-                <div class="label label-<%= requested_item.fetch('calculated_availability') == 'available' ? 'success' : 'danger' %>">
-                  <%= I18n.t('enumerations.runcorn_physical_representation_availability_concise.' + requested_item.fetch('calculated_availability')) %>
-                </div>
+                <% calculated_availability = requested_item.fetch('calculated_availability', nil) %>
+                <% if calculated_availability %>
+                  <div class="label label-<%= requested_item.fetch('calculated_availability', nil) == 'available' ? 'success' : 'danger' %>">
+                    <%= I18n.t('enumerations.runcorn_physical_representation_availability_concise.' + requested_item.fetch('calculated_availability')) %>
+                  </div>
+                <% end %>
               </td>
 
               <td>

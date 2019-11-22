@@ -114,11 +114,14 @@ class ReadingRoomRequest < Sequel::Model
           end
         end
 
-        if STATUSES_TRIGGERING_MOVEMENTS.keys.include?(status)
-          repo_uri = JSONModel.parse_reference(self.item_uri)[:repository]
+        parsed_item_uri = JSONModel.parse_reference(self.item_uri)
+
+        if STATUSES_TRIGGERING_MOVEMENTS.keys.include?(status) && parsed_item_uri[:type] == 'physical_representation'
+          repo_uri = parsed_item_uri[:repository]
           repo_id = JSONModel.parse_reference(repo_uri)[:id]
+
           RequestContext.open(:repo_id => repo_id) do
-            requested_item = PhysicalRepresentation.get_or_die(JSONModel(:physical_representation).id_for(self.item_uri))
+            requested_item = PhysicalRepresentation.get_or_die(parsed_item_uri[:id])
             requested_item.move(:context => self.uri,
                                 :location => STATUSES_TRIGGERING_MOVEMENTS[status])
           end
@@ -142,18 +145,26 @@ class ReadingRoomRequest < Sequel::Model
   end
 
   def self.resolve_requested_items(record_uris)
-    ids = record_uris.map{|uri| JSONModel.parse_reference(uri)[:id] }
-    objs = PhysicalRepresentation
-            .any_repo
-            .filter(:id => ids)
-            .all
-
     result = {}
 
-    objs.group_by{|obj| obj.repo_id}.each do |repo_id, objs|
-      RequestContext.open(:repo_id => repo_id) do
-        PhysicalRepresentation.sequel_to_jsonmodel(objs).each do |json|
-          result[json.uri] = json
+    record_uris
+      .map{|uri| JSONModel.parse_reference(uri) }
+      .group_by{|parsed| parsed[:type]}
+      .each do |jsonmodel_type, parsed_uris|
+      ids = parsed_uris.map{|parsed| parsed[:id]}
+
+      model = jsonmodel_type == 'physical_representation' ? PhysicalRepresentation : DigitalRepresentation
+
+      objs = model
+               .any_repo
+               .filter(:id => ids)
+               .all
+
+      objs.group_by{|obj| obj.repo_id}.each do |repo_id, objs|
+        RequestContext.open(:repo_id => repo_id) do
+          model.sequel_to_jsonmodel(objs).each do |json|
+            result[json.uri] = json
+          end
         end
       end
     end
@@ -183,6 +194,9 @@ class ReadingRoomRequest < Sequel::Model
 
   def self.to_item_uses(json)
     return [] unless json['date_required']
+
+    # only supported on physical representation
+    return [] unless JSONModel.parse_reference(json['item_uri'])[:type] == 'physical_represention'
 
     ru = json['requesting_user']
     used_by = "%s %s <%s>" % [(ru['first_name'] || ru[:first_name]),

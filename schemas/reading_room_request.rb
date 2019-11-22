@@ -22,7 +22,10 @@
         "subtype" => "ref",
         "properties" => {
           "ref" => {
-            "type" => "JSONModel(:physical_representation) uri",
+            "type" => [
+              {"type" => "JSONModel(:digital_representation) uri"},
+              {"type" => "JSONModel(:physical_representation) uri"},
+            ]
           },
           "_resolved" => {
             "type" => "object",

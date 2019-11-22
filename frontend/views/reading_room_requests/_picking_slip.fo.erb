@@ -107,7 +107,9 @@
               </fo:table-cell>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
                 <fo:block wrap-option="wrap">
-                  <%= I18n.t('enumerations.runcorn_physical_representation_availability_concise.' + item.fetch('calculated_availability')) %>
+                  <% if (calculated_availability = item.fetch('calculated_availability', nil)) %>
+                    <%= I18n.t('enumerations.runcorn_physical_representation_availability_concise.' + calculated_availability) %>
+                  <% end %>
                 </fo:block>
               </fo:table-cell>
             </fo:table-row>
@@ -138,7 +140,9 @@
               </fo:table-cell>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
                 <fo:block wrap-option="wrap">
-                  <%= item.fetch('container').fetch('_resolved').fetch('display_string') %>
+                  <% if (container = item.fetch('container', nil)) %>
+                    <%= container.fetch('_resolved').fetch('display_string') %>
+                  <% end %>
                 </fo:block>
               </fo:table-cell>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
@@ -148,8 +152,10 @@
               </fo:table-cell>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
                 <fo:block wrap-option="wrap">
-                  <% location = item.fetch('container').fetch('_resolved').fetch('current_location') %>
-                  <%= I18n.t("enumerations.runcorn_location.#{location}", :default => location) %>
+                  <% if (container = item.fetch('container', nil)) %>
+                    <% location = container.fetch('_resolved').fetch('current_location') %>
+                    <%= I18n.t("enumerations.runcorn_location.#{location}", :default => location) %>
+                  <% end %>
                 </fo:block>
               </fo:table-cell>
             </fo:table-row>
@@ -163,9 +169,11 @@
               <fo:table-cell number-columns-spanned="3" wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
                 <fo:block-container>
                   <fo:block wrap-option="wrap">
-                    <% location = item.fetch('container').fetch('_resolved').fetch('container_locations') %>
-                    <% unless location.empty? %>
-                      <%= location[0].fetch('_resolved').fetch('title') %>
+                    <% if (container = item.fetch('container', nil)) %>
+                      <% location = container.fetch('_resolved').fetch('container_locations') %>
+                      <% unless location.empty? %>
+                        <%= location[0].fetch('_resolved').fetch('title') %>
+                      <% end %>
                     <% end %>
                   </fo:block>
                 </fo:block-container>

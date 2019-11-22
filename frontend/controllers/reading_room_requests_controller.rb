@@ -167,6 +167,7 @@ class ReadingRoomRequestsController < ApplicationController
   def self.status_button_map
     @status_button_map ||= {
       'PENDING' => {:style => 'default', :label => 'Pending'},
+      'AWAITING_AGENCY_APPROVAL' => {:style => 'warning', :label => 'Awaiting Agency Approval'},
       'APPROVED_BY_AGENCY' => {:style => 'success', :label => 'Approved by Agency'},
       'REJECTED_BY_AGENCY' => {:style => 'danger', :label => 'Rejected by Agency'},
       'CANCELLED_BY_QSA' => {:style => 'danger', :label => 'Cancelled by QSA'},

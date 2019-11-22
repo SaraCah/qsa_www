@@ -68,14 +68,16 @@
             </div>
           </div>
 
-          <div class="form-group">
-            <label class="control-label col-sm-2"><%= I18n.t("physical_representation.availability") %></label>
-            <div class="label-only col-sm-9">
-              <div class="label label-<%= form.obj.fetch('calculated_availability') == 'available' ? 'success' : 'danger' %>">
-                <%= I18n.t('enumerations.runcorn_physical_representation_availability_concise.' + form.obj.fetch('calculated_availability')) %>
+          <% if form.obj['calculated_availability'] %>
+            <div class="form-group">
+              <label class="control-label col-sm-2"><%= I18n.t("physical_representation.availability") %></label>
+              <div class="label-only col-sm-9">
+                <div class="label label-<%= form.obj.fetch('calculated_availability') == 'available' ? 'success' : 'danger' %>">
+                  <%= I18n.t('enumerations.runcorn_physical_representation_availability_concise.' + form.obj.fetch('calculated_availability')) %>
+                </div>
               </div>
             </div>
-          </div>
+          <% end %>
 
           <% if form.obj['current_location'] %>
             <%= form.label_and_readonly "current_location" %>
