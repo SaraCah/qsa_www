@@ -155,7 +155,7 @@ class PublicIndexerFeedProfile < IndexerFeedProfile
       additional_records.select {|rec| records_in_active_repo.include?(rec[:id])}
     ).uniq {|rec| rec[:id]}
 
-    result
+    yield result
   end
 
   private
