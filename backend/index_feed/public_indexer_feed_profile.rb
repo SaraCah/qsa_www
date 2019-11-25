@@ -30,7 +30,7 @@ class PublicIndexerFeedProfile < IndexerFeedProfile
   end
 
   def db_open(*opts, &block)
-    PublicDB.open do |db|
+    PublicDB.open(*opts) do |db|
       block.call(db)
     end
   end
@@ -71,7 +71,7 @@ class PublicIndexerFeedProfile < IndexerFeedProfile
   end
 
   def updates_for_model(db, model_dataset, model, last_index_time)
-    base_dataset = super
+    super
 
     # We want to update any record that has had a tag added/updated since we
     # last checked.
@@ -150,12 +150,9 @@ class PublicIndexerFeedProfile < IndexerFeedProfile
                 .select(:id)
                 .map {|row| row[:id]})
 
-    result = (
-      base_dataset.all +
-      additional_records.select {|rec| records_in_active_repo.include?(rec[:id])}
-    ).uniq {|rec| rec[:id]}
+    yield additional_records.select {|rec| records_in_active_repo.include?(rec[:id])}.uniq {|rec| rec[:id]}
 
-    yield result
+    :updates_for_model
   end
 
   private
