@@ -4,7 +4,7 @@ require_relative 'index_feed/public_indexer_feed_profile'
 
 ArchivesSpaceService.plugins_loaded_hook do
   if AppConfig.has_key?(:qsa_public_index_feed_enabled) && AppConfig[:qsa_public_index_feed_enabled] == false
-    Log.info("MAP indexer thread will not be started as AppConfig[:map_index_feed_enabled] is false")
+    Log.info("QSA Public indexer thread will not be started as AppConfig[:qsa_public_index_feed_enabled] is false")
   else
     Log.info("Starting QSA Public indexer...")
     IndexFeedThread.new("plugin_qsa_public", PublicIndexerFeedProfile.new).start
