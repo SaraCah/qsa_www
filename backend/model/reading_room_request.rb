@@ -78,9 +78,22 @@ class ReadingRoomRequest < Sequel::Model
   end
 
   def set_status(status)
-    if VALID_STATUS.include?(status)
-      PublicDB.open do |db|
-        json = self.class.to_jsonmodel(self)
+    PublicDB.open do |db|
+      json = self.class.to_jsonmodel(self)
+
+      if VALID_STATUS.include?(status)
+        if status == STATUS_DELIVERED_TO_READING_ROOM
+          # Reindex the record in question to encourage its popularity score to be recalculated in the public UI
+          rep_parsed = JSONModel.parse_reference(self.item_uri)
+
+          if rep_parsed && rep_parsed[:type] == 'physical_representation'
+            DB.open do |db|
+              db[:archival_object]
+                .filter(:id => db[:physical_representation].filter(:id => rep_parsed[:id]).select(:archival_object_id))
+                .update(:system_mtime => Time.now)
+            end
+          end
+        end
 
         if json.status == STATUS_AWAITING_AGENCY_APPROVAL
           if status == STATUS_APPROVED_BY_AGENCY

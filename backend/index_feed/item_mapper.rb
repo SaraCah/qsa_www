@@ -8,6 +8,8 @@ class ItemMapper < AbstractMapper
     @resources_map = build_resources_map
     @linked_agents_publish_map = build_linked_agents_publish_map
     @subjects_map = build_subjects_map
+
+    @popularity_map = build_popularity_map
   end
 
   def published?(jsonmodel)
@@ -53,6 +55,8 @@ class ItemMapper < AbstractMapper
 
     parsed_digital = parse_digital_representations(json)
     parsed_physical = parse_physical_representations(json)
+
+    solr_doc['popularity_score'] = @popularity_map.fetch(json['uri'], 0)
 
     solr_doc['tags'] = tags_from_representations(parsed_physical + parsed_digital)
 
@@ -249,5 +253,35 @@ class ItemMapper < AbstractMapper
     end
 
     result
+  end
+
+  def build_popularity_map
+    representation_uri_to_id = @jsonmodels.flat_map {|json|
+      json['physical_representations'].map {|physrep|
+        rep_id = JSONModel.parse_reference(physrep['uri'])[:id]
+        [physrep['uri'], "physical_representation:#{rep_id}"]
+      }
+    }.to_h
+
+    representation_popularity = {}
+
+    PublicDB.open do |public_db|
+      public_db[:reading_room_request]
+        .filter(:item_id => representation_uri_to_id.values)
+        .select(:item_id)
+        .each do |row|
+        representation_popularity[row[:item_id]] ||= 0
+        representation_popularity[row[:item_id]] += 1
+      end
+    end
+
+    @jsonmodels.map {|json|
+      popularity = json['physical_representations'].map {|physrep|
+        rep_id = representation_uri_to_id.fetch(physrep['uri'])
+        representation_popularity.fetch(rep_id, 0)
+      }.reduce(0) {|total, n| total + n}
+
+      [json.uri, popularity]
+    }.to_h
   end
 end
