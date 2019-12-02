@@ -40,7 +40,7 @@ class ReadingRoomRequestsController < ApplicationController
     end
 
     if date_required
-      start_date, end_date = [Date.today, Date.today + date_required].sort
+      yesterday, end_date = [Date.today - 1, Date.today + date_required].sort
 
       query = {'query' => {
                  'jsonmodel_type' => 'boolean_query',
@@ -50,7 +50,7 @@ class ReadingRoomRequestsController < ApplicationController
                      'jsonmodel_type' => 'date_field_query',
                      'comparator' => 'greater_than',
                      'field' => 'rrr_date_required_u_ssortdate',
-                     'value' => "%sT00:00:00Z" % [start_date.iso8601],
+                     'value' => "%sT00:00:00Z" % [yesterday.iso8601],
                    },
                    {
                      'jsonmodel_type' => 'date_field_query',
