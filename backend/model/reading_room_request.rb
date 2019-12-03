@@ -196,7 +196,7 @@ class ReadingRoomRequest < Sequel::Model
     return [] unless json['date_required']
 
     # only supported on physical representation
-    return [] unless JSONModel.parse_reference(json['item_uri'])[:type] == 'physical_represention'
+    return [] unless JSONModel.parse_reference(json['item_uri'])[:type] == 'physical_representation'
 
     ru = json['requesting_user']
     used_by = "%s %s <%s>" % [(ru['first_name'] || ru[:first_name]),
