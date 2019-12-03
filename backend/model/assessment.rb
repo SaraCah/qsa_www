@@ -1,1 +1,1 @@
-Assessment.include(ReadingroomRequests)
+Assessment.include(ReadingroomRequestsAssessments)

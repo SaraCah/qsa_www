@@ -1,4 +1,4 @@
-module ReadingroomRequests
+module ReadingroomRequestsAssessments
 
   extend JSONModel
 
