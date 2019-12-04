@@ -12,7 +12,7 @@ class AgencyRequestTask
         'USER_LAST_NAME' => json.dig('user', 'last_name'),
         'USER_CONTACT_DETAILS' => EmailTemplates.render_partial('agency_request_user_contact_details', json),
         'REQUEST_PURPOSE' => EmailTemplates.preserve_newlines(json['purpose']),
-        'REQUEST_PUBLICATION_DETAILS' => EmailTemplates.preserve_newlines(json['publication_details']),
+        'REQUEST_PUBLICATION_DETAILS' => json['permission_to_copy'],
         'EMAIL_SIGNATURE' => EmailTemplates.signature,
       })
 
