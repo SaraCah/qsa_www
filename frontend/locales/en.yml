@@ -31,6 +31,9 @@ en:
       cancelled_by_qsa: Cancelled by QSA
       cancelled_by_researcher: Cancelled by Researcher
       active: Active
+    time_required_options:
+      morning: Morning
+      afternoon: Afternoon
     _frontend:
       section:
         basic_information: Basic Information
@@ -39,7 +42,6 @@ en:
   search_sorting:
     rrr_requested_item_qsa_id_u_sort: Requested Item
     rrr_requested_item_availability_u_ssort: Availability
-    rrr_requesting_user_u_ssort: Researcher
     rrr_date_required_u_ssortdate: Date Required
     rrr_requesting_user_u_ssort: Researcher
     rrr_status_u_ssort: Status
@@ -47,4 +49,5 @@ en:
   search_results:
     filter:
       rrr_status_u_ssort: Status
+      rrr_time_required_u_ssort: Time required
       date_required: Within Days

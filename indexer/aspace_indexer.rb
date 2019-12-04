@@ -10,6 +10,7 @@ class IndexerCommon
       if doc['primary_type'] == 'reading_room_request'
         if record['record']['date_required']
           doc['rrr_date_required_u_ssortdate'] = "%sT00:00:00Z" % [Time.at(record['record']['date_required'] / 1000).to_date.iso8601]
+          doc['rrr_time_required_u_ssort'] = record['record']['time_required']
         end
 
         doc['rrr_date_created_u_ssortdate'] = record['record']['create_time']

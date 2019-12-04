@@ -202,7 +202,7 @@
                 <fo:block wrap-option="wrap">
                   <% if rrr['date_required'] %>
                     <% t = Time.at(rrr['date_required'] / 1000).localtime %>
-                    <%= t.to_date.iso8601 %> <%= t.hour >= 12 ? 'PM' : 'AM' %>
+                    <%= t.to_date.iso8601 %> <%= rrr['time_required'] == 'Afternoon' ? 'PM' : 'AM' %>
                   <% end %>
                 </fo:block>
               </fo:table-cell>

@@ -15,6 +15,7 @@
       "item_uri" => {"type" => "string"},
       "status" => {"type" => "string"},
       "date_required" => {"type" => "integer"},
+      "time_required" => {"type" => "string"},
 
       "requested_item" => {
         "readonly" => "true",

@@ -169,6 +169,9 @@
                   <div class="rrr-date-required">
                     <%= Time.at(Integer(date) / 1000).to_date.iso8601 %>
                   </div>
+                  <% if parsed['time_required'] %>
+                    <span class="text-muted"><%= parsed.fetch('time_required') %></span>
+                  <% end %>
                 <% end %>
               </td>
               <td class="table-record-actions">
