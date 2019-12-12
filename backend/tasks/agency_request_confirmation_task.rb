@@ -9,7 +9,7 @@ class AgencyRequestConfirmationTask
       email_content = EmailTemplates.render('email-agency-request-confirmation', {
         'USER_FIRST_NAME' => json.dig('user', 'first_name'),
         'USER_LAST_NAME' => json.dig('user', 'last_name'),
-        'AGENCY_DISPLAY_NAME' => json.dig('agency', 'display_name'),
+        'AGENCY_DISPLAY_NAME' => json.dig('agency', 'display_string'),
         'REQUESTED_ITEMS' => EmailTemplates.render_partial('agency_request_confirmation_requested_items', json),
         'EMAIL_SIGNATURE' => EmailTemplates.signature,
       })
