@@ -1,5 +1,6 @@
-<%# FIXME %>
-<%#= setup_context :object => @reading_room_request %>
+<%= setup_context :trail => [[I18n.t('reading_room_request._plural'), {:controller=>"reading_room_requests", :action=>:index}],
+                             [@reading_room_request.qsa_id_prefixed, {}]]
+%>
 
 <div class="row">
   <div class="col-md-3">
