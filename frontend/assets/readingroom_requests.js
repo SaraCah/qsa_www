@@ -8,11 +8,12 @@ $(function() {
     chkd_items.each(function () {
       id_a.push($(this).attr("value"));
     });
+
+    var pick_href = APP_PATH + 'reading_room_requests/picking_slip/download';
+
     var id_s = id_a.join();
 
-    var pick_href = $('.rrr-bulk-picking-slip-button').attr('href');
-    $('.rrr-bulk-picking-slip-button').attr('href', pick_href.replace(/ids\=((\d+\,)*\d+)?/, ('ids=' + id_s)));
-
+    $('.rrr-bulk-picking-slip-button').attr('href', pick_href + '?ids=' + id_s);
     $('.rrr-bulk-action-buttons button').attr('data-id', id_s);
 
     if (num_chkd == 0) {
@@ -71,9 +72,10 @@ $(function() {
     var target = $(e.target);
     var data = $(e.target).data();
     $.ajax({
-      url: APP_PATH + 'reading_room_requests/' + data.id + '/set_status',
+      url: APP_PATH + 'reading_room_requests/bulk_set_status',
       method: 'POST',
       data: {
+        'ids': data.id,
         'status': data.status
       },
       success: function() {

@@ -57,7 +57,7 @@
 
           <% unless status_term.nil? %>
             <% status = JSON.parse(status_term).values[0] %>
-            <% buttons_for_request(status, 999, :restricted => :both).each do |button| %>
+            <% ReadingRoomRequestsController.buttons_for_request(status, 999, :restricted => :both).each do |button| %>
               <div class="btn-group">
                 <%= button %>
               </div>
@@ -183,14 +183,21 @@
                 <% end %>
               </td>
               <td class="table-record-actions">
-                <% if jsonmodel_type == 'reading_room_request' %>
-                  <%= link_to "Download slip", {:controller => :reading_room_requests, :action => :picking_slip, :ids => request_id}, :title => "Download picking slip", :target => '_blank', :class => 'btn btn-default btn-xs' %>
-                  <div class="rrr-status-actions">
-                    <% ReadingRoomRequestsController.buttons_for_request(parsed.fetch('status'), request_id, :restricted => (restricted_item ? :restricted : :unrestricted)).each do |button| %>
-                      <%= button %>
-                    <% end %>
-                  </div>
-                <% end %>
+                <% prefixed_id = "%s::%s" % [jsonmodel_type, request_id] %>
+                <%= link_to("Download slip",
+                            {
+                              :controller => :reading_room_requests,
+                              :action => :picking_slip,
+                              :ids => prefixed_id,
+                            },
+                            :title => "Download picking slip",
+                            :target => '_blank',
+                            :class => 'btn btn-default btn-xs') %>
+                <div class="rrr-status-actions">
+                  <% ReadingRoomRequestsController.buttons_for_request(parsed.fetch('status'), prefixed_id, :restricted => (restricted_item ? :restricted : :unrestricted)).each do |button| %>
+                    <%= button %>
+                  <% end %>
+                </div>
               </td>
             </tr>
           <% end %>

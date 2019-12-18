@@ -36,7 +36,11 @@
           <fo:table-body>
             <fo:table-row>
               <fo:table-cell number-columns-spanned="4" wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
-                <fo:block wrap-option="wrap" font-weight="bold">Queensland State Archives</fo:block>
+                <% if rrr['jsonmodel_type'] == 'agency_reading_room_request' %>
+                  <fo:block wrap-option="wrap" font-weight="bold">Queensland State Archives - Agency Request</fo:block>
+                <% else %>
+                  <fo:block wrap-option="wrap" font-weight="bold">Queensland State Archives</fo:block>
+                <% end %>
               </fo:table-cell>
             </fo:table-row>
 
@@ -188,9 +192,13 @@
               </fo:table-cell>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
                 <fo:block wrap-option="wrap">
-                  <%= rrr['requesting_user'].fetch('first_name') %>
-                  <%= rrr['requesting_user'].fetch('last_name') %>
-                  (<%= rrr['requesting_user'].fetch('id') %>)
+                  <% if rrr['jsonmodel_type'] == 'agency_reading_room_request' %>
+                    <%= rrr.fetch('requesting_agency') %>
+                  <% else %>
+                    <%= rrr['requesting_user'].fetch('first_name') %>
+                    <%= rrr['requesting_user'].fetch('last_name') %>
+                    (<%= rrr['requesting_user'].fetch('id') %>)
+                  <% end %>
                 </fo:block>
               </fo:table-cell>
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
