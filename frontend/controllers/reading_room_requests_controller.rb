@@ -181,9 +181,8 @@ class ReadingRoomRequestsController < ApplicationController
   end
 
 
-  helper_method :status_label
-  def status_label(status)
-    button = self.class.status_button_map[status]
+  def self.status_label(status)
+    button = status_button_map[status]
     "<span class=\"label label-#{button[:style]}\">#{button[:label]}</span>".html_safe
   end
 
@@ -239,19 +238,18 @@ class ReadingRoomRequestsController < ApplicationController
   end
 
 
-  def status_workflow(status, restricted)
-    key = (restricted && self.class.status_workflow_map.has_key?(status + '_RESTRICTED')) ? status + '_RESTRICTED' : status
-    self.class.status_workflow_map.fetch(key, [])
+  def self.status_workflow(status, restricted)
+    key = (restricted && status_workflow_map.has_key?(status + '_RESTRICTED')) ? status + '_RESTRICTED' : status
+    status_workflow_map.fetch(key, [])
   end
 
-  def status_button(status, id, opts = {})
-    btn_def = self.class.status_button_map[status]
+  def self.status_button(status, id, opts = {})
+    btn_def = status_button_map[status]
     btn_size = opts[:full_size] ? 'btn-sm' : 'btn-xs'
     "<button class=\"btn btn-#{btn_def[:style]} #{btn_size} rrr-status rrr-status-#{status}\" data-id=\"#{id}\" data-status=\"#{status}\">#{btn_def[:label]}</button>".html_safe
   end
 
-  helper_method :buttons_for_request
-  def buttons_for_request(status, id, opts = {})
+  def self.buttons_for_request(status, id, opts = {})
     opts[:restricted] ||= :unrestricted
     full_size = !!opts[:full_size]
     status = status.upcase

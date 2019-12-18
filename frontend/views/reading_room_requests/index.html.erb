@@ -112,8 +112,8 @@
                 <input class="rrr-selected-item" type="checkbox" name="selected-item" value="<%= jsonmodel_type %>::<%= request_id %>" checked="true" id="selected-item-<%= jsonmodel_type %>-<%= request_id %>"/>
               </td>
               <td>
-                <%# QSAIdHelper.id(parsed.fetch('qsa_id_prefixed'), :link => true) %>
-                <%= QSAIdHelper.id(parsed.fetch('qsa_id_prefixed'), :link => false) %>
+                <%= QSAIdHelper.id(parsed.fetch('qsa_id_prefixed'), :link => true) %>
+                <%#= QSAIdHelper.id(parsed.fetch('qsa_id_prefixed'), :link => false) %>
               </td>
               <td>
                 <%= ('<div class="token-list">' +
@@ -186,7 +186,7 @@
                 <% if jsonmodel_type == 'reading_room_request' %>
                   <%= link_to "Download slip", {:controller => :reading_room_requests, :action => :picking_slip, :ids => request_id}, :title => "Download picking slip", :target => '_blank', :class => 'btn btn-default btn-xs' %>
                   <div class="rrr-status-actions">
-                    <% buttons_for_request(parsed.fetch('status'), request_id, :restricted => (restricted_item ? :restricted : :unrestricted)).each do |button| %>
+                    <% ReadingRoomRequestsController.buttons_for_request(parsed.fetch('status'), request_id, :restricted => (restricted_item ? :restricted : :unrestricted)).each do |button| %>
                       <%= button %>
                     <% end %>
                   </div>
