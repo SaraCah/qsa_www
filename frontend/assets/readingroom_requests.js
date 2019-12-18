@@ -58,11 +58,11 @@ $(function() {
       url: APP_PATH + 'reading_room_requests/bulk_set_status',
       method: 'POST',
       data: {
-	'ids': data.id,
-	'status': data.status
+        'ids': data.id,
+        'status': data.status
       },
       success: function() {
-	$('input[name=selected-item]:checked').closest('tr').remove();
+        $('input[name=selected-item]:checked').closest('tr').remove();
         updateSelectedReadingroomRequests();
       }
     })
@@ -94,12 +94,12 @@ $(function() {
   });
 
   $('.rrr-status-action button').on('click', function(e) {
-    var target = $(e.target);
     var data = $(e.target).data();
     $.ajax({
-      url: APP_PATH + 'reading_room_requests/' + data.id + '/set_status',
+      url: APP_PATH + 'reading_room_requests/bulk_set_status',
       method: 'POST',
       data: {
+        'ids': data.id,
         'status': data.status
       },
       success: function() {
