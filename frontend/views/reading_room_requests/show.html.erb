@@ -10,6 +10,10 @@
     <%= render_aspace_partial :partial => "reading_room_requests/toolbar" %>
     <div class="record-pane">
       <%= render_aspace_partial :partial => "reading_room_requests/form", locals: {is_readonly: true} %>
+
+      <% if @reading_room_request['jsonmodel_type'] == 'agency_reading_room_request' %>
+        <%= render_aspace_partial :partial => "shared/conversation_widget", :locals => { handle_id: @reading_room_request.handle_id } %>
+      <% end %>
     </div>
   </div>
 </div>
