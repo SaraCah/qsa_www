@@ -1,6 +1,6 @@
 class ReadingRoomRequestsController < ApplicationController
 
-  RESOLVES = ['requested_item']
+  RESOLVES = ['requested_item', 'requesting_agency']
 
   SORT_COLUMNS = [
                   'qsa_id_u_sort',

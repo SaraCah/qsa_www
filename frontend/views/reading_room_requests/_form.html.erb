@@ -44,7 +44,8 @@
         <div class="form-group">
           <label class="control-label col-sm-2">Requesting Agency</label>
           <div class="label-only col-sm-9">
-            <%= @reading_room_request['requesting_agency'] %>
+            <%= link_to @reading_room_request['requesting_agency']['_resolved']['title'], :controller => :resolver, :action => :resolve_readonly, :uri => @reading_room_request['requesting_agency']['ref'] %>
+            -  <%= @reading_room_request['requesting_agency']['location_name'] %>
           </div>
         </div>
       <% end %>

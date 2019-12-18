@@ -160,7 +160,8 @@
 
                   <div class="label label-<%= user.fetch('verified') ? 'success' : 'danger' %>"><%= user.fetch('verified') ? 'Verified' : 'Unverified' %></div>
                 <% else %>
-                  <%= parsed['requesting_agency'] %>
+                  <%= link_to parsed['requesting_agency']['_resolved']['title'], :controller => :resolver, :action => :resolve_readonly, :uri => parsed['requesting_agency']['ref'] %>
+                   -  <%= parsed['requesting_agency']['location_name'] %>
                 <% end %>
 
               </td>

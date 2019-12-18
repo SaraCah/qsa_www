@@ -193,7 +193,7 @@
               <fo:table-cell wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
                 <fo:block wrap-option="wrap">
                   <% if rrr['jsonmodel_type'] == 'agency_reading_room_request' %>
-                    <%= rrr.fetch('requesting_agency') %>
+                    <%= "%s - %s" % [rrr['requesting_agency']['_resolved']['title'], rrr['requesting_agency']['location_name']] %>
                   <% else %>
                     <%= rrr['requesting_user'].fetch('first_name') %>
                     <%= rrr['requesting_user'].fetch('last_name') %>
