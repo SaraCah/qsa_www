@@ -6,8 +6,9 @@
         <div class="record-toolbar file-issue-toolbar">
             <% if !['edit', 'update'].include?(controller.action_name) %>
               <div class="pull-right">
-                <%= link_to "Download slip", {:controller => :reading_room_requests, :action => :picking_slip, :ids => params['id']}, :title => "Download picking slip", :target => '_blank', :class => 'btn btn-default btn-sm' %>
-                <% buttons_for_request(@reading_room_request['status'], params['id'], :restricted => (restricted_item ? :restricted : :unrestricted), :full_size => true).each do |button| %>
+                <% prefixed_id = "%s::%s" % [@reading_room_request['jsonmodel_type'], params['id']] %>
+                <%= link_to "Download slip", {:controller => :reading_room_requests, :action => :picking_slip, :ids => prefixed_id}, :title => "Download picking slip", :target => '_blank', :class => 'btn btn-default btn-sm' %>
+                <% ReadingRoomRequestsController.buttons_for_request(@reading_room_request['status'], prefixed_id, :restricted => (restricted_item ? :restricted : :unrestricted), :full_size => true).each do |button| %>
                   <div class="rrr-status-action btn-group">
                     <%= button %>
                   </div>
@@ -15,12 +16,6 @@
               </div>
             <% end %>
 
-            <% if ['edit', 'update'].include?(controller.action_name) %>
-                <div class="pull-left revert-changes">
-                    <%= link_to I18n.t("actions.revert"), {:controller => :reading_room_requests, :action => :edit, :id => @reading_room_request.id}, :class => "btn btn-sm btn-default" %>
-                    <%= I18n.t("actions.toolbar_disabled_message") %>
-                </div>
-            <% end %>
             <div class="clearfix"></div>
         </div>
     </div>

@@ -1,6 +1,6 @@
 class ReadingRoomRequestsController < ApplicationController
 
-  RESOLVES = ['requested_item']
+  RESOLVES = ['requested_item', 'requesting_agency']
 
   SORT_COLUMNS = [
                   'qsa_id_u_sort',
@@ -14,7 +14,7 @@ class ReadingRoomRequestsController < ApplicationController
   include ApplicationHelper
 
   # TODO: review access controls for these endpoints
-  set_access_control  "view_repository" => [:index, :show, :picking_slip, :set_status, :bulk_set_status]
+  set_access_control  "view_repository" => [:index, :show, :picking_slip, :agency_picking_slip, :bulk_set_status]
 
   def index
     criteria = params.to_hash
@@ -93,11 +93,6 @@ class ReadingRoomRequestsController < ApplicationController
     @reading_room_request
   end
 
-  def set_status
-    response = JSONModel::HTTP.post_form("/reading_room_requests/#{params[:id]}/set_status", :status => params[:status])
-    render :json => {:status => 'updated'}
-  end
-
   def bulk_set_status
     response = JSONModel::HTTP.post_form("/reading_room_requests/bulk_set_status", :status => params[:status], :ids => params[:ids])
     render :json => {:status => 'updated'}
@@ -111,17 +106,44 @@ class ReadingRoomRequestsController < ApplicationController
   import javax.xml.transform.sax.SAXResult
 
   def picking_slip
-    @reading_room_requests = JSONModel::HTTP.get_json('/reading_room_requests/batch',
-      'ids' => params[:ids],
-      'resolve[]' => ['requested_item',
-                      'requested_item::container',
-                      'requested_item::container::container_locations',
-                      'requested_item::controlling_record',
-                      'requested_item::controlling_record::parent',
-                      'requested_item::controlling_record_series',
-                      'requested_item::responsible_agency'])
+    user_request_ids = params[:ids].split(',').select {|id| id.start_with?('reading_room_request::')}.map {|id| id.split('::').last}
+    agency_request_ids = params[:ids].split(',').select {|id| id.start_with?('agency_reading_room_request::')}.map {|id| id.split('::').last}
 
-    report_fo = render_to_string(:partial => 'reading_room_requests/picking_slip.fo.erb').strip
+    user_requests = Array(JSONModel::HTTP.get_json('/reading_room_requests',
+                                                   'id_set' => user_request_ids.join(','),
+                                                   'resolve[]' => ['requested_item',
+                                                                   'requested_item::container',
+                                                                   'requested_item::container::container_locations',
+                                                                   'requested_item::controlling_record',
+                                                                   'requested_item::controlling_record::parent',
+                                                                   'requested_item::controlling_record_series',
+                                                                   'requested_item::responsible_agency']))
+
+
+    agency_requests = Array(JSONModel::HTTP.get_json('/agency_reading_room_requests',
+                                                     'id_set' => agency_request_ids.join(','),
+                                                     'resolve[]' => ['requested_item',
+                                                                     'requested_item::container',
+                                                                     'requested_item::container::container_locations',
+                                                                     'requested_item::controlling_record',
+                                                                     'requested_item::controlling_record::parent',
+                                                                     'requested_item::controlling_record_series',
+                                                                     'requested_item::responsible_agency']))
+
+    filename = "picking_slip.batch_%s.pdf" % [Date.today.iso8601]
+
+    if (user_request_ids.length + agency_request_ids.length) == 1
+      id = (user_request_ids + agency_request_ids).first
+      filename = "picking_slip.%s.pdf" % [id]
+    end
+
+    generate_picking_slip(user_requests + agency_requests, 'reading_room_requests/picking_slip.fo.erb',
+                          filename)
+  end
+
+  def generate_picking_slip(requests, fo_template, filename)
+    @reading_room_requests = requests
+    report_fo = render_to_string(:partial => fo_template).strip
 
     fo_file = ASUtils.tempfile("picking_slip_fo")
     fo_file.write(report_fo)
@@ -142,8 +164,6 @@ class ReadingRoomRequestsController < ApplicationController
     ensure
       output_stream.close
     end
-
-    filename = "picking_slip.#{params[:id]}.pdf"
 
     respond_to do |format|
       format.all do
@@ -181,9 +201,8 @@ class ReadingRoomRequestsController < ApplicationController
   end
 
 
-  helper_method :status_label
-  def status_label(status)
-    button = self.class.status_button_map[status]
+  def self.status_label(status)
+    button = status_button_map[status]
     "<span class=\"label label-#{button[:style]}\">#{button[:label]}</span>".html_safe
   end
 
@@ -239,19 +258,18 @@ class ReadingRoomRequestsController < ApplicationController
   end
 
 
-  def status_workflow(status, restricted)
-    key = (restricted && self.class.status_workflow_map.has_key?(status + '_RESTRICTED')) ? status + '_RESTRICTED' : status
-    self.class.status_workflow_map.fetch(key, [])
+  def self.status_workflow(status, restricted)
+    key = (restricted && status_workflow_map.has_key?(status + '_RESTRICTED')) ? status + '_RESTRICTED' : status
+    status_workflow_map.fetch(key, [])
   end
 
-  def status_button(status, id, opts = {})
-    btn_def = self.class.status_button_map[status]
+  def self.status_button(status, id, opts = {})
+    btn_def = status_button_map[status]
     btn_size = opts[:full_size] ? 'btn-sm' : 'btn-xs'
     "<button class=\"btn btn-#{btn_def[:style]} #{btn_size} rrr-status rrr-status-#{status}\" data-id=\"#{id}\" data-status=\"#{status}\">#{btn_def[:label]}</button>".html_safe
   end
 
-  helper_method :buttons_for_request
-  def buttons_for_request(status, id, opts = {})
+  def self.buttons_for_request(status, id, opts = {})
     opts[:restricted] ||= :unrestricted
     full_size = !!opts[:full_size]
     status = status.upcase

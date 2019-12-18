@@ -57,7 +57,7 @@
 
           <% unless status_term.nil? %>
             <% status = JSON.parse(status_term).values[0] %>
-            <% buttons_for_request(status, 999, :restricted => :both).each do |button| %>
+            <% ReadingRoomRequestsController.buttons_for_request(status, 999, :restricted => :both).each do |button| %>
               <div class="btn-group">
                 <%= button %>
               </div>
@@ -102,15 +102,18 @@
           <% @search_data['results'].each do |result| %>
             <% deleted = (params.has_key?("deleted_uri") and Array(params["deleted_uri"]).include?(result["id"])) || false %>
             <% parsed = ASUtils.json_parse(result['json']) %>
-            <% request_id = JSONModel(:reading_room_request).id_for(result['uri']) %>
+            <% jsonmodel_type = parsed.fetch('jsonmodel_type') %>
+            <% request_id = JSONModel(jsonmodel_type.intern).id_for(result['uri']) %>
             <% requested_item = parsed.fetch('requested_item', {}).fetch('_resolved', {}) %>
             <% restricted_item = requested_item['rap_access_status'] == 'Restricted Access' %>
 
             <tr class="<%= 'deleted' if deleted %> <%= 'rrr-restricted-item' if restricted_item %>">
               <td class="rrr-selected-item-cell">
-                <input class="rrr-selected-item" type="checkbox" name="selected-item" value="<%= request_id %>" checked="true" id="selected-item-<%= request_id %>"/>
+                <input class="rrr-selected-item" type="checkbox" name="selected-item" value="<%= jsonmodel_type %>::<%= request_id %>" checked="true" id="selected-item-<%= jsonmodel_type %>-<%= request_id %>"/>
               </td>
-              <td><%= QSAIdHelper.id(parsed.fetch('qsa_id_prefixed'), :link => true) %></td>
+              <td>
+                <%= QSAIdHelper.id(parsed.fetch('qsa_id_prefixed'), :link => true) %>
+              </td>
               <td>
                 <%= ('<div class="token-list">' +
                         render_token(:object => requested_item,
@@ -137,23 +140,28 @@
               </td>
 
               <td>
-                <%
-                   user = parsed.fetch('requesting_user')
-                   names = [user.fetch('first_name', nil), user.fetch('last_name', nil)].compact.join(" ")
-                   email = user.fetch('email')
-                   email = "%s <%s>" % [names, email] unless names.empty?
-                %>
-                <a href="mailto:<%= email %>">
-                  <% if names.empty? %>
-                    <%= user.fetch('email') %>
-                  <% else %>
-                     <%= names %>  
-                  <% end %>
-                </a>
+                <% if jsonmodel_type == 'reading_room_request' %>
+                  <%
+                     user = parsed.fetch('requesting_user')
+                     names = [user.fetch('first_name', nil), user.fetch('last_name', nil)].compact.join(" ")
+                     email = user.fetch('email')
+                     email = "%s <%s>" % [names, email] unless names.empty?
+                  %>
+                  <a href="mailto:<%= email %>">
+                    <% if names.empty? %>
+                      <%= user.fetch('email') %>
+                    <% else %>
+                       <%= names %>
+                    <% end %>
+                  </a>
 
-                <div class="clearfix"></div>
+                  <div class="clearfix"></div>
 
-                <div class="label label-<%= user.fetch('verified') ? 'success' : 'danger' %>"><%= user.fetch('verified') ? 'Verified' : 'Unverified' %></div>
+                  <div class="label label-<%= user.fetch('verified') ? 'success' : 'danger' %>"><%= user.fetch('verified') ? 'Verified' : 'Unverified' %></div>
+                <% else %>
+                  <%= link_to parsed['requesting_agency']['_resolved']['title'], :controller => :resolver, :action => :resolve_readonly, :uri => parsed['requesting_agency']['ref'] %>
+                   -  <%= parsed['requesting_agency']['location_name'] %>
+                <% end %>
 
               </td>
 
@@ -175,9 +183,18 @@
                 <% end %>
               </td>
               <td class="table-record-actions">
-                <%= link_to "Download slip", {:controller => :reading_room_requests, :action => :picking_slip, :ids => request_id}, :title => "Download picking slip", :target => '_blank', :class => 'btn btn-default btn-xs' %>
+                <% prefixed_id = "%s::%s" % [jsonmodel_type, request_id] %>
+                <%= link_to("Download slip",
+                            {
+                              :controller => :reading_room_requests,
+                              :action => :picking_slip,
+                              :ids => prefixed_id,
+                            },
+                            :title => "Download picking slip",
+                            :target => '_blank',
+                            :class => 'btn btn-default btn-xs') %>
                 <div class="rrr-status-actions">
-                  <% buttons_for_request(parsed.fetch('status'), request_id, :restricted => (restricted_item ? :restricted : :unrestricted)).each do |button| %>
+                  <% ReadingRoomRequestsController.buttons_for_request(parsed.fetch('status'), prefixed_id, :restricted => (restricted_item ? :restricted : :unrestricted)).each do |button| %>
                     <%= button %>
                   <% end %>
                 </div>

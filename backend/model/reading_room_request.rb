@@ -46,14 +46,6 @@ class ReadingRoomRequest < Sequel::Model
     STATUS_DELIVERED_TO_ARCHIVIST => TODESK_LOCATION_ENUM_VALUE,
   }
 
-
-  def update_from_json(json, opts = {}, apply_nested_records = true)
-    # opts['modified_time'] = java.lang.System.currentTimeMillis
-    # opts['modified_by'] = RequestContext.get(:current_username)
-
-    super
-  end
-
   def self.build_user_map(user_ids)
     PublicDB.open do |db|
       db[:user]
@@ -173,7 +165,9 @@ class ReadingRoomRequest < Sequel::Model
   end
 
   def self.prepare_search_results(search_results)
-    uri_to_json = search_results['results'].map{|result| [result.fetch('uri'), ASUtils.json_parse(result.fetch('json'))]}.to_h
+    uri_to_json = search_results['results']
+                    .select{|result| result['primary_type'] == 'reading_room_request'}
+                    .map{|result| [result.fetch('uri'), ASUtils.json_parse(result.fetch('json'))]}.to_h
 
     status_map = get_status_map(uri_to_json.keys)
 
@@ -181,6 +175,7 @@ class ReadingRoomRequest < Sequel::Model
     resolved_items = resolve_requested_items(requested_item_uris)
 
     search_results['results'].each do |result|
+      next unless result['primary_type'] == 'reading_room_request'
       uri = result.fetch('uri')
 
       json = uri_to_json.fetch(uri)

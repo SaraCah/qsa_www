@@ -1,13 +1,19 @@
-<%= setup_context :object => @reading_room_request %>
+<%= setup_context :trail => [[I18n.t('reading_room_request._plural'), {:controller=>"reading_room_requests", :action=>:index}],
+                             [@reading_room_request.qsa_id_prefixed, {}]]
+%>
 
 <div class="row">
   <div class="col-md-3">
-    <%= render_aspace_partial :partial => "sidebar", locals: {is_readonly: true} %>
+    <%= render_aspace_partial :partial => "reading_room_requests/sidebar", locals: {is_readonly: true} %>
   </div>
   <div class="col-md-9">
-    <%= render_aspace_partial :partial => "toolbar" %>
+    <%= render_aspace_partial :partial => "reading_room_requests/toolbar" %>
     <div class="record-pane">
       <%= render_aspace_partial :partial => "reading_room_requests/form", locals: {is_readonly: true} %>
+
+      <% if @reading_room_request['jsonmodel_type'] == 'agency_reading_room_request' %>
+        <%= render_aspace_partial :partial => "shared/conversation_widget", :locals => { handle_id: @reading_room_request.handle_id } %>
+      <% end %>
     </div>
   </div>
 </div>
