@@ -65,6 +65,8 @@ class ItemMapper < AbstractMapper
     solr_doc['physical_representation_count'] = parsed_physical.length
     solr_doc['has_physical_representations'] = solr_doc['physical_representation_count'] > 0
 
+    solr_doc['associated_qsa_ids'] = qsa_ids_from_representations(parsed_physical + parsed_digital)
+
     solr_doc
   end
 
@@ -85,6 +87,12 @@ class ItemMapper < AbstractMapper
     representations.flat_map {|record|
       representation_tags_by_solr_id.fetch(record['id'], [])
     }
+  end
+
+  def qsa_ids_from_representations(representations)
+    representations.map do |representation|
+      representation.fetch('qsa_id_prefixed')
+    end
   end
 
   def parse_whitelisted_json(obj, json)
