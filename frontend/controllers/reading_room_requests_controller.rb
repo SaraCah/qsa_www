@@ -178,6 +178,7 @@ class ReadingRoomRequestsController < ApplicationController
           ensure
             fh.close
             fo_file.unlink
+            output_pdf_file.delete
           end
         end
       end
