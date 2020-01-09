@@ -51,3 +51,7 @@ en:
       rrr_status_u_ssort: Status
       rrr_time_required_u_ssort: Time required
       date_required: Within Days
+
+  group:
+    permission_types:
+      manage_reading_room_requests: manage reading room requests

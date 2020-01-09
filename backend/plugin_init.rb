@@ -28,6 +28,15 @@ require_relative 'tasks/email_delivery'
 require_relative 'tasks/set_price_request_task'
 require_relative 'tasks/email_template'
 
+Permission.define('manage_reading_room_requests',
+                  'The ability to process reading room requests',
+                  :level => "repository")
+
+Permission.define('update_reading_room_requests',
+                  'The ability to update reading room requests',
+                  :implied_by => "manage_reading_room_requests",
+                  :level => "global")
+
 DeferredTaskRunner.add_handler_for_type('quote_request', QuoteRequestTask)
 DeferredTaskRunner.add_handler_for_type('welcome', WelcomeTask)
 DeferredTaskRunner.add_handler_for_type('agency_request', AgencyRequestTask)
