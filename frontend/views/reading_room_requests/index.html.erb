@@ -53,16 +53,19 @@
             <%= link_to "Download slips", {:controller => :reading_room_requests, :action => :picking_slip, :ids => "999"}, :title => "Download slips", :target => '_blank', :class => 'btn btn-default btn-xs rrr-bulk-picking-slip-button' %>
           </div>
 
-          <% status_term = Array(@search_data[:criteria]['filter_term[]']).find {|term| JSON.parse(term).keys[0] == 'rrr_status_u_ssort'} %>
+          <% if user_can?('update_reading_room_requests') %>
+            <% status_term = Array(@search_data[:criteria]['filter_term[]']).find {|term| JSON.parse(term).keys[0] == 'rrr_status_u_ssort'} %>
 
-          <% unless status_term.nil? %>
-            <% status = JSON.parse(status_term).values[0] %>
-            <% ReadingRoomRequestsController.buttons_for_request(status, 999, :restricted => :both).each do |button| %>
-              <div class="btn-group">
-                <%= button %>
-              </div>
+            <% unless status_term.nil? %>
+              <% status = JSON.parse(status_term).values[0] %>
+              <% ReadingRoomRequestsController.buttons_for_request(status, 999, :restricted => :both).each do |button| %>
+                <div class="btn-group">
+                  <%= button %>
+                </div>
+              <% end %>
             <% end %>
           <% end %>
+
         </div>
 
         <div class="rrr-bulk-action-explainer pull-right" style="display:none;">
@@ -194,8 +197,10 @@
                             :target => '_blank',
                             :class => 'btn btn-default btn-xs') %>
                 <div class="rrr-status-actions">
-                  <% ReadingRoomRequestsController.buttons_for_request(parsed.fetch('status'), prefixed_id, :restricted => (restricted_item ? :restricted : :unrestricted)).each do |button| %>
-                    <%= button %>
+                  <% if user_can?('update_reading_room_requests') %>
+                    <% ReadingRoomRequestsController.buttons_for_request(parsed.fetch('status'), prefixed_id, :restricted => (restricted_item ? :restricted : :unrestricted)).each do |button| %>
+                      <%= button %>
+                    <% end %>
                   <% end %>
                 </div>
               </td>

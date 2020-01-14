@@ -8,11 +8,15 @@
               <div class="pull-right">
                 <% prefixed_id = "%s::%s" % [@reading_room_request['jsonmodel_type'], params['id']] %>
                 <%= link_to "Download slip", {:controller => :reading_room_requests, :action => :picking_slip, :ids => prefixed_id}, :title => "Download picking slip", :target => '_blank', :class => 'btn btn-default btn-sm' %>
-                <% ReadingRoomRequestsController.buttons_for_request(@reading_room_request['status'], prefixed_id, :restricted => (restricted_item ? :restricted : :unrestricted), :full_size => true).each do |button| %>
-                  <div class="rrr-status-action btn-group">
-                    <%= button %>
-                  </div>
+
+                <% if user_can?('update_reading_room_requests') %>
+                  <% ReadingRoomRequestsController.buttons_for_request(@reading_room_request['status'], prefixed_id, :restricted => (restricted_item ? :restricted : :unrestricted), :full_size => true).each do |button| %>
+                    <div class="rrr-status-action btn-group">
+                      <%= button %>
+                    </div>
+                  <% end %>
                 <% end %>
+
               </div>
             <% end %>
 

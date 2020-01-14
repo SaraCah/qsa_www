@@ -13,8 +13,8 @@ class ReadingRoomRequestsController < ApplicationController
 
   include ApplicationHelper
 
-  # TODO: review access controls for these endpoints
-  set_access_control  "view_repository" => [:index, :show, :picking_slip, :agency_picking_slip, :bulk_set_status]
+  set_access_control  "update_reading_room_requests" => [:bulk_set_status],
+                      "view_repository" => [:index, :show, :picking_slip, :agency_picking_slip]
 
   def index
     criteria = params.to_hash

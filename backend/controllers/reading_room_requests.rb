@@ -17,7 +17,6 @@ class ArchivesSpaceService < Sinatra::Base
     json_response(results)
   end
 
-  # FIXME Need permissions on these too
   Endpoint.get('/reading_room_requests')
     .description("List reading room requests")
     .permissions([])
@@ -43,7 +42,7 @@ class ArchivesSpaceService < Sinatra::Base
     .description("Bulk update request statuses")
     .params(["ids", String, "Comma separated list of ids to update"],
             ["status", String, "New status"])
-    .permissions([])
+    .permissions([:update_reading_room_requests])
     .returns([200, "(:success)"],
              [404, "Not found"]) \
   do
