@@ -46,6 +46,13 @@ class ReadingRoomRequest < Sequel::Model
     STATUS_DELIVERED_TO_ARCHIVIST => TODESK_LOCATION_ENUM_VALUE,
   }
 
+  AGENCY_APPROVAL_PERM = 'approve_closed_records'
+
+  STATUSES_REQUIRING_AGENCY_APPROVAL_PERM = [
+    STATUS_APPROVED_BY_AGENCY,
+    STATUS_REJECTED_BY_AGENCY,
+  ]
+
   def self.build_user_map(user_ids)
     PublicDB.open do |db|
       db[:user]
@@ -70,6 +77,14 @@ class ReadingRoomRequest < Sequel::Model
   end
 
   def set_status(status)
+
+    if STATUSES_REQUIRING_AGENCY_APPROVAL_PERM.include?(status)
+      current_user = User[:username => RequestContext.get(:current_username)]
+      unless current_user.can?(AGENCY_APPROVAL_PERM)
+        raise AccessDeniedException.new("User does not have permission to approve or reject closed records.")
+      end
+    end
+
     PublicDB.open do |db|
       json = self.class.to_jsonmodel(self)
 

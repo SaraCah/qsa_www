@@ -55,3 +55,4 @@ en:
   group:
     permission_types:
       manage_reading_room_requests: manage reading room requests
+      manage_closed_record_approval: mark closed records approved from agency

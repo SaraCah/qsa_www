@@ -58,7 +58,7 @@
 
             <% unless status_term.nil? %>
               <% status = JSON.parse(status_term).values[0] %>
-              <% ReadingRoomRequestsController.buttons_for_request(status, 999, :restricted => :both).each do |button| %>
+              <% buttons_for_request(status, 999, :restricted => :both).each do |button| %>
                 <div class="btn-group">
                   <%= button %>
                 </div>
@@ -198,7 +198,7 @@
                             :class => 'btn btn-default btn-xs') %>
                 <div class="rrr-status-actions">
                   <% if user_can?('update_reading_room_requests') %>
-                    <% ReadingRoomRequestsController.buttons_for_request(parsed.fetch('status'), prefixed_id, :restricted => (restricted_item ? :restricted : :unrestricted)).each do |button| %>
+                    <% buttons_for_request(parsed.fetch('status'), prefixed_id, :restricted => (restricted_item ? :restricted : :unrestricted)).each do |button| %>
                       <%= button %>
                     <% end %>
                   <% end %>

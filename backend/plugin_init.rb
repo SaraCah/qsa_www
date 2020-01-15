@@ -37,6 +37,15 @@ Permission.define('update_reading_room_requests',
                   :implied_by => "manage_reading_room_requests",
                   :level => "global")
 
+Permission.define('manage_closed_record_approval',
+                  'The ability to manage agency approval of closed records',
+                  :level => "repository")
+
+Permission.define('approve_closed_records',
+                  'The ability to approve or reject closed records',
+                  :implied_by => "manage_closed_record_approval",
+                  :level => "global")
+
 DeferredTaskRunner.add_handler_for_type('quote_request', QuoteRequestTask)
 DeferredTaskRunner.add_handler_for_type('welcome', WelcomeTask)
 DeferredTaskRunner.add_handler_for_type('agency_request', AgencyRequestTask)
