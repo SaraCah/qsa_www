@@ -272,25 +272,29 @@ class ReadingRoomRequestsController < ApplicationController
 
   helper_method :buttons_for_request
   def buttons_for_request(status, id, opts = {})
+    self.class.buttons_for_request(status, id, opts, self)
+  end
+
+  def self.buttons_for_request(status, id, opts = {}, context)
     opts[:restricted] ||= :unrestricted
     full_size = !!opts[:full_size]
     status = status.upcase
     buttons = []
     if [:unrestricted, :both].include?(opts[:restricted])
-      buttons += self.class.status_workflow(status, false)
+      buttons += self.status_workflow(status, false)
     end
     if [:restricted, :both].include?(opts[:restricted])
-      buttons += self.class.status_workflow(status, true)
+      buttons += self.status_workflow(status, true)
     end
 
     # remove agency approval buttons from luser's lists
-    unless user_can?('approve_closed_records')
+    unless context.user_can?('approve_closed_records')
       buttons = buttons - ['APPROVED_BY_AGENCY', 'REJECTED_BY_AGENCY']
     end
 
     # stoopid reversing to keep cancel buttons at the end
     buttons = buttons.reverse.uniq.reverse
 
-    buttons.map{|button| self.class.status_button(button, id, :full_size => full_size)}
+    buttons.map{|button| self.status_button(button, id, :full_size => full_size)}
   end
 end

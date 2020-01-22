@@ -198,7 +198,7 @@
                             :class => 'btn btn-default btn-xs') %>
                 <div class="rrr-status-actions">
                   <% if user_can?('update_reading_room_requests') %>
-                    <% buttons_for_request(parsed.fetch('status'), prefixed_id, :restricted => (restricted_item ? :restricted : :unrestricted)).each do |button| %>
+                    <% ReadingRoomRequestsController.buttons_for_request(parsed.fetch('status'), prefixed_id, {:restricted => (restricted_item ? :restricted : :unrestricted)}, self).each do |button| %>
                       <%= button %>
                     <% end %>
                   <% end %>
