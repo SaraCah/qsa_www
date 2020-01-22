@@ -219,7 +219,7 @@ class ReadingRoomRequest < Sequel::Model
     start_date = Time.at(json['date_required']/1000).strftime('%Y-%m-%d')
 
     JSONModel(:item_use).from_hash({
-      'physical_representation' => {'ref' => json['item_uri']},
+      'representation' => {'ref' => json['item_uri']},
       'item_use_type' => 'reading_room_request',
       'use_identifier' => qsa_id,
       'status' => json['status'],
