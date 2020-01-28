@@ -106,7 +106,7 @@ class ItemMapper < AbstractMapper
     whitelisted['resource'] = parse_resource(json.resource)
     whitelisted['position'] = json.position
 
-    whitelisted['display_string'] = json.display_string
+    whitelisted['display_string'] = build_display_string(json)
     whitelisted['title'] = json.title
     whitelisted['description'] = json.description
     whitelisted['sensitivity_label'] = I18n.t("enumerations.runcorn_sensitivity_label.#{json.sensitivity_label}", default: json.sensitivity_label)
@@ -148,6 +148,19 @@ class ItemMapper < AbstractMapper
     whitelisted['previous_system_ids'] = parse_previous_system_ids(json)
 
     whitelisted
+  end
+
+  def build_display_string(json)
+    bits = [json['title']]
+
+    unless json['dates'].empty?
+      date = json['dates'][0]
+      start_date = (date['begin'] || '').split('-').reverse.join('-')
+      end_date = (date['end'] || '').split('-').reverse.join('-')
+      bits << [start_date, end_date].join(' - ')
+    end
+
+    bits.compact.join(', ')
   end
 
   def parse_subjects(subjects)
