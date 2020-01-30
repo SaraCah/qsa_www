@@ -38,7 +38,7 @@ module ReadingroomRequestItem
 
     def handle_delete(ids_to_delete)
       super
-      self.reindex_reading_room_requests!(item_ids)
+      self.reindex_reading_room_requests!(ids_to_delete)
     end
   end
 end
