@@ -24,9 +24,11 @@ class IndexerCommon
         doc['rrr_requested_item_availability_u_ssort'] = item['calculated_availability']
         doc['rrr_requesting_user_u_ssort'] = [user['last_name'], user['first_name']].compact.join(', ')
 
-        start_date = Time.at(record['record']['date_required'] / 1000).to_date.iso8601
-        doc['date_start_u_ssort'] = start_date
-        doc['date_start_u_sstr'] = start_date
+        if record['record']['date_required']
+          start_date = Time.at(record['record']['date_required'] / 1000).to_date.iso8601
+          doc['date_start_u_ssort'] = start_date
+          doc['date_start_u_sstr'] = start_date
+        end
       end
     }
   end
