@@ -43,9 +43,12 @@ class ItemMapper < AbstractMapper
 
     solr_doc['position'] = json.position
 
-    if agency_published?(json.creating_agency)
-      agency_id = JSONModel::JSONModel(:agent_corporate_entity).id_for(json.creating_agency.fetch('ref'))
-      solr_doc['creating_agency_id'] = "agent_corporate_entity:#{agency_id}"
+    json.creating_agency.each do |creating_agency|
+      if agency_published?(creating_agency)
+        agency_id = JSONModel::JSONModel(:agent_corporate_entity).id_for(creating_agency.fetch('ref'))
+        solr_doc['creating_agency_id'] ||= []
+        solr_doc['creating_agency_id'] << "agent_corporate_entity:#{agency_id}"
+      end
     end
 
     if agency_published?(json.responsible_agency)
@@ -220,7 +223,9 @@ class ItemMapper < AbstractMapper
     agency_ids = []
     @jsonmodels.each do |json|
       agency_ids << JSONModel::JSONModel(:agent_corporate_entity).id_for(json['responsible_agency']['ref']) if json['responsible_agency']
-      agency_ids << JSONModel::JSONModel(:agent_corporate_entity).id_for(json['creating_agency']['ref']) if json['creating_agency']
+      Array(json['creating_agency']).each do |creating_agency|
+        agency_ids << JSONModel::JSONModel(:agent_corporate_entity).id_for(creating_agency['ref'])
+      end
     end
 
     DB.open do |db|

@@ -42,9 +42,12 @@ class SeriesMapper < AbstractMapper
   def map_record(obj, json, solr_doc)
     super
 
-    if agency_published?(json.creating_agency)
-      agency_id = JSONModel::JSONModel(:agent_corporate_entity).id_for(json.creating_agency.fetch('ref'))
-      solr_doc['creating_agency_id'] = "agent_corporate_entity:#{agency_id}"
+    json.creating_agency.each do |creating_agency|
+      if agency_published?(creating_agency)
+        agency_id = JSONModel::JSONModel(:agent_corporate_entity).id_for(creating_agency.fetch('ref'))
+        solr_doc['creating_agency_id'] ||= []
+        solr_doc['creating_agency_id'] << "agent_corporate_entity:#{agency_id}"
+      end
     end
 
     if agency_published?(json.responsible_agency)
@@ -93,8 +96,8 @@ class SeriesMapper < AbstractMapper
     whitelisted['mandate_relationships'] = parse_series_system_rlshps(json.series_system_mandate_relationships)
     whitelisted['function_relationships'] = parse_series_system_rlshps(json.series_system_function_relationships)
     whitelisted['rap_attached'] = parse_rap(json.rap_attached)
-    whitelisted['responsible_agency'] = json.responsible_agency
-    whitelisted['creating_agency'] = json.creating_agency
+    whitelisted['responsible_agency'] = agency_published?(json.responsible_agency) ? json.responsible_agency : nil
+    whitelisted['creating_agency'] = json.creating_agency.select{|agency| agency_published?(agency)}
 
     whitelisted
   end
@@ -112,7 +115,9 @@ class SeriesMapper < AbstractMapper
     agency_ids = []
     @jsonmodels.each do |json|
       agency_ids << JSONModel::JSONModel(:agent_corporate_entity).id_for(json['responsible_agency']['ref']) if json['responsible_agency']
-      agency_ids << JSONModel::JSONModel(:agent_corporate_entity).id_for(json['creating_agency']['ref']) if json['creating_agency']
+      Array(json['creating_agency']).each do |creating_agency|
+        agency_ids << JSONModel::JSONModel(:agent_corporate_entity).id_for(creating_agency['ref'])
+      end
     end
 
     DB.open do |db|
