@@ -58,7 +58,7 @@
 
             <% unless status_term.nil? %>
               <% status = JSON.parse(status_term).values[0] %>
-              <% buttons_for_request(status, 999, :restricted => :both).each do |button| %>
+              <% ReadingRoomRequestsController.buttons_for_request(status, 999, { :restricted => :both }, self).each do |button| %>
                 <div class="btn-group">
                   <%= button %>
                 </div>

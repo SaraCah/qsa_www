@@ -162,13 +162,21 @@ class ReadingRoomRequest < Sequel::Model
 
       model = jsonmodel_type == 'physical_representation' ? PhysicalRepresentation : DigitalRepresentation
 
-      objs = model
-               .any_repo
-               .filter(:id => ids)
-               .all
+      ids_by_repo_id = {}
 
-      objs.group_by{|obj| obj.repo_id}.each do |repo_id, objs|
+      DB.open do |db|
+        db[jsonmodel_type.intern]
+          .filter(:id => ids)
+          .select(:id, :repo_id)
+          .map {|row|
+            ids_by_repo_id[row[:repo_id]] ||= []
+            ids_by_repo_id[row[:repo_id]] << row[:id]
+          }
+      end
+
+      ids_by_repo_id.each do |repo_id, ids|
         RequestContext.open(:repo_id => repo_id) do
+          objs = model.filter(:id => ids).all
           model.sequel_to_jsonmodel(objs).each do |json|
             result[json.uri] = json
           end
