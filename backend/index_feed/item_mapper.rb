@@ -154,16 +154,7 @@ class ItemMapper < AbstractMapper
   end
 
   def build_display_string(json)
-    bits = [json['title']]
-
-    unless json['dates'].empty?
-      date = json['dates'][0]
-      start_date = (date['begin'] || '').split('-').reverse.join('-')
-      end_date = (date['end'] || '').split('-').reverse.join('-')
-      bits << [start_date, end_date].join(' - ')
-    end
-
-    bits.compact.join(', ')
+    json['display_string']
   end
 
   def parse_subjects(subjects)
