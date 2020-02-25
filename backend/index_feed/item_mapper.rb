@@ -71,6 +71,7 @@ class ItemMapper < AbstractMapper
     solr_doc['associated_qsa_ids'] = qsa_ids_from_representations(parsed_physical + parsed_digital)
 
     solr_doc['agency_assigned_ids'] = parse_agency_assigned_ids(json, parsed_physical + parsed_digital)
+    solr_doc['formats'] = parse_formats(json, parsed_physical + parsed_digital)
 
     solr_doc
   end
@@ -187,6 +188,17 @@ class ItemMapper < AbstractMapper
 
     whitelisted_representations.each do |representation|
       result << representation['agency_assigned_id']
+    end
+
+    result.compact
+  end
+
+
+  def parse_formats(jsonmodel, whitelisted_representations)
+    result = []
+
+    whitelisted_representations.each do |representation|
+      result << representation['format']
     end
 
     result.compact
