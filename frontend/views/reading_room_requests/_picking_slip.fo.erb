@@ -130,8 +130,7 @@
               <fo:table-cell number-columns-spanned="3" wrap-option="wrap" padding="2mm" border-width="0.25mm" border-style="solid">
                 <fo:block-container>
                   <%
-                    desc = record.fetch('description', nil)
-                    desc = [desc, item.fetch('description', nil)].compact.join("\n")
+                    desc = record.fetch('title', '')
                     desc = desc[0,80]
                   %>
                   <fo:block wrap-option="wrap" linefeed-treatment="preserve" white-space-collapse="false"><%= desc %></fo:block>
