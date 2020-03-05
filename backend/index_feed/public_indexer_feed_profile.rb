@@ -111,6 +111,15 @@ class PublicIndexerFeedProfile < IndexerFeedProfile
     :updates_for_model
   end
 
+  def index_batch_size
+    AppConfig[:qsa_public_index_feed_batch_size]
+  end
+
+  def index_thread_count
+    AppConfig[:qsa_public_index_feed_thread_count]
+  end
+
+
   private
 
   def repository_published?(repo_id)
