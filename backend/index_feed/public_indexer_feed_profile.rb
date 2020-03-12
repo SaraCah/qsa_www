@@ -29,8 +29,8 @@ class PublicIndexerFeedProfile < IndexerFeedProfile
     end
   end
 
-  def db_open(*opts, &block)
-    PublicDB.open(*opts) do |db|
+  def db_open(transaction = true, *opts, &block)
+    PublicDB.open(transaction, *opts) do |db|
       block.call(db)
     end
   end
