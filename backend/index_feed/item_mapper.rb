@@ -27,6 +27,12 @@ class ItemMapper < AbstractMapper
     return false
   end
 
+  def parse_title(jsonmodel)
+    # In the case of items, we just want the title -- no dates.  Only fall back
+    # to display string if there was no title.
+    jsonmodel['title'] || jsonmodel['display_string']
+  end
+
   def map_record(obj, json, solr_doc)
     super
 
