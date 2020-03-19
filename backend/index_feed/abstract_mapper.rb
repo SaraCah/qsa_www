@@ -152,6 +152,12 @@ class AbstractMapper
         next if UNINTERESTING_KEYWORD_PROPERTIES.include?(key)
         result += parse_keywords(val)
       end
+
+      if whitelisted['qsa_id_prefixed']
+        parsed = QSAId.parse_prefixed_id(whitelisted['qsa_id_prefixed'])
+        result << parsed[:prefix]
+        result << parsed[:id].to_s
+      end
     elsif whitelisted.is_a?(Array)
       result += whitelisted.map {|val| parse_keywords(val)}.flatten(1)
     elsif whitelisted.is_a?(String)
