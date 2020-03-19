@@ -21,7 +21,36 @@ class EmailTemplates
       page_content = page_content.gsub(/%#{replacement_key}%/, replacement_html)
     end
 
-    page_content.gsub(/%[A-Z_]+%/, "")
+    page_content = page_content.gsub(/%[A-Z_]+%/, "")
+    doc = Nokogiri::HTML.parse(page_content)
+
+    children_iterator = doc.css('body').children.each
+
+    result = []
+
+    begin
+      while child = children_iterator.next
+        if child.name == 'p' && child.children.length == 1 && child.children[0].name == 'code'
+          combined = child.children[0].text
+
+          while next_child = children_iterator.peek
+            if next_child.name == 'p' && next_child.children.length == 1 && next_child.children[0].name == 'code'
+              combined += next_child.children[0].text
+              children_iterator.next
+            else
+              break
+            end
+          end
+
+          result << combined
+        else
+          result << child.to_s
+        end
+      end
+    rescue StopIteration
+    end
+
+    result.join
   end
 
   def self.render_partial(partial_name, locals = {})
