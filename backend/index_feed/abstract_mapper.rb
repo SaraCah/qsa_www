@@ -86,8 +86,6 @@ class AbstractMapper
     if json['rap_access_status']
       solr_doc['access_status'] = json['rap_access_status']
       solr_doc['open_record'] = json['rap_access_status'] == 'Open Access'
-    else
-      solr_doc['open_record'] = false
     end
 
     solr_doc['description'] = parse_description(json)
