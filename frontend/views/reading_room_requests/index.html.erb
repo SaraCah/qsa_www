@@ -115,7 +115,7 @@
                 <input class="rrr-selected-item" type="checkbox" name="selected-item" value="<%= jsonmodel_type %>::<%= request_id %>" checked="true" id="selected-item-<%= jsonmodel_type %>-<%= request_id %>"/>
               </td>
               <td>
-                <%= QSAIdHelper.id(parsed.fetch('qsa_id_prefixed'), :link => true) %>
+                <%= QSAIdHelper.id(parsed.fetch('qsa_id_prefixed'), :link => parsed['uri']) %>
               </td>
               <td>
                 <%= ('<div class="token-list">' +
