@@ -1,6 +1,39 @@
 require_relative 'abstract_mapper'
 
 class RepresentationMapper < AbstractMapper
+  def initialize(sequel_records, jsonmodels, linked_agents_publish_map = nil)
+    super(sequel_records, jsonmodels)
+
+    @linked_agents_publish_map = linked_agents_publish_map || build_linked_agents_publish_map
+  end
+
+  def agency_published?(agency_ref)
+    if agency_ref && agency_ref['ref']
+      agency_id = JSONModel::JSONModel(:agent_corporate_entity).id_for(agency_ref['ref'])
+      return @linked_agents_publish_map.fetch(agency_id)
+    end
+
+    return false
+  end
+
+  def build_linked_agents_publish_map
+    result = {}
+    agency_ids = []
+    @jsonmodels.each do |json|
+      agency_ids << JSONModel::JSONModel(:agent_corporate_entity).id_for(json['responsible_agency']['ref']) if json['responsible_agency']
+    end
+
+    DB.open do |db|
+      db[:agent_corporate_entity]
+        .filter(:id => agency_ids)
+        .select(:id, :publish)
+        .each do |row|
+        result[row[:id]] = row[:publish] == 1
+      end
+    end
+
+    result
+  end
 
   def parse_whitelisted_json(obj, json)
     whitelisted = super
@@ -59,7 +92,7 @@ class RepresentationMapper < AbstractMapper
   end
 
   def published?(jsonmodel)
-    jsonmodel['publish'] && !jsonmodel['has_unpublished_ancestor'] && available?(jsonmodel)
+    jsonmodel['publish'] && !jsonmodel['has_unpublished_ancestor'] && available?(jsonmodel) && agency_published?(jsonmodel['responsible_agency'])
   end
 
   def map_record(obj, json, solr_doc)

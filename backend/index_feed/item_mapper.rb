@@ -213,7 +213,7 @@ class ItemMapper < AbstractMapper
   RepresentationRef = Struct.new(:id)
 
   def parse_physical_representations(json)
-    mapper = RepresentationMapper.new([], [])
+    mapper = RepresentationMapper.new([], [], @linked_agents_publish_map)
 
     Array(json['physical_representations']).map {|representation|
       next unless mapper.published?(representation)
@@ -225,7 +225,7 @@ class ItemMapper < AbstractMapper
   end
 
   def parse_digital_representations(json)
-    mapper = RepresentationMapper.new([], [])
+    mapper = RepresentationMapper.new([], [], @linked_agents_publish_map)
 
     Array(json['digital_representations']).map {|representation|
       next unless mapper.published?(representation)
