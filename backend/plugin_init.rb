@@ -46,6 +46,21 @@ Permission.define('approve_closed_records',
                   :implied_by => "manage_closed_record_approval",
                   :level => "global")
 
+# register models for history
+begin
+  [
+   ReadingRoomRequest,
+   DigitalCopyPricing,
+  ].each do |model|
+    History.register_model(model)
+    History.add_model_map(model, :last_modified_by => :modified_by,
+                                 :user_mtime => proc {|obj| obj.modified_time})
+  end
+rescue NameError
+  Log.info("Unable to register qsa_www models for history. Please install the as_history plugin")
+end
+
+
 DeferredTaskRunner.add_handler_for_type('quote_request', QuoteRequestTask)
 DeferredTaskRunner.add_handler_for_type('welcome', WelcomeTask)
 DeferredTaskRunner.add_handler_for_type('agency_request', AgencyRequestTask)
