@@ -119,6 +119,16 @@ class PublicIndexerFeedProfile < IndexerFeedProfile
     AppConfig[:qsa_public_index_feed_thread_count]
   end
 
+  def hash_for_record(mapped_record)
+    mapped_record = mapped_record.clone
+
+    # Needed for OAI but if it's the only thing that changed then this wasn't an
+    # interesting update.
+    mapped_record.delete('last_modified_time')
+
+    Digest::SHA1.hexdigest(mapped_record.to_json)
+  end
+
 
   private
 
