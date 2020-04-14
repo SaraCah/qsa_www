@@ -178,7 +178,7 @@ class ItemMapper < AbstractMapper
 
     {
       'ref' => uri,
-      'qsa_id_prefixed' => QSAId.prefixed_id_for(Resource, resource_obj.qsa_id),
+      'qsa_id_prefixed' => resource_obj.qsa_id_prefixed,
       'display_string' => resource_obj.title,
     }
   end
