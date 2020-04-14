@@ -196,7 +196,7 @@ class ItemMapper < AbstractMapper
       result << representation['agency_assigned_id']
     end
 
-    result.compact
+    result.compact.map{|id| generate_id_components(id)}.flatten.uniq
   end
 
 
