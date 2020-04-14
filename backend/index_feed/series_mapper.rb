@@ -107,7 +107,7 @@ class SeriesMapper < AbstractMapper
   end
 
   def parse_previous_system_ids(json)
-    super + [json.repository_processing_note].compact
+    super + generate_id_components(json.repository_processing_note)
   end
 
   def build_linked_agents_publish_map

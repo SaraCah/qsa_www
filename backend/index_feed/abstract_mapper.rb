@@ -234,7 +234,25 @@ class AbstractMapper
   end
 
   def parse_previous_system_ids(jsonmodel)
-    []
+    generate_id_components(jsonmodel['previous_system_identifiers'])
+  end
+
+  def generate_id_components(identifier_string)
+    result = []
+
+    identifier_string.to_s.split('\n').map{|s| s.split(';')}.flatten.compact.each do |identifier|
+      identifier = identifier.strip
+      next if identifier.empty?
+
+      cumulative_id = ''
+      identifier.scan(/([a-zA-Z0-9]*)([^a-zA-Z0-9]?)/).each do |match|
+        cumulative_id += match[0]
+        result.push(cumulative_id)
+        cumulative_id += match[1]
+      end
+    end
+
+    result.uniq
   end
 
   def base_solr_doc(obj, jsonmodel)

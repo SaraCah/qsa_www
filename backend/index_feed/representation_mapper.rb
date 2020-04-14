@@ -63,7 +63,7 @@ class RepresentationMapper < AbstractMapper
     whitelisted['controlling_record'] = json['controlling_record']
     whitelisted['responsible_agency'] = json['responsible_agency']
 
-    whitelisted['previous_system_ids'] = parse_previous_system_ids(json)
+    whitelisted['previous_system_ids'] = json['previous_system_identifiers']
 
     if json['jsonmodel_type'] == 'physical_representation'
       whitelisted['format'] = json['format']
@@ -103,9 +103,5 @@ class RepresentationMapper < AbstractMapper
     solr_doc['json'] = ASUtils.to_json(parse_whitelisted_json(obj, json))
 
     solr_doc
-  end
-
-  def parse_previous_system_ids(json)
-    super + json['previous_system_identifiers'].to_s.split("\n").map{|s| s.strip}.reject{|s| s.empty?}
   end
 end

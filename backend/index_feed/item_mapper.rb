@@ -157,7 +157,7 @@ class ItemMapper < AbstractMapper
     whitelisted['digital_representations'] = parse_digital_representations(json)
     whitelisted['physical_representations'] = parse_physical_representations(json)
 
-    whitelisted['previous_system_ids'] = parse_previous_system_ids(json)
+    whitelisted['previous_system_ids'] = json['previous_system_identifiers']
 
     whitelisted
   end
@@ -234,11 +234,6 @@ class ItemMapper < AbstractMapper
       mapper.parse_whitelisted_json(RepresentationRef.new(representation_id),
                                     JSONModel::JSONModel(:digital_representation).from_hash(representation, raise_errors = false, trusted = true))
     }.compact
-  end
-
-
-  def parse_previous_system_ids(json)
-    super + split_new_lines_into_array(json.previous_system_identifiers)
   end
 
   def build_linked_agents_publish_map
