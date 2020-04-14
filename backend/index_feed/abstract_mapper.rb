@@ -252,6 +252,10 @@ class AbstractMapper
       end
     end
 
+    unless identifier_string.to_s.strip.empty?
+      result << identifier_string.strip
+    end
+
     result.uniq
   end
 
