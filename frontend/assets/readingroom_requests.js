@@ -53,6 +53,8 @@ $(function() {
   });
 
   $('.rrr-bulk-action-buttons button').on('click', function(e) {
+    $('.rrr-bulk-action-buttons button').addClass('disabled');
+    $('.rrr-status-actions button').addClass('disabled');
     var data = $(e.target).data();
     $.ajax({
       url: APP_PATH + 'reading_room_requests/bulk_set_status',
@@ -63,12 +65,16 @@ $(function() {
       },
       success: function() {
         $('input[name=selected-item]:checked').closest('tr').remove();
+        $('.rrr-bulk-action-buttons button').removeClass('disabled');
+        $('.rrr-status-actions button').removeClass('disabled');
         updateSelectedReadingroomRequests();
       }
     })
   });
 
   $('.rrr-status-actions button').on('click', function(e) {
+    $('.rrr-status-actions button').addClass('disabled');
+    $('.rrr-bulk-action-buttons button').addClass('disabled');
     var target = $(e.target);
     var data = $(e.target).data();
     $.ajax({
@@ -79,12 +85,14 @@ $(function() {
         'status': data.status
       },
       success: function() {
-        if (location.search.match('rrr_status_u_ssort')) {
-	  target.closest('tr').remove();
-	} else {
-          location.reload();
-	}
-        updateSelectedReadingroomRequests();
+          if (location.search.match('rrr_status_u_ssort')) {
+              target.closest('tr').remove();
+              $('.rrr-status-actions button').removeClass('disabled');
+              $('.rrr-bulk-action-buttons button').removeClass('disabled');
+              updateSelectedReadingroomRequests();
+          } else {
+              location.reload();
+	        }
       }
     })
   });
