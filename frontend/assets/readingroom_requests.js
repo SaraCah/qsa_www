@@ -55,6 +55,7 @@ $(function() {
   $('.rrr-bulk-action-buttons button').on('click', function(e) {
     $('.rrr-bulk-action-buttons button').addClass('disabled');
     $('.rrr-status-actions button').addClass('disabled');
+    $('input[name=selected-item]:checked').closest('tr').find('td').addClass('rrr-actioned-row');
     var data = $(e.target).data();
     $.ajax({
       url: APP_PATH + 'reading_room_requests/bulk_set_status',
@@ -76,6 +77,7 @@ $(function() {
     $('.rrr-status-actions button').addClass('disabled');
     $('.rrr-bulk-action-buttons button').addClass('disabled');
     var target = $(e.target);
+    target.closest('tr').find('td').addClass('rrr-actioned-row');
     var data = $(e.target).data();
     $.ajax({
       url: APP_PATH + 'reading_room_requests/bulk_set_status',
