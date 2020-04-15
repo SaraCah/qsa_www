@@ -94,9 +94,10 @@ class ReadingRoomRequest < Sequel::Model
           rep_parsed = JSONModel.parse_reference(self.item_uri)
 
           if rep_parsed && rep_parsed[:type] == 'physical_representation'
-            DB.open do |db|
-              db[:archival_object]
-                .filter(:id => db[:physical_representation].filter(:id => rep_parsed[:id]).select(:archival_object_id))
+            DB.open do |as_db|
+              archival_object_id = as_db[:physical_representation].filter(:id => rep_parsed[:id]).get(:archival_object_id)
+              as_db[:archival_object]
+                .filter(:id => archival_object_id)
                 .update(:system_mtime => Time.now)
             end
           end
