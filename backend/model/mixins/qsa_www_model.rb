@@ -15,6 +15,10 @@ module QSAWWWModel
       qsa_www_model_clz = self
 
       PublicDB.connected_hook do
+        if PublicDB.pool.nil?
+          raise "DATABASE ERROR: Could not connect to Public database"
+        end
+
         qsa_www_model_clz.set_dataset(PublicDB.pool[table_sym])
       end
     end
