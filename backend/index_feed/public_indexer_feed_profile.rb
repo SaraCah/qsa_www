@@ -40,6 +40,8 @@ class PublicIndexerFeedProfile < IndexerFeedProfile
       return true if !repository_published?(sequel_record.repo_id)
     end
 
+    return true if !!jsonmodel['deaccessioned']
+
     mapped_record.empty?
   end
 
