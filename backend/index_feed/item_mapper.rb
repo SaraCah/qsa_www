@@ -147,13 +147,15 @@ class ItemMapper < AbstractMapper
     end
 
     if whitelisted['agent_relationships'].none? {|r| r['jsonmodel_type'] == 'series_system_agent_record_creation_by_agent_relationship'}
-      whitelisted['agent_relationships'].unshift({
-        'jsonmodel_type' => 'series_system_agent_record_creation_by_agent_relationship',
-        'relationship_target_record_type' => 'agent_corporate_entity',
-        'ref' => json.creating_agency[0]['ref'],
-        'relator' => 'created_by',
-        'start_date' => json.creating_agency[0]['start_date'],
-      })
+      json.creating_agency.each do |creating_agency|
+        whitelisted['agent_relationships'].unshift({
+          'jsonmodel_type' => 'series_system_agent_record_creation_by_agent_relationship',
+          'relationship_target_record_type' => 'agent_corporate_entity',
+          'ref' => creating_agency['ref'],
+          'relator' => 'created_by',
+          'start_date' => creating_agency['start_date'],
+        })  
+      end       
     end
 
     whitelisted['item_relationships'] = parse_series_system_rlshps(json.series_system_item_relationships)
