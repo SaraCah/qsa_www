@@ -154,6 +154,7 @@ class ItemMapper < AbstractMapper
           'ref' => creating_agency['ref'],
           'relator' => 'created_by',
           'start_date' => creating_agency['start_date'],
+          'end_date' => creating_agency['end_date']
         })  
       end       
     end
